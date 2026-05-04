@@ -4,13 +4,16 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
+    "composite": true,
     "types": [
       "node"
     ]
   },
   "include": [
-    "src/**/*.ts"
-  ],
+  "src/**/*.ts",
+  "packages/annot-angular/src/**/*.ts",
+  "packages/annot-core/src/**/*.ts"
+],
   "exclude": [
     "src/**/*.spec.ts"
   ]

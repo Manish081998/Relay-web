@@ -1,0 +1,257 @@
+// ─── Host ─────────────────────────────────────────────────────────────────────
+
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #1c1c1e;
+}
+
+.av-host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  background: #1c1c1e;
+}
+
+// ─── Toolbar ─────────────────────────────────────────────────────────────────
+
+.av-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #fff;
+  border-bottom: 1px solid #d1d1d6;
+  flex-shrink: 0;
+  min-height: 42px;
+}
+
+.av-style-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #f9f9fb;
+  border-bottom: 1px solid #e5e5ea;
+  flex-shrink: 0;
+}
+
+.av-separator {
+  width: 1px;
+  height: 20px;
+  background: #d1d1d6;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.av-tool-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+// ─── Buttons ──────────────────────────────────────────────────────────────────
+
+.av-btn {
+  padding: 4px 10px;
+  border: 1px solid #c7c7cc;
+  border-radius: 6px;
+  background: #f2f2f7;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+  line-height: 1.4;
+  transition: background 0.1s;
+  color: #1c1c1e;
+
+  &:hover:not(:disabled) { background: #e5e5ea; }
+  &:disabled { opacity: 0.4; cursor: default; }
+
+  &.av-active {
+    background: #007aff;
+    border-color: #006eeb;
+    color: #fff;
+  }
+
+  &.av-btn-primary {
+    background: #007aff;
+    border-color: #006eeb;
+    color: #fff;
+    &:hover:not(:disabled) { background: #006eeb; }
+  }
+
+  &.av-btn-save {
+    background: #34c759;
+    border-color: #28a745;
+    color: #fff;
+    font-weight: 600;
+    &:hover:not(:disabled) { background: #28a745; }
+    &:disabled { background: #f2f2f7; border-color: #c7c7cc; color: #1c1c1e; }
+  }
+
+  &.av-btn-danger {
+    &:hover:not(:disabled) { background: #ff3b30; color: #fff; border-color: #ff3b30; }
+  }
+}
+
+.av-width-btn { min-width: 32px; text-align: center; }
+.av-zoom-lbl  { font-size: 12px; font-weight: 500; min-width: 40px; text-align: center; }
+.av-count     { margin-left: 6px; color: #636366; font-size: 11px; }
+.av-saved-ok  { margin-left: 6px; color: #34c759; font-weight: 600; font-size: 12px; }
+.av-style-label { font-size: 11px; color: #636366; white-space: nowrap; }
+
+// ─── Swatches ─────────────────────────────────────────────────────────────────
+
+.av-swatches {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.av-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s;
+  flex-shrink: 0;
+
+  &:hover { transform: scale(1.15); }
+  &.av-swatch-active { border-color: #1c1c1e; transform: scale(1.15); }
+}
+
+.av-swatch-custom {
+  background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 18px;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 0 2px rgba(0,0,0,0.8);
+
+  input[type="color"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+// ─── Scroll area ─────────────────────────────────────────────────────────────
+
+.av-scroll-area {
+  flex: 1;
+  overflow: auto;
+  background: #3a3a3c;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+}
+
+// ─── PDF viewer ──────────────────────────────────────────────────────────────
+
+.av-zoom-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+.av-pdf-inner {
+  position: relative;
+}
+
+.av-pdf-canvas {
+  display: block;
+}
+
+.av-annot-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+
+// .av-pdf-inner {
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+//   transform-origin: top left;
+//   background: #fff;
+// }
+
+.av-pdf-iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+// ─── Image viewer ─────────────────────────────────────────────────────────────
+
+.av-img-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+
+  img {
+    display: block;
+    user-select: none;
+  }
+}
+
+// ─── Email viewer ─────────────────────────────────────────────────────────────
+
+.av-email-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  background: #fff;
+}
+
+.av-email-iframe {
+  display: block;
+  border: none;
+  transform-origin: top left;
+}
+
+// ─── Annotation overlay ───────────────────────────────────────────────────────
+
+.av-annot-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+// ─── Empty state ──────────────────────────────────────────────────────────────
+
+.av-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #aeaeb2;
+  text-align: center;
+  padding: 40px;
+  margin: auto;
+
+  .av-empty-icon { font-size: 56px; line-height: 1; }
+
+  h2 { font-size: 20px; font-weight: 600; color: #e5e5ea; }
+  p  { font-size: 13px; color: #8e8e93; max-width: 340px; line-height: 1.6;
+       strong { color: #aeaeb2; } }
+
+  .av-open-btn { margin-top: 8px; padding: 10px 24px; font-size: 14px; }
+}

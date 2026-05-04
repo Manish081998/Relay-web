@@ -1,0 +1,409 @@
+@use '../../../styles/theme' as t;
+
+// ── Base ──────────────────────────────────────────────────────────────────────
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+  min-height: 100vh;
+  background: t.$color-primary;
+  border-right: 1px solid t.$color-primary-dark;
+  flex-shrink: 0;
+  transition: width t.$transition-slow;
+}
+
+// ── Brand ─────────────────────────────────────────────────────────────────────
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: t.$space-3;
+  padding: t.$space-5 t.$space-4 t.$space-4;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: t.$radius-md;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  flex: 1;
+  font-family: t.$font-serif;
+  font-size: t.$font-size-sm;
+  font-weight: t.$font-weight-semibold;
+  color: #fff;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: t.$radius-md;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background t.$transition-fast, color t.$transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+  }
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: t.$space-3;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  font-size: t.$font-size-xs;
+  font-weight: t.$font-weight-semibold;
+  color: rgba(255, 255, 255, 0.38);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: t.$space-4 t.$space-2 t.$space-1;
+  margin: 0;
+}
+
+// ── Standalone links ──────────────────────────────────────────────────────────
+
+.nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: t.$space-3;
+  padding: t.$space-2 t.$space-3;
+  border-radius: t.$radius-md;
+  color: rgba(255, 255, 255, 0.72);
+  text-decoration: none;
+  font-size: t.$font-size-sm;
+  font-weight: t.$font-weight-normal;
+  transition: background t.$transition-fast, color t.$transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  &--active {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    font-weight: t.$font-weight-medium;
+  }
+}
+
+// ── Module groups ─────────────────────────────────────────────────────────────
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-group-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: t.$space-3;
+  padding: t.$space-2 t.$space-3;
+  border-radius: t.$radius-md;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: t.$font-size-sm;
+  font-weight: t.$font-weight-normal;
+  font-family: inherit;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background t.$transition-fast, color t.$transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  &--open {
+    color: #fff;
+
+    .nav-chevron {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.nav-group-label {
+  flex: 1;
+}
+
+.nav-chevron {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.45);
+  transition: transform t.$transition-base;
+}
+
+.nav-group-children {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows t.$transition-base;
+
+  &--open {
+    grid-template-rows: 1fr;
+  }
+}
+
+.nav-group-children-inner {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: t.$space-1 0 t.$space-1 t.$space-5;
+}
+
+.nav-child {
+  display: flex;
+  align-items: center;
+  gap: t.$space-3;
+  padding: t.$space-2 t.$space-3;
+  border-radius: t.$radius-md;
+  color: rgba(255, 255, 255, 0.62);
+  text-decoration: none;
+  font-size: t.$font-size-sm;
+  position: relative;
+  transition: background t.$transition-fast, color t.$transition-fast;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.28);
+    transition: background t.$transition-fast;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+
+  &--active {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    font-weight: t.$font-weight-medium;
+
+    &::before {
+      background: rgba(255, 255, 255, 0.75);
+    }
+  }
+}
+
+// ── Shared icon ───────────────────────────────────────────────────────────────
+
+.nav-icon {
+  flex-shrink: 0;
+}
+
+// ── Dividers ──────────────────────────────────────────────────────────────────
+
+// Between admin section and module section
+.nav-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: t.$space-2 0;
+}
+
+// Between collapsed module groups
+.nav-group-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: t.$space-1 t.$space-2;
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: t.$space-3;
+  padding: t.$space-4;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.user-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: t.$radius-full;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: t.$font-size-xs;
+  font-weight: t.$font-weight-semibold;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.user-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: t.$font-size-sm;
+  font-weight: t.$font-weight-medium;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: t.$font-size-xs;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.logout-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: t.$radius-md;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background t.$transition-fast, color t.$transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+}
+
+// ── Collapsed mode ────────────────────────────────────────────────────────────
+
+.sidebar--collapsed {
+  width: 64px;
+
+  // Stack brand-icon and toggle vertically in the narrow space
+  .sidebar-brand {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: t.$space-4 0 t.$space-3;
+    gap: t.$space-2;
+  }
+
+  .sidebar-nav {
+    padding: t.$space-3 t.$space-2;
+    // overflow: visible on both axes — the CSS spec forbids overflow-x:visible
+    // when overflow-y is non-visible, so we set both here. Icon-only items are
+    // short enough that vertical overflow never occurs in collapsed mode.
+    overflow: visible;
+    align-items: center;
+  }
+
+  .nav-link,
+  .nav-group-trigger {
+    justify-content: center;
+    padding: t.$space-2;
+    width: 40px;
+  }
+
+  .sidebar-footer {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: t.$space-3 0;
+    gap: t.$space-2;
+  }
+
+  .logout-btn {
+    margin-left: 0;
+  }
+}
+
+// ── Tooltips (visible only in collapsed mode) ─────────────────────────────────
+//
+// Triggered by data-tooltip attribute set in template only when collapsed.
+// Uses ::before for the pointer arrow and ::after for the label box.
+
+.sidebar--collapsed {
+
+  .nav-link[data-tooltip],
+  .nav-group-trigger[data-tooltip],
+  .user-avatar[data-tooltip],
+  .logout-btn[data-tooltip] {
+    &:hover {
+      // Arrow pointer
+      &::before {
+        content: '';
+        position: absolute;
+        left: calc(100% + 6px);
+        top: 50%;
+        transform: translateY(-50%);
+        border: 5px solid transparent;
+        border-right-color: #1e293b;
+        pointer-events: none;
+        z-index: t.$z-tooltip;
+      }
+
+      // Label box
+      &::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: calc(100% + 16px);
+        top: 50%;
+        transform: translateY(-50%);
+        background: #1e293b;
+        color: #fff;
+        padding: t.$space-1 t.$space-3;
+        border-radius: t.$radius-md;
+        font-size: t.$font-size-xs;
+        font-weight: t.$font-weight-medium;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: t.$z-tooltip;
+        box-shadow: t.$shadow-md;
+        letter-spacing: 0.01em;
+      }
+    }
+  }
+}

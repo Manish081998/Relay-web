@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ng serve *)",
+      "mcp__ide__getDiagnostics",
+      "Bash(xargs grep *)",
+      "Bash(dotnet build *)",
+      "mcp__code-review-graph__list_repos_tool",
+      "mcp__code-review-graph__get_architecture_overview_tool",
+      "mcp__code-review-graph__list_communities_tool",
+      "Bash(npm install *)",
+      "Bash(node -e \"const p=require\\('./node_modules/primeng/package.json'\\); console.log\\(p.version\\)\")",
+      "Bash(node *)",
+      "Bash(npx ng *)",
+      "mcp__code-review-graph__semantic_search_nodes_tool",
+      "PowerShell(Rename-Item *)",
+      "PowerShell(Remove-Item *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\jgupt29\\\\Projects\\\\Project Relay ADO\\\\WEB\\\\src\" -Recurse -File -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(npx tsc *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\jgupt29\\\\Projects\\\\Project Relay ADO\\\\WEB\\\\src\\\\app\\\\features\\\\documentum\\\\pages\\\\annotation-detail\" -Recurse -File)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\jgupt29\\\\Projects\\\\ADTI Projects\\\\Claude\\\\Claude-DotNetCore\\\\AnnotationLibrary\" -Recurse -Force | Select-Object FullName, @{Name='Type';Expression={if\\($_.PSIsContainer\\){'Directory'}else{'File'}}} | ConvertTo-Json)",
+      "Bash(Get-ChildItem *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\jgupt29\\\\Projects\\\\ADTI Projects\\\\Claude\\\\Claude-DotNetCore\\\\AnnotationLibrary\" -Exclude node_modules -Recurse | Where-Object { $_.FullName -notmatch 'node_modules' } | Select-Object FullName | ConvertTo-Json)",
+      "PowerShell(tree \"C:\\\\Users\\\\jgupt29\\\\Projects\\\\ADTI Projects\\\\Claude\\\\Claude-DotNetCore\\\\AnnotationLibrary\" /F /I node_modules | Out-String -Width 300)",
+      "Bash(git stash *)",
+      "Bash(grep -v \"//.*alias\\\\|rewrite_bazel\")",
+      "PowerShell(cmd /c \"dir /AL C:\\\\Users\\\\jgupt29\\\\Projects\\\\Project` Relay` ADO\\\\WEB\\\\node_modules\\\\@adticorp 2>&1\")",
+      "PowerShell($path = \"C:\\\\Users\\\\jgupt29\\\\Projects\\\\Project Relay ADO\\\\WEB\\\\node_modules\\\\@adticorp\"; cmd /c \"dir /AL `\"$path`\"\")",
+      "PowerShell(ng build *)",
+      "PowerShell(Receive-Job *)",
+      "Bash(npm run *)",
+      "PowerShell(head *)",
+      "Bash(Select-Object FullName, Attributes)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "code-review-graph"
+  ]
+}

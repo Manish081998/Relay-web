@@ -1,1 +1,100 @@
-/* You can add global styles to this file, and also import other style files */
+@use './styles/theme' as t;
+
+@import url('https://api.fontshare.com/v2/css?f[]=zodiak@700,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+@import "primeicons/primeicons.css";
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: t.$color-bg-page;
+  color: t.$color-text-base;
+  font-family: t.$font-sans;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+// ── PrimeNG Toast overrides ───────────────────────────────────────────────────
+.p-toast {
+  .p-toast-message {
+    backdrop-filter: blur(12px);
+    border-radius: t.$radius-xl;
+    border-width: 1px;
+    border-style: solid;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+    .p-toast-message-content {
+      padding: 14px 16px;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .p-toast-message-icon {
+      font-size: 1.2rem;
+      width: 1.2rem;
+      height: 1.2rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .p-toast-summary {
+      font-size: t.$font-size-sm;
+      font-weight: t.$font-weight-semibold;
+      letter-spacing: 0.01em;
+    }
+
+    .p-toast-detail {
+      font-size: t.$font-size-sm;
+      opacity: 0.85;
+      margin-top: 2px;
+      line-height: t.$line-height-normal;
+    }
+
+    .p-toast-close-button {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: t.$radius-sm;
+      opacity: 0.6;
+      transition: opacity t.$transition-fast, background t.$transition-fast;
+      &:hover { opacity: 1; background: rgba(255, 255, 255, 0.1); }
+    }
+
+    // Success
+    &.p-toast-message-success {
+      background: t.$color-success-bg;
+      border-color: t.$color-success-border;
+      color: t.$color-success-text;
+      .p-toast-message-icon { color: t.$color-success; }
+      .p-toast-summary        { color: t.$color-success; }
+    }
+
+    // Error
+    &.p-toast-message-error {
+      background: t.$color-error-bg;
+      border-color: t.$color-error-border;
+      color: t.$color-error-text;
+      .p-toast-message-icon { color: t.$color-error; }
+      .p-toast-summary        { color: t.$color-error; }
+    }
+
+    // Warning
+    &.p-toast-message-warn {
+      background: t.$color-warning-bg;
+      border-color: t.$color-warning-border;
+      color: t.$color-warning-text;
+      .p-toast-message-icon { color: t.$color-warning; }
+      .p-toast-summary        { color: t.$color-warning; }
+    }
+
+    // Info / default (purple accent)
+    &.p-toast-message-info {
+      background: t.$color-info-bg;
+      border-color: t.$color-info-border;
+      color: t.$color-info-text;
+      .p-toast-message-icon { color: t.$color-info; }
+      .p-toast-summary        { color: t.$color-info; }
+    }
+  }
+}

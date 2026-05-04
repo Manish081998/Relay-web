@@ -1,13 +1,16 @@
 {
-  "name": "relay-code-gen",
-  "version": "0.0.0",
+  "name": "relay-web",
+  "version": "1.1.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:uat": "ng serve --configuration uat",
     "build": "ng build",
+    "build:uat": "ng build --configuration uat",
+    "build:prod": "ng build --configuration production",
+    "build:development": "ng build --configuration development",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve:ssr:relay-code-gen": "node dist/relay-code-gen/server/server.mjs"
+    "test": "ng test"
   },
   "prettier": {
     "printWidth": 100,
@@ -23,6 +26,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^21.2.10",
     "@angular/common": "^20.2.0",
     "@angular/compiler": "^20.2.0",
     "@angular/core": "^20.2.0",
@@ -31,7 +35,12 @@
     "@angular/platform-server": "^20.2.0",
     "@angular/router": "^20.2.0",
     "@angular/ssr": "^20.2.0",
+    "@primeng/themes": "^21.0.4",
     "express": "^5.1.0",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^5.7.284",
+    "primeicons": "^7.0.0",
+    "primeng": "^21.1.6",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

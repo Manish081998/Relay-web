@@ -1,0 +1,146 @@
+<!-- toolbar.component.html -->
+<div class="annot-toolbar" role="toolbar" aria-label="Annotation tools">
+
+  <!-- ── File actions ─────────────────────────────────────────────────── -->
+  <div class="toolbar-group">
+    <button class="toolbar-btn" title="Import annotations (JSON)" (click)="import.emit()">
+      <span class="icon">📂</span>
+      <span class="label">Open</span>
+    </button>
+    <button class="toolbar-btn" title="Save annotations (Ctrl+S)" (click)="save.emit()">
+      <span class="icon">💾</span>
+      <span class="label">Save</span>
+    </button>
+    <button class="toolbar-btn" title="Download annotations as JSON" (click)="download.emit()">
+      <span class="icon">⬇</span>
+      <span class="label">Download</span>
+    </button>
+  </div>
+
+  <div class="toolbar-separator"></div>
+
+  <!-- ── Undo / Redo ──────────────────────────────────────────────────── -->
+  <div class="toolbar-group">
+    <button
+      class="toolbar-btn"
+      title="Undo (Ctrl+Z)"
+      [disabled]="!canUndo"
+      (click)="undo.emit()">
+      <span class="icon">↩</span>
+    </button>
+    <button
+      class="toolbar-btn"
+      title="Redo (Ctrl+Y)"
+      [disabled]="!canRedo"
+      (click)="redo.emit()">
+      <span class="icon">↪</span>
+    </button>
+  </div>
+
+  <div class="toolbar-separator"></div>
+
+  <!-- ── Tools ────────────────────────────────────────────────────────── -->
+  <div class="toolbar-group tools-group" role="radiogroup" aria-label="Annotation tools">
+    <button
+      *ngFor="let tool of tools"
+      class="toolbar-btn tool-btn"
+      role="radio"
+      [attr.aria-checked]="activeToolId === tool.id"
+      [class.active]="activeToolId === tool.id"
+      [title]="tool.label + ' (' + tool.shortcut + ')'"
+      (click)="selectTool(tool.id)">
+      <span class="icon">{{ tool.icon }}</span>
+      <span class="label">{{ tool.label }}</span>
+    </button>
+  </div>
+
+  <div class="toolbar-separator"></div>
+
+  <!-- ── Colour & Style ───────────────────────────────────────────────── -->
+  <div class="toolbar-group style-group">
+
+    <!-- Colour swatch / picker trigger -->
+    <div class="colour-picker-wrapper">
+      <button
+        class="toolbar-btn colour-btn"
+        title="Stroke colour"
+        (click)="toggleColourPicker()">
+        <span
+          class="colour-swatch"
+          [style.background]="activeStyle.strokeColor">
+        </span>
+        <span class="label">Colour</span>
+      </button>
+
+      <!-- Colour dropdown -->
+      <div class="colour-picker-dropdown" *ngIf="colourPickerOpen()">
+        <div class="colour-grid">
+          <button
+            *ngFor="let c of presetColours"
+            class="colour-option"
+            [style.background]="c"
+            [title]="c"
+            (click)="setColour(c)">
+          </button>
+        </div>
+        <label class="custom-colour-label">
+          Custom
+          <input
+            type="color"
+            [value]="activeStyle.strokeColor"
+            (change)="setColour($any($event.target).value)">
+        </label>
+      </div>
+    </div>
+
+    <!-- Stroke width -->
+    <div class="stroke-width-group">
+      <label class="toolbar-label">Width</label>
+      <select
+        class="toolbar-select"
+        [value]="activeStyle.strokeWidth"
+        (change)="setStrokeWidth(+$any($event.target).value)">
+        <option *ngFor="let w of strokeWidthOptions" [value]="w">{{ w }}px</option>
+      </select>
+    </div>
+
+    <!-- Opacity -->
+    <div class="opacity-group">
+      <label class="toolbar-label">Opacity</label>
+      <input
+        type="range"
+        class="opacity-slider"
+        min="10" max="100" step="5"
+        [value]="opacityPercent"
+        (input)="setOpacity(+$any($event.target).value)"
+        title="Opacity">
+      <span class="opacity-value">{{ opacityPercent }}%</span>
+    </div>
+
+  </div>
+
+  <div class="toolbar-separator"></div>
+
+  <!-- ── Selection actions ─────────────────────────────────────────────── -->
+  <div class="toolbar-group">
+    <button
+      class="toolbar-btn danger-btn"
+      title="Delete selected (Del)"
+      [disabled]="!hasSelection"
+      (click)="deleteSelected.emit()">
+      <span class="icon">🗑</span>
+      <span class="label">Delete</span>
+    </button>
+  </div>
+
+  <!-- ── Spacer + Panel toggle ─────────────────────────────────────────── -->
+  <div class="toolbar-spacer"></div>
+
+  <div class="toolbar-group">
+    <button class="toolbar-btn" title="Toggle annotations panel" (click)="togglePanel.emit()">
+      <span class="icon">☰</span>
+      <span class="label">Annotations</span>
+    </button>
+  </div>
+
+</div>

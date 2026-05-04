@@ -1,0 +1,215 @@
+@use '../../../styles/theme' as t;
+
+// ── Wrapper (sticky shell for header + env banner) ─────────────────────────────
+
+.header-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: t.$z-sticky;
+  flex-shrink: 0;
+}
+
+// ── Header bar ────────────────────────────────────────────────────────────────
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 t.$space-8;
+  background: t.$color-primary;
+  border-bottom: 1px solid t.$color-primary-dark;
+}
+
+// ── Environment banner (inline pill inside the header bar) ───────────────────
+
+.env-banner {
+  display: flex;
+  align-items: center;
+  gap: t.$space-2;
+  padding: 0.3rem t.$space-4;
+  border-radius: t.$radius-md;
+  background: linear-gradient(90deg, #7f1d1d 0%, #dc2626 40%, #dc2626 60%, #7f1d1d 100%);
+  background-size: 300% 100%;
+  color: #fff;
+  font-family: t.$font-sans;
+  font-size: 0.685rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  white-space: nowrap;
+  animation: env-shimmer 6s linear infinite;
+
+  svg { flex-shrink: 0; opacity: 0.85; }
+}
+
+@keyframes env-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+// ── Left ──────────────────────────────────────────────────────────────────────
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-title-group {
+  display: flex;
+  align-items: center;
+  gap: t.$space-3;
+}
+
+.header-accent-bar {
+  display: block;
+  width: 3px;
+  height: 32px;
+  border-radius: t.$radius-full;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.35) 100%
+  );
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+.header-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  justify-content: center;
+}
+
+.header-section {
+  font-family: t.$font-sans;
+  font-size: t.$font-size-lg;
+  font-weight: t.$font-weight-semibold;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+.version-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: t.$font-sans;
+  font-size: 10px;
+  font-weight: t.$font-weight-medium;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  padding: 2px t.$space-2 2px 5px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: t.$radius-full;
+  width: fit-content;
+  transition: color t.$transition-fast, background t.$transition-fast;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.11);
+  }
+}
+
+.version-chip__dot {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: t.$color-success;
+  box-shadow: 0 0 5px t.$color-success;
+  flex-shrink: 0;
+}
+
+.version-chip__sep {
+  color: rgba(255, 255, 255, 0.25);
+  margin: 0 1px;
+}
+
+// ── Right ─────────────────────────────────────────────────────────────────────
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: t.$space-2;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: t.$radius-md;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: background t.$transition-fast, color t.$transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  &--danger:hover {
+    background: rgba(239, 68, 68, 0.18);
+    color: #fca5a5;
+  }
+}
+
+// ── User pill ─────────────────────────────────────────────────────────────────
+
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: t.$space-3;
+  padding: t.$space-1 t.$space-3 t.$space-1 t.$space-1;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: t.$radius-lg;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 t.$space-2;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: t.$radius-full;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: t.$font-size-xs;
+  font-weight: t.$font-weight-semibold;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.user-name {
+  font-size: t.$font-size-sm;
+  font-weight: t.$font-weight-medium;
+  color: #fff;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.user-role {
+  font-size: t.$font-size-xs;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}

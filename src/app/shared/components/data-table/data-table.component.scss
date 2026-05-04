@@ -1,0 +1,47 @@
+@use '../../../../styles/theme' as t;
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: t.$radius-lg;
+  border: 1px solid t.$color-border;
+  background: t.$color-bg-surface;
+  box-shadow: t.$shadow-sm;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  &__th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: t.$font-weight-semibold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: t.$color-text-subtle;
+    background: t.$color-bg-subtle;
+    border-bottom: 1px solid t.$color-border;
+  }
+
+  &__row {
+    cursor: pointer;
+    transition: background t.$transition-fast;
+
+    &:hover { background: t.$color-bg-subtle; }
+    & + & { border-top: 1px solid t.$color-border; }
+  }
+
+  &__td {
+    padding: 0.75rem 1rem;
+    font-size: t.$font-size-sm;
+    color: t.$color-text-base;
+  }
+
+  &__empty {
+    padding: 2rem;
+    text-align: center;
+    font-size: t.$font-size-sm;
+    color: t.$color-text-subtle;
+  }
+}

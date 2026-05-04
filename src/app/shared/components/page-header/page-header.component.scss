@@ -1,0 +1,20 @@
+@use '../../../../styles/theme' as t;
+
+.page-header {
+  margin-bottom: t.$space-8;
+
+  &__title {
+    font-family: t.$font-serif;
+    font-size: t.$font-size-2xl;
+    font-weight: t.$font-weight-bold;
+    color: t.$color-text-base;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.02em;
+  }
+
+  &__subtitle {
+    font-size: t.$font-size-sm;
+    color: t.$color-text-muted;
+    margin: 0;
+  }
+}

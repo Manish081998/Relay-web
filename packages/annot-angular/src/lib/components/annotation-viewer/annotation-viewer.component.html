@@ -1,0 +1,359 @@
+<!-- annotation-viewer.component.html -->
+<div class="av-host">
+  <!-- Hidden file input – accepts PDF, images, and .eml files -->
+  <input
+    #fileInput
+    type="file"
+    accept=".pdf,application/pdf,image/*,.eml,.msg"
+    style="display: none"
+    (change)="onFileInputChange($event)"
+  />
+
+  <!-- ── Main toolbar ────────────────────────────────────────────────────── -->
+  <div class="av-toolbar">
+    <!-- File + zoom actions -->
+    <div class="av-tool-group">
+      <button class="av-btn av-btn-primary" (click)="triggerFileOpen()" title="Open file">
+        📂 Open
+      </button>
+    </div>
+    <div class="av-separator"></div>
+
+    <div class="av-tool-group">
+      <button class="av-btn" (click)="setZoom(0.8)" title="Zoom out">−</button>
+      <span class="av-zoom-lbl">{{ zoomPct() }}%</span>
+      <button class="av-btn" (click)="setZoom(1.25)" title="Zoom in">+</button>
+      <button class="av-btn" (click)="resetZoom()" title="Fit to window">100%</button>
+    </div>
+    <div class="av-separator"></div>
+
+    <!-- History -->
+    <div class="av-tool-group">
+      <button class="av-btn" title="Undo (Ctrl+Z)" (click)="undo()" [disabled]="!canUndo()">
+        ↩
+      </button>
+      <button class="av-btn" title="Redo (Ctrl+Y)" (click)="redo()" [disabled]="!canRedo()">
+        ↪
+      </button>
+      <button
+        class="av-btn av-btn-danger"
+        title="Delete selected"
+        (click)="deleteSelected()"
+        [disabled]="!hasSelection()"
+      >
+        🗑
+      </button>
+    </div>
+    <div class="av-separator"></div>
+
+    <!-- Annotation tools -->
+    <div class="av-tool-group">
+      <button
+        class="av-btn"
+        [class.av-active]="activeToolId() === TOOL_IDS.SELECT"
+        title="Select (V)"
+        (click)="selectTool(TOOL_IDS.SELECT)"
+      >
+        ⬡ Select
+      </button>
+      <button
+        class="av-btn"
+        [class.av-active]="activeToolId() === TOOL_IDS.HIGHLIGHT"
+        title="Highlight (H)"
+        (click)="selectTool(TOOL_IDS.HIGHLIGHT)"
+      >
+        🟡 Highlight
+      </button>
+      <button
+        class="av-btn"
+        [class.av-active]="activeToolId() === TOOL_IDS.FREEHAND"
+        title="Draw (D)"
+        (click)="selectTool(TOOL_IDS.FREEHAND)"
+      >
+        ✏️ Draw
+      </button>
+      <button
+        class="av-btn"
+        [class.av-active]="activeToolId() === TOOL_IDS.TEXT"
+        title="Text (T)"
+        (click)="selectTool(TOOL_IDS.TEXT)"
+      >
+        T Text
+      </button>
+      <button
+        class="av-btn"
+        [class.av-active]="activeToolId() === TOOL_IDS.COMMENT"
+        title="Comment (C)"
+        (click)="selectTool(TOOL_IDS.COMMENT)"
+      >
+        💬 Comment
+      </button>
+      <button
+        class="av-btn"
+        [class.av-active]="activeToolId() === TOOL_IDS.RECTANGLE"
+        title="Rectangle (R)"
+        (click)="selectTool(TOOL_IDS.RECTANGLE)"
+      >
+        ▭ Rect
+      </button>
+      <button
+        class="av-btn"
+        [class.av-active]="activeToolId() === TOOL_IDS.ELLIPSE"
+        title="Ellipse (E)"
+        (click)="selectTool(TOOL_IDS.ELLIPSE)"
+      >
+        ⬭ Ellipse
+      </button>
+      <button
+        class="av-btn"
+        [class.av-active]="activeToolId() === TOOL_IDS.ARROW"
+        title="Arrow (A)"
+        (click)="selectTool(TOOL_IDS.ARROW)"
+      >
+        → Arrow
+      </button>
+      <button
+        class="av-btn"
+        [class.av-active]="activeToolId() === TOOL_IDS.LINE"
+        title="Line (L)"
+        (click)="selectTool(TOOL_IDS.LINE)"
+      >
+        — Line
+      </button>
+      <button
+        class="av-btn"
+        [class.av-active]="activeToolId() === TOOL_IDS.ERASER"
+        title="Eraser (X)"
+        (click)="selectTool(TOOL_IDS.ERASER)"
+      >
+        ⌫ Erase
+      </button>
+    </div>
+    <div class="av-separator"></div>
+
+    <!-- Save + status -->
+    <div class="av-tool-group">
+      <button
+        class="av-btn av-btn-save"
+        [disabled]="!contentType()"
+        (click)="saveAnnotated()"
+        title="Save annotated file"
+      >
+        💾 Save
+      </button>
+      <span class="av-count">{{ annotationCount() }} annotation(s)</span>
+      <span class="av-saved-ok" *ngIf="savedFeedback()">✅ Saved!</span>
+    </div>
+  </div>
+  <!-- /.av-toolbar -->
+
+  <!-- ── Style row ───────────────────────────────────────────────────────── -->
+  <div class="av-style-row" *ngIf="contentType() && showColorRow()">
+    <!-- Highlight colours -->
+    <ng-container *ngIf="activeToolId() === TOOL_IDS.HIGHLIGHT">
+      <span class="av-style-label">Colour:</span>
+      <div class="av-swatches">
+        <button
+          *ngFor="let hc of HIGHLIGHT_COLORS"
+          class="av-swatch"
+          [style.background]="hc.fill"
+          [class.av-swatch-active]="activeHlBase() === hc.base"
+          [style.border-color]="activeHlBase() === hc.base ? hc.base : 'transparent'"
+          (click)="setHighlightColor(hc.base, hc.fill)"
+        ></button>
+        <label class="av-swatch av-swatch-custom" title="Custom">
+          <input
+            type="color"
+            [value]="activeHlBase()"
+            (input)="onCustomHighlightColor($any($event.target).value)"
+          />+
+        </label>
+      </div>
+    </ng-container>
+
+    <!-- Stroke colours -->
+    <ng-container *ngIf="activeToolId() !== TOOL_IDS.HIGHLIGHT">
+      <span class="av-style-label">Colour:</span>
+      <div class="av-swatches">
+        <button
+          *ngFor="let c of STROKE_COLORS"
+          class="av-swatch"
+          [style.background]="c"
+          [class.av-swatch-active]="activeStroke() === c"
+          (click)="setStrokeColor(c)"
+        ></button>
+        <label class="av-swatch av-swatch-custom" title="Custom">
+          <input
+            type="color"
+            [value]="activeStroke()"
+            (input)="setStrokeColor($any($event.target).value)"
+          />+
+        </label>
+      </div>
+    </ng-container>
+
+    <!-- Width -->
+    <ng-container *ngIf="showWidthPicker()">
+      <div class="av-separator"></div>
+      <span class="av-style-label">Width:</span>
+      <div class="av-tool-group">
+        <button
+          *ngFor="let w of STROKE_WIDTHS"
+          class="av-btn av-width-btn"
+          [class.av-active]="activeWidth() === w"
+          (click)="setStrokeWidth(w)"
+        >
+          {{ w }}
+        </button>
+      </div>
+    </ng-container>
+  </div>
+  <!-- /.av-style-row -->
+
+  <!-- ── Content scroll area ─────────────────────────────────────────────── -->
+  <div class="av-scroll-area" #scrollArea>
+    <!-- ── PDF viewer ──────────────────────────────────────────────────── -->
+    <ng-container *ngIf="contentType() === 'pdf'">
+      <div
+        class="av-zoom-wrapper"
+        [style.width.px]="pageWidthPx()"
+        [style.height.px]="pageHeightPx()"
+      >
+        <!-- Iframe is kept at native PDF size; CSS scale zooms it visually -->
+        <!-- <div class="av-pdf-inner"
+             [style.width.px]="pdfPageWidth()"
+             [style.height.px]="pdfPageHeight() * pageCount()"
+             [style.transform]="'scale(' + zoom() + ')'"
+             [style.transform-origin]="'top left'">
+          <iframe *ngIf="pdfSafeUrl()"
+                  [src]="pdfSafeUrl()"
+                  class="av-pdf-iframe"
+                  title="PDF document">
+          </iframe>
+
+
+
+        </div> -->
+
+        <!-- <div
+          class="av-pdf-inner"
+          [style.width.px]="pageWidthPx()"
+          [style.height.px]="pageHeightPx()"
+        >
+          <embed
+            *ngIf="pdfSafeUrl()"
+            [src]="pdfSafeUrl()"
+            type="application/pdf"
+            class="av-pdf-iframe"
+          />
+        </div> -->
+
+        <div class="av-pdf-inner">
+          <canvas #pdfCanvas class="av-pdf-canvas"></canvas>
+        </div>
+
+        <company-annotator
+          #pdfAnnot
+          [adapter]="pdfAdapter"
+          [docId]="docId()"
+          [author]="author"
+          [showToolbar]="false"
+          [showPanel]="false"
+          [transparent]="true"
+          (annotationsChange)="onAnnotationsChange($event)"
+          class="av-annot-overlay"
+        >
+        </company-annotator>
+      </div>
+    </ng-container>
+
+    <!-- ── Image viewer ────────────────────────────────────────────────── -->
+    <ng-container *ngIf="contentType() === 'image'">
+      <div
+        class="av-img-wrapper"
+        [style.width.px]="imgNaturalW() * zoom()"
+        [style.height.px]="imgNaturalH() * zoom()"
+      >
+        <img
+          #imgEl
+          [src]="imgSafeUrl()"
+          [style.width.px]="imgNaturalW() * zoom()"
+          [style.height.px]="imgNaturalH() * zoom()"
+          (load)="onImageLoad()"
+          draggable="false"
+          alt="Document"
+        />
+
+        <company-annotator
+          #imgAnnot
+          [adapter]="imageAdapter"
+          [docId]="docId()"
+          [author]="author"
+          [showToolbar]="false"
+          [showPanel]="false"
+          [transparent]="true"
+          (annotationsChange)="onAnnotationsChange($event)"
+          class="av-annot-overlay"
+        >
+        </company-annotator>
+      </div>
+    </ng-container>
+
+    <!-- ── Email viewer ────────────────────────────────────────────────── -->
+    <ng-container *ngIf="contentType() === 'email'">
+      <div
+        class="av-email-wrapper"
+        [style.width.px]="emailW() * zoom()"
+        [style.height.px]="emailH() * zoom()"
+      >
+        <iframe
+          #emailFrame
+          class="av-email-iframe"
+          [srcdoc]="emailSrcdoc()"
+          [style.width.px]="emailW()"
+          [style.height.px]="emailH()"
+          [style.transform]="'scale(' + zoom() + ')'"
+          [style.transform-origin]="'top left'"
+          sandbox="allow-same-origin"
+          title="Email content"
+          (load)="onEmailLoad()"
+        >
+        </iframe>
+
+        <company-annotator
+          #emailAnnot
+          [adapter]="emailAdapter"
+          [docId]="docId()"
+          [author]="author"
+          [showToolbar]="false"
+          [showPanel]="false"
+          [transparent]="true"
+          (annotationsChange)="onAnnotationsChange($event)"
+          class="av-annot-overlay"
+        >
+        </company-annotator>
+      </div>
+    </ng-container>
+
+    <!-- ── Fetching state ────────────────────────────────────────────────── -->
+    <div *ngIf="fetching()" class="av-empty-state">
+      <div class="av-empty-icon">⏳</div>
+      <h2>Loading document…</h2>
+    </div>
+
+    <!-- ── Empty state ─────────────────────────────────────────────────── -->
+    <div *ngIf="!contentType() && !fetching()" class="av-empty-state">
+      <div class="av-empty-icon">📄</div>
+      <h2>Open a file to annotate</h2>
+      <p>
+        Supports <strong>PDF</strong>, <strong>Images</strong> (JPG, PNG, GIF, WebP, SVG), and
+        <strong>Email</strong> (.eml)
+      </p>
+      <button class="av-btn av-btn-primary av-open-btn" (click)="triggerFileOpen()">
+        📂 Open File
+      </button>
+    </div>
+  </div>
+  <!-- /.av-scroll-area -->
+</div>
+<!-- /.av-host -->

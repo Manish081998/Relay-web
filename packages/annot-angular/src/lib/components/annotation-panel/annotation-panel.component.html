@@ -1,0 +1,86 @@
+<!-- annotation-panel.component.html -->
+<div class="panel">
+
+  <!-- Header -->
+  <div class="panel-header">
+    <h3 class="panel-title">Annotations</h3>
+    <span class="panel-count">{{ filteredAnnotations.length }}</span>
+  </div>
+
+  <!-- Search -->
+  <div class="panel-search">
+    <input
+      class="search-input"
+      type="search"
+      placeholder="Filter annotations…"
+      [value]="filterText()"
+      (input)="onFilter($any($event.target).value)"
+      aria-label="Filter annotations">
+  </div>
+
+  <!-- List -->
+  <div class="panel-list" role="list">
+
+    <ng-container *ngIf="filteredAnnotations.length > 0; else emptyState">
+      <div
+        *ngFor="let a of filteredAnnotations; trackBy: trackById"
+        class="panel-item"
+        role="listitem"
+        [class.panel-item--selected]="isSelected(a)"
+        (click)="annotationClick.emit(a.id)"
+        tabindex="0"
+        (keydown.enter)="annotationClick.emit(a.id)"
+        [attr.aria-label]="a.type + ' annotation by ' + a.author">
+
+        <!-- Type icon + colour strip -->
+        <div class="item-icon" [style.background]="a.style.strokeColor">
+          {{ getTypeIcon(a.type) }}
+        </div>
+
+        <!-- Content -->
+        <div class="item-body">
+          <div class="item-header">
+            <span class="item-type">{{ a.type | titlecase }}</span>
+            <span class="item-page">p.{{ a.pageIndex + 1 }}</span>
+          </div>
+          <div class="item-author">{{ a.author }}</div>
+          <div class="item-text" *ngIf="getDisplayText(a)">
+            {{ getDisplayText(a) }}
+          </div>
+          <div class="item-date">{{ formatDate(a.updatedAt) }}</div>
+
+          <!-- Tags -->
+          <div class="item-tags" *ngIf="a.meta.tags?.length">
+            <span class="tag" *ngFor="let tag of a.meta.tags">{{ tag }}</span>
+          </div>
+
+          <!-- Status -->
+          <span
+            class="status-badge"
+            *ngIf="a.meta.status"
+            [class.status-resolved]="a.meta.status === 'resolved'"
+            [class.status-wontfix]="a.meta.status === 'wontfix'">
+            {{ a.meta.status }}
+          </span>
+        </div>
+
+        <!-- Delete button -->
+        <button
+          class="item-delete"
+          title="Delete annotation"
+          (click)="$event.stopPropagation(); annotationDelete.emit(a.id)">
+          ×
+        </button>
+
+      </div>
+    </ng-container>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <p>No annotations yet.</p>
+        <p class="hint">Select a drawing tool from the toolbar to start annotating.</p>
+      </div>
+    </ng-template>
+
+  </div>
+</div>

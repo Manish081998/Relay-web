@@ -1,0 +1,238 @@
+// ── Dark theme tokens (matches RelayPreset / #07070f base) ──────────────────
+$purple:       #a78bfa;
+$purple-dim:   rgba(167, 139, 250, 0.10);
+$purple-rim:   rgba(167, 139, 250, 0.18);
+$purple-glow:  rgba(167, 139, 250, 0.28);
+
+$surface:      #ffffff;
+$surface-hov:  #f5f7ff;
+$border:       #e5e7eb;
+
+$text-1:       #1a1a1a;
+$text-2:       #6b7280;
+$text-3:       #9ca3af;
+
+// ── Host ─────────────────────────────────────────────────────────────────────
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+// ── Page shell ───────────────────────────────────────────────────────────────
+.doc-page {
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 900px;
+}
+
+// ── Header card ──────────────────────────────────────────────────────────────
+.doc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 16px;
+  backdrop-filter: blur(16px);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: $purple-dim;
+  border: 1px solid $purple-rim;
+  color: $purple;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.doc-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: $text-1;
+  letter-spacing: -0.3px;
+}
+
+.doc-subtitle {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: $text-2;
+}
+
+// ── Table card ───────────────────────────────────────────────────────────────
+.table-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+}
+
+.table-card-header {
+  padding: 14px 22px;
+  border-bottom: 1px solid $border;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.table-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-1;
+}
+
+.table-count {
+  font-size: 11px;
+  color: $text-2;
+  background: #f4f4f5;
+  border: 1px solid $border;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+// ── Table ────────────────────────────────────────────────────────────────────
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead th {
+    padding: 11px 22px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $text-3;
+    background: #f9fafb;
+    border-bottom: 1px solid $border;
+    text-align: left;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid $border;
+    transition: background 0.15s ease;
+
+    &:last-child { border-bottom: none; }
+
+    &:hover { background: $surface-hov; }
+
+    td {
+      padding: 14px 22px;
+      font-size: 13px;
+      color: $text-2;
+      vertical-align: middle;
+    }
+  }
+}
+
+// ── Document name cell ───────────────────────────────────────────────────────
+.doc-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.doc-icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: $purple-dim;
+  border: 1px solid $purple-rim;
+  color: $purple;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.doc-name {
+  font-weight: 500;
+  color: $text-1;
+}
+
+// ── Actions column ───────────────────────────────────────────────────────────
+.col-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+// ── Header upload button ─────────────────────────────────────────────────────
+.btn-new-upload.p-button {
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 18px $purple-glow;
+    transform: translateY(-1px);
+  }
+
+  &:active { transform: translateY(0); }
+}
+
+// ── Action buttons ───────────────────────────────────────────────────────────
+.btn-view.p-button,
+.btn-upload.p-button {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+
+  .p-button-icon { font-size: 12px; }
+}
+
+.btn-view.p-button {
+  background: transparent !important;
+  border: 1px solid $border !important;
+  color: $text-2 !important;
+  margin-right: 8px;
+
+  &:hover {
+    border-color: $purple !important;
+    color: $purple !important;
+    background: $purple-dim !important;
+  }
+}
+
+.btn-upload.p-button {
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%) !important;
+  border: none !important;
+  color: #fff !important;
+
+  &:hover {
+    box-shadow: 0 4px 18px $purple-glow;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}

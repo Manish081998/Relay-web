@@ -1,0 +1,50 @@
+@use '../../../../styles/theme' as t;
+
+.error-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: t.$color-bg-page;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.error-code {
+  font-family: t.$font-serif;
+  font-size: 5rem;
+  font-weight: t.$font-weight-bold;
+  color: t.$color-error-bg;
+  line-height: 1;
+}
+
+.error-title {
+  font-size: t.$font-size-2xl;
+  font-weight: t.$font-weight-semibold;
+  color: t.$color-text-base;
+  margin: 0;
+}
+
+.error-desc {
+  color: t.$color-text-muted;
+  font-size: t.$font-size-base;
+  margin: 0;
+}
+
+.error-link {
+  margin-top: t.$space-2;
+  background: t.$color-primary-light;
+  border: 1px solid rgba(10, 74, 122, 0.25);
+  border-radius: t.$radius-md;
+  color: t.$color-primary;
+  padding: 0.5rem 1.25rem;
+  text-decoration: none;
+  font-size: t.$font-size-sm;
+  font-weight: t.$font-weight-medium;
+  transition: background t.$transition-fast;
+
+  &:hover {
+    background: rgba(10, 74, 122, 0.18);
+  }
+}
