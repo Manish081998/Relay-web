@@ -7,24 +7,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 src/
 ├── environments/                        # Per-target config (dev / uat / prod)
-│   ├── environment.ts
-│   ├── environment.uat.ts
-│   └── environment.prod.ts
 ├── styles/
-│   └── _theme.scss                      # RelayPreset — Aura base, purple primary #a78bfa
-├── styles.scss                          # Global styles + PrimeNG toast overrides
-├── index.html
-├── main.ts
-├── main.server.ts
-├── server.ts
+│   ├── _theme.scss                      # RelayPreset — Aura base, purple primary #a78bfa
+│   └── styles.scss                      # Global styles + PrimeNG toast overrides
+├── assets/
+│   └── documentum/                      # Sample PDFs and images for local dev
 └── app/
     ├── app.ts                           # Root component — mounts <p-toast> + <router-outlet>
-    ├── app.html
-    ├── app.scss
     ├── app.config.ts                    # provideRouter, provideHttpClient, providePrimeNG, MessageService
-    ├── app.config.server.ts
     ├── app.routes.ts                    # Top-level route tree
-    ├── app.routes.server.ts
     │
     ├── core/                            # Singleton infrastructure — never lazy-loaded
     │   ├── auth/
@@ -33,10 +24,10 @@ src/
     │   │   ├── auth.guard.ts            # Redirects unauthenticated users to /auth/login
     │   │   └── role.guard.ts            # roleGuard([Role.Admin, ...]) factory
     │   ├── interceptors/
+    │   │   ├── loading.interceptor.ts   # Drives UiStore ref-counted loading counter
     │   │   ├── auth.interceptor.ts      # Attaches Bearer token to every request
     │   │   ├── cache.interceptor.ts     # In-memory GET cache (X-Cache-TTL / X-Skip-Cache)
-    │   │   ├── error.interceptor.ts     # 401 logout, 403 redirect, toast for all others
-    │   │   └── loading.interceptor.ts   # Drives UiStore ref-counted loading counter
+    │   │   └── error.interceptor.ts     # 401 logout, 403 redirect, toast for all others
     │   ├── services/
     │   │   ├── api.service.ts           # HttpClient wrapper (get/post/put/patch/delete/upload/download)
     │   │   ├── notification.service.ts  # Delegates to PrimeNG MessageService
@@ -51,20 +42,19 @@ src/
     │
     ├── features/                        # Lazy-loaded feature modules
     │   ├── auth/
-    │   │   ├── auth.routes.ts
     │   │   └── login/                   # login.component — devLogin() shortcut
-    │   ├── dashboard/                   # → /dashboard (all authenticated)
-    │   │   └── dashboard.routes.ts
-    │   ├── documentum/                  # → /documents (Admin, Manager, User)
+    │   ├── documentum/                  # → /documentum (SuperAdmin, Admin, User)
     │   │   ├── documentum.routes.ts     # providers: [DocumentsService, AnnotationsService, DocumentsStore]
+    │   │   ├── components/
+    │   │   │   └── annotation-dialog/   # Inline annotation create/edit dialog
     │   │   ├── models/                  # document.model.ts, annotation.model.ts
     │   │   ├── services/                # documents.service.ts, annotations.service.ts
     │   │   ├── store/                   # documents.store.ts (signals)
     │   │   └── pages/
-    │   │       ├── document-list/
-    │   │       ├── document-detail/
-    │   │       └── annotation-detail/
-    │   ├── intranet/                    # → /users (Admin, Manager)
+    │   │       ├── search/              # Main document search page
+    │   │       ├── queue-search/        # Queue-based document search
+    │   │       └── test.annotation.component/  # Dev sandbox for annotation testing
+    │   ├── intranet/                    # → /intranet (SuperAdmin, Admin)
     │   │   ├── intranet.routes.ts       # providers: [UsersService, UsersStore]
     │   │   ├── models/                  # user-detail.model.ts
     │   │   ├── services/                # users.service.ts
@@ -72,24 +62,25 @@ src/
     │   │   └── pages/
     │   │       ├── user-list/
     │   │       └── user-detail/
-    │   ├── webtool/                     # → /selections (all authenticated)
+    │   ├── webtool/                     # → /webtool (all authenticated)
     │   │   ├── webtool.routes.ts        # providers: [SelectionsService, SelectionsStore]
     │   │   ├── models/                  # selection.model.ts
     │   │   ├── services/                # selections.service.ts
     │   │   ├── store/                   # selections.store.ts (signals)
     │   │   └── pages/
     │   │       └── selection-detail/
-    │   └── admin/                       # → /admin (Admin only)
-    │       └── admin.routes.ts
+    │   └── admin/                       # → /admin (SuperAdmin only)
+    │       └── admin.component.ts
     │
     ├── layout/
-    │   ├── shell/                       # Authenticated app chrome (sidebar + router-outlet)
+    │   ├── shell/                       # Authenticated app chrome (header + sidebar + router-outlet)
+    │   ├── header/                      # Top navigation bar
     │   └── sidebar/
-    │       ├── sidebar.component.ts
-    │       └── nav-config.ts            # Role-aware nav link definitions
+    │       ├── nav-config.ts            # Role-aware nav link definitions
+    │       └── nav-icons.ts             # SVG icon map for nav items
     │
     ├── models/                          # Shared app-wide types
-    │   ├── role.enum.ts                 # Role.Admin | Manager | User | Viewer
+    │   ├── role.enum.ts                 # Role.SuperAdmin | Admin | Manager | User | Viewer
     │   ├── user.model.ts                # AppUser interface
     │   ├── api-response.model.ts        # ApiResponse<T> wrapper shape
     │   └── pagination.model.ts
@@ -114,6 +105,52 @@ src/
     └── store/
         └── ui/
             └── ui.store.ts              # Global: sidebarCollapsed, isLoading (ref-counted)
+
+packages/                                # Internal monorepo libraries (path-aliased via tsconfig)
+├── annot-core/                          # @adticorp/annot-core — annotation data model, tools, command stack
+│   └── src/
+│       ├── model/                       # annotation.model.ts, schema.ts, migrations.ts
+│       ├── tools/                       # freehand, shape, text, comment, eraser, select tools
+│       ├── commands/                    # command-stack.ts (undo/redo)
+│       ├── store/                       # annotation-store.ts
+│       ├── geometry/                    # geometry.ts, hit-test.ts
+│       └── serialization/               # serializer.ts
+├── annot-renderer/                      # @adticorp/annot-renderer — canvas rendering engine
+│   └── src/
+│       ├── canvas/                      # canvas-renderer.ts, annotation-painters.ts, layer-manager.ts
+│       └── interaction/                 # pointer-handler.ts
+└── annot-angular/                       # @adticorp/annot-angular — Angular component wrappers
+    └── src/lib/
+        ├── components/                  # annotator, annotation-panel, annotation-viewer, toolbar
+        ├── services/                    # annotation-engine.service.ts, keyboard-handler.service.ts
+        ├── adapters/                    # pdf-viewport-adapter, image-viewport-adapter, email-viewport-adapter
+        └── utils/                       # content-detector, eml-parser, pdf-flattener, image-flattener
+```
+
+---
+
+## Commands
+
+```bash
+# Dev server (localhost:4200, API: localhost:7057)
+npm start
+
+# Dev server against UAT API
+npm run start:uat
+
+# Build
+npm run build:development
+npm run build:uat
+npm run build:prod
+
+# Tests (Karma + Jasmine, watch mode)
+npm test
+
+# Tests (single run)
+ng test --watch=false
+
+# Tests (with coverage)
+ng test --code-coverage
 ```
 
 ---
@@ -184,11 +221,11 @@ Three-layer structure defined in `src/app/app.routes.ts`:
 
 1. **Public** — `auth/**` (no guards)
 2. **Authenticated shell** — `''` path, `canActivate: [authGuard]`, loads `ShellComponent`; all feature routes are children
-3. **404** wildcard → `NotFoundComponent`
+3. **404** wildcard → `NotFoundComponent` (rendered inside the shell so header/sidebar remain visible)
 
 Route protection uses a `roleGuard` factory:
 ```typescript
-canActivate: [roleGuard([Role.Admin, Role.Manager])]
+canActivate: [roleGuard([Role.SuperAdmin, Role.Admin])]
 ```
 
 **Feature services and stores are provided at route level**, not root:
@@ -217,12 +254,12 @@ Route params bind directly to component inputs via `withComponentInputBinding()`
 | `getResponse / postResponse` | Full `HttpResponse<T>` (access status + headers) |
 | `head(url)` | Returns `HttpResponse<void>` |
 
-**Interceptor chain** (order matters): `authInterceptor` → `cacheInterceptor` → `errorInterceptor` → `loadingInterceptor`
+**Interceptor chain** (order matters): `loadingInterceptor` → `authInterceptor` → `cacheInterceptor` → `errorInterceptor`
 
+- **loading**: Drives `UiStore` ref-counted loading counter (`startLoading` / `stopLoading`) — wraps all others so every request increments the counter
 - **auth**: Reads JWT from `StorageService`, adds `Authorization: Bearer <token>` header
 - **cache**: In-memory GET cache. Custom TTL via `X-Cache-TTL: <ms>` request header. Bypass with `X-Skip-Cache: true`. Call `invalidateCache(url?)` to evict programmatically.
 - **error**: 401 → `auth.logout()` + session-expired toast; 403 → navigate to `/forbidden`; all others → `httpMessage(status)` toast
-- **loading**: Drives `UiStore` ref-counted loading counter (`startLoading` / `stopLoading`)
 
 ---
 
@@ -234,7 +271,7 @@ All user-facing messages live in `src/app/core/constants/notification-messages.t
 NM.AUTH.LOGIN_FAILED
 NM.DOCUMENTUM.DOCUMENT.LOAD_FAILED
 NM.INTRANET.USER.UPDATE_SUCCESS
-NM.WEBSELECT.SELECTION.NOT_FOUND
+NM.WEBTOOL.SELECTION.NOT_FOUND
 NM.GENERAL.UNEXPECTED
 NM.HTTP[404]          // ← numeric keys require bracket notation
 ```
@@ -266,13 +303,16 @@ Three features map 1:1 to the .NET API modules:
 
 | Route | Feature folder | API module | Roles |
 |-------|---------------|------------|-------|
-| `/documents` | `features/documentum` | Documentum | Admin, Manager, User |
-| `/users` | `features/intranet` | Intranet | Admin, Manager |
-| `/selections` | `features/webtool` | WebTool | all authenticated |
+| `/documentum` | `features/documentum` | Documentum | SuperAdmin, Admin, User |
+| `/intranet` | `features/intranet` | Intranet | SuperAdmin, Admin |
+| `/webtool` | `features/webtool` | WebTool | all authenticated |
+| `/admin` | `features/admin` | — | SuperAdmin only |
 
 Each feature has: `models/`, `services/`, `store/`, `pages/`, `{feature}.routes.ts`.
 
 API base URL is per-environment in `src/environments/`. Endpoint paths are in `src/app/core/constants/api-endpoints.constants.ts`.
+
+Roles enum (`src/app/models/role.enum.ts`): `Role.SuperAdmin | Admin | Manager | User | Viewer`
 
 ---
 
@@ -283,6 +323,39 @@ API base URL is per-environment in `src/environments/`. Endpoint paths are in `s
 - **Components**: `PageHeaderComponent`, `LoadingSpinnerComponent`, `EmptyStateComponent`, `StatusBadgeComponent`, `DataTableComponent`
 - **Directives**: `HasRoleDirective` (`*hasRole="[Role.Admin]"`), `ClickOutsideDirective`
 - **Pipes**: `TruncatePipe`, `InitialsPipe`
+
+---
+
+## Internal Packages
+
+The `packages/` directory contains internal monorepo libraries referenced via TypeScript path aliases:
+
+| Alias | Package | Purpose |
+|-------|---------|---------|
+| `@adticorp/annot-core` | `packages/annot-core` | Core annotation data types and logic |
+| `@adticorp/annot-renderer` | `packages/annot-renderer` | PDF annotation rendering |
+| `@adticorp/annot-angular` | `packages/annot-angular` | Angular bindings for annotation components |
+
+Import these via their alias (e.g. `import { ... } from '@adticorp/annot-core'`), not by relative path.
+
+---
+
+## Testing
+
+Framework: **Karma + Jasmine**. Always include `provideZonelessChangeDetection()` in the test providers — omitting it causes change detection mismatches in the zoneless app.
+
+```typescript
+describe('FooComponent', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FooComponent],
+      providers: [provideZonelessChangeDetection()]
+    }).compileComponents();
+  });
+});
+```
+
+For components that depend on feature-scoped stores or services, provide them explicitly in the test `providers` array (not `providedIn: 'root'`).
 
 ---
 
