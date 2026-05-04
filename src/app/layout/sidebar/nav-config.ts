@@ -30,6 +30,12 @@ export const DASHBOARD_NAV: NavStandaloneItem = {
 
 export const NAV_GROUPS: NavGroup[] = [
   {
+    label: 'Intranet',
+    icon: NAV_ICONS.intranet,
+    roles: [Role.SuperAdmin, Role.Admin, Role.User],
+    children: [{ label: 'Users', route: '/intranet/users', icon: NAV_ICONS.users }],
+  },
+  {
     label: 'Documentum',
     icon: NAV_ICONS.documentum,
     roles: [Role.SuperAdmin, Role.Admin, Role.User],
@@ -38,18 +44,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Queue Search', route: '/documentum/queue-search', icon: NAV_ICONS.queue },
       { label: 'Annotation', route: '/documentum/test-annotation', icon: NAV_ICONS.annotation },
     ],
-  },
-  {
-    label: 'Intranet',
-    icon: NAV_ICONS.intranet,
-    roles: [Role.SuperAdmin, Role.Admin, Role.User],
-    children: [{ label: 'Users', route: '/intranet/users', icon: NAV_ICONS.users }],
-  },
-  {
-    label: 'WebTool',
-    icon: NAV_ICONS.webtool,
-    roles: 'all',
-    children: [{ label: 'Selections', route: '/webtool/selections', icon: NAV_ICONS.selections }],
   },
 ];
 

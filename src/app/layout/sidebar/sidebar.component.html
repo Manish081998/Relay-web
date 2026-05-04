@@ -122,32 +122,5 @@
 
   </nav>
 
-  <!-- Footer: user identity + logout -->
-  <div class="sidebar-footer">
-    @if (user(); as u) {
-      <div class="user-avatar"
-           [attr.aria-label]="u.displayName"
-           [attr.data-tooltip]="collapsed() ? u.displayName : null">
-        {{ u.displayName | initials }}
-      </div>
-      @if (!collapsed()) {
-        <div class="user-meta">
-          <span class="user-name">{{ u.displayName }}</span>
-          <span class="user-role">{{ u.roles[0] }}</span>
-        </div>
-      }
-    }
-    <button class="logout-btn"
-            (click)="auth.logout()"
-            aria-label="Log out"
-            type="button"
-            [attr.data-tooltip]="collapsed() ? 'Log out' : null">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-           aria-hidden="true">
-        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
-      </svg>
-    </button>
-  </div>
 
 </aside>

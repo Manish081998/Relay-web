@@ -1,12 +1,20 @@
 @use '../../../styles/theme' as t;
 
-// ── Wrapper (sticky shell for header + env banner) ─────────────────────────────
+// ── Wrapper (sticky + pinstripe accent at very top) ───────────────────────────
 
 .header-wrapper {
   position: sticky;
   top: 0;
   z-index: t.$z-sticky;
   flex-shrink: 0;
+
+  // 3px gradient pinstripe — design accent bar
+  &::before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: linear-gradient(90deg, #1a5fb4 0%, #3f7ec9 60%, #6ea0db 100%);
+  }
 }
 
 // ── Header bar ────────────────────────────────────────────────────────────────
@@ -15,13 +23,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 60px;
+  height: 56px;
   padding: 0 t.$space-8;
-  background: t.$color-primary;
-  border-bottom: 1px solid t.$color-primary-dark;
+  background: linear-gradient(180deg, #1c3a66 0%, #15294a 100%);
+  border-bottom: 1px solid #0b1a31;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
 }
 
-// ── Environment banner (inline pill inside the header bar) ───────────────────
+// ── Environment banner ────────────────────────────────────────────────────────
 
 .env-banner {
   display: flex;
@@ -65,15 +74,10 @@
 .header-accent-bar {
   display: block;
   width: 3px;
-  height: 32px;
+  height: 28px;
   border-radius: t.$radius-full;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(255, 255, 255, 0.35) 100%
-  );
+  background: linear-gradient(180deg, #6ea0db 0%, rgba(110, 160, 219, 0.3) 100%);
   flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
 .header-title-stack {
@@ -91,7 +95,6 @@
   margin: 0;
   letter-spacing: 0.01em;
   line-height: 1.2;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
 }
 
 .version-chip {
@@ -101,19 +104,19 @@
   font-family: t.$font-sans;
   font-size: 10px;
   font-weight: t.$font-weight-medium;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.45);
   letter-spacing: 0.04em;
   line-height: 1;
   padding: 2px t.$space-2 2px 5px;
   background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: t.$radius-full;
   width: fit-content;
   transition: color t.$transition-fast, background t.$transition-fast;
 
   &:hover {
-    color: rgba(255, 255, 255, 0.75);
-    background: rgba(255, 255, 255, 0.11);
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.12);
   }
 }
 
@@ -128,7 +131,7 @@
 }
 
 .version-chip__sep {
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.22);
   margin: 0 1px;
 }
 
@@ -144,12 +147,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: t.$radius-md;
   border: none;
   background: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.55);
   cursor: pointer;
   transition: background t.$transition-fast, color t.$transition-fast;
 
@@ -171,9 +174,9 @@
   align-items: center;
   gap: t.$space-3;
   padding: t.$space-1 t.$space-3 t.$space-1 t.$space-1;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: t.$radius-lg;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   margin: 0 t.$space-2;
 }
 
@@ -181,10 +184,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: t.$radius-full;
-  background: rgba(255, 255, 255, 0.22);
+  background: #1a5fb4;
   color: #fff;
   font-size: t.$font-size-xs;
   font-weight: t.$font-weight-semibold;
@@ -208,7 +211,7 @@
 
 .user-role {
   font-size: t.$font-size-xs;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(207, 224, 245, 0.55);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   line-height: 1.2;

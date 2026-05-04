@@ -1,5 +1,15 @@
 @use '../../../styles/theme' as t;
 
+// Design-system colors (enterprise blue — from design handoff)
+$nav-bg:             #1c3a66;
+$nav-border:         #0b1a31;
+$nav-text:           #cfe0f5;
+$nav-text-dim:       rgba(207, 224, 245, 0.65);
+$nav-active-accent:  #6ea0db;
+$nav-active-bg-from: rgba(26, 95, 180, 0.55);
+$nav-active-bg-to:   rgba(26, 95, 180, 0.15);
+$nav-hover-bg:       rgba(255, 255, 255, 0.06);
+
 // ── Base ──────────────────────────────────────────────────────────────────────
 
 .sidebar {
@@ -7,8 +17,8 @@
   flex-direction: column;
   width: 240px;
   min-height: 100vh;
-  background: t.$color-primary;
-  border-right: 1px solid t.$color-primary-dark;
+  background: $nav-bg;
+  border-right: 1px solid $nav-border;
   flex-shrink: 0;
   transition: width t.$transition-slow;
 }
@@ -20,7 +30,7 @@
   align-items: center;
   gap: t.$space-3;
   padding: t.$space-5 t.$space-4 t.$space-4;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
 }
 
@@ -31,14 +41,14 @@
   width: 32px;
   height: 32px;
   border-radius: t.$radius-md;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(110, 160, 219, 0.25);
   color: #fff;
   flex-shrink: 0;
 }
 
 .brand-name {
   flex: 1;
-  font-family: t.$font-serif;
+  font-family: t.$font-sans;
   font-size: t.$font-size-sm;
   font-weight: t.$font-weight-semibold;
   color: #fff;
@@ -55,14 +65,14 @@
   height: 28px;
   border-radius: t.$radius-md;
   border: none;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.06);
+  color: $nav-text-dim;
   cursor: pointer;
   flex-shrink: 0;
   transition: background t.$transition-fast, color t.$transition-fast;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.14);
     color: #fff;
   }
 }
@@ -73,18 +83,18 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: t.$space-3;
-  gap: 2px;
+  padding: t.$space-3 0;
+  gap: 1px;
   overflow-y: auto;
 }
 
 .nav-section-label {
-  font-size: t.$font-size-xs;
+  font-size: 11px;
   font-weight: t.$font-weight-semibold;
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(255, 255, 255, 0.35);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: t.$space-4 t.$space-2 t.$space-1;
+  padding: t.$space-4 t.$space-4 t.$space-1;
   margin: 0;
 }
 
@@ -95,21 +105,21 @@
   display: flex;
   align-items: center;
   gap: t.$space-3;
-  padding: t.$space-2 t.$space-3;
-  border-radius: t.$radius-md;
-  color: rgba(255, 255, 255, 0.72);
+  padding: t.$space-2 t.$space-4;
+  color: $nav-text;
   text-decoration: none;
   font-size: t.$font-size-sm;
   font-weight: t.$font-weight-normal;
   transition: background t.$transition-fast, color t.$transition-fast;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: $nav-hover-bg;
     color: #fff;
   }
 
   &--active {
-    background: rgba(255, 255, 255, 0.18);
+    background: linear-gradient(90deg, $nav-active-bg-from 0%, $nav-active-bg-to 100%);
+    box-shadow: inset 3px 0 0 $nav-active-accent;
     color: #fff;
     font-weight: t.$font-weight-medium;
   }
@@ -122,31 +132,32 @@
   flex-direction: column;
 }
 
+// Section header row — design: 12px bold uppercase white
 .nav-group-trigger {
   position: relative;
   display: flex;
   align-items: center;
   gap: t.$space-3;
-  padding: t.$space-2 t.$space-3;
-  border-radius: t.$radius-md;
+  padding: 10px t.$space-4;
   border: none;
   background: none;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: t.$font-size-sm;
-  font-weight: t.$font-weight-normal;
+  font-size: 12px;
+  font-weight: t.$font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   font-family: inherit;
+  color: #fff;
   width: 100%;
   text-align: left;
   cursor: pointer;
-  transition: background t.$transition-fast, color t.$transition-fast;
+  transition: background t.$transition-fast;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: $nav-hover-bg;
   }
 
   &--open {
-    color: #fff;
+    background: rgba(255, 255, 255, 0.04);
 
     .nav-chevron {
       transform: rotate(90deg);
@@ -160,7 +171,7 @@
 
 .nav-chevron {
   flex-shrink: 0;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.5);
   transition: transform t.$transition-base;
 }
 
@@ -179,16 +190,15 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
-  padding: t.$space-1 0 t.$space-1 t.$space-5;
+  padding: 2px 0 6px t.$space-5;
 }
 
 .nav-child {
   display: flex;
   align-items: center;
   gap: t.$space-3;
-  padding: t.$space-2 t.$space-3;
-  border-radius: t.$radius-md;
-  color: rgba(255, 255, 255, 0.62);
+  padding: 8px t.$space-3;
+  color: $nav-text-dim;
   text-decoration: none;
   font-size: t.$font-size-sm;
   position: relative;
@@ -203,22 +213,23 @@
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.28);
-    transition: background t.$transition-fast;
+    background: rgba(255, 255, 255, 0.2);
+    transition: opacity t.$transition-fast;
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
+    background: $nav-hover-bg;
+    color: $nav-text;
   }
 
   &--active {
-    background: rgba(255, 255, 255, 0.16);
+    background: linear-gradient(90deg, $nav-active-bg-from 0%, $nav-active-bg-to 100%);
+    box-shadow: inset 3px 0 0 $nav-active-accent;
     color: #fff;
     font-weight: t.$font-weight-medium;
 
     &::before {
-      background: rgba(255, 255, 255, 0.75);
+      opacity: 0;
     }
   }
 }
@@ -231,28 +242,27 @@
 
 // ── Dividers ──────────────────────────────────────────────────────────────────
 
-// Between admin section and module section
 .nav-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   margin: t.$space-2 0;
 }
 
-// Between collapsed module groups
 .nav-group-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   margin: t.$space-1 t.$space-2;
 }
 
-// ── Footer ────────────────────────────────────────────────────────────────────
+// ── Footer (user identity + logout) ──────────────────────────────────────────
 
 .sidebar-footer {
   display: flex;
   align-items: center;
   gap: t.$space-3;
-  padding: t.$space-4;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: t.$space-3 t.$space-4;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.18);
   flex-shrink: 0;
 }
 
@@ -261,10 +271,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: t.$radius-full;
-  background: rgba(255, 255, 255, 0.2);
+  background: #1a5fb4;
   color: #fff;
   font-size: t.$font-size-xs;
   font-weight: t.$font-weight-semibold;
@@ -291,7 +301,7 @@
 
 .user-role {
   font-size: t.$font-size-xs;
-  color: rgba(255, 255, 255, 0.5);
+  color: $nav-text-dim;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -301,19 +311,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: t.$radius-md;
   border: none;
   background: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: $nav-text-dim;
   cursor: pointer;
   flex-shrink: 0;
   transition: background t.$transition-fast, color t.$transition-fast;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
   }
 }
 
@@ -322,7 +332,6 @@
 .sidebar--collapsed {
   width: 64px;
 
-  // Stack brand-icon and toggle vertically in the narrow space
   .sidebar-brand {
     flex-direction: column;
     align-items: center;
@@ -333,9 +342,6 @@
 
   .sidebar-nav {
     padding: t.$space-3 t.$space-2;
-    // overflow: visible on both axes — the CSS spec forbids overflow-x:visible
-    // when overflow-y is non-visible, so we set both here. Icon-only items are
-    // short enough that vertical overflow never occurs in collapsed mode.
     overflow: visible;
     align-items: center;
   }
@@ -360,10 +366,7 @@
   }
 }
 
-// ── Tooltips (visible only in collapsed mode) ─────────────────────────────────
-//
-// Triggered by data-tooltip attribute set in template only when collapsed.
-// Uses ::before for the pointer arrow and ::after for the label box.
+// ── Tooltips (collapsed mode only) ───────────────────────────────────────────
 
 .sidebar--collapsed {
 
@@ -372,7 +375,6 @@
   .user-avatar[data-tooltip],
   .logout-btn[data-tooltip] {
     &:hover {
-      // Arrow pointer
       &::before {
         content: '';
         position: absolute;
@@ -385,7 +387,6 @@
         z-index: t.$z-tooltip;
       }
 
-      // Label box
       &::after {
         content: attr(data-tooltip);
         position: absolute;
