@@ -8,19 +8,46 @@ $nav-text-dim:       rgba(207, 224, 245, 0.65);
 $nav-active-accent:  #6ea0db;
 $nav-active-bg-from: rgba(26, 95, 180, 0.55);
 $nav-active-bg-to:   rgba(26, 95, 180, 0.15);
-$nav-hover-bg:       rgba(255, 255, 255, 0.06);
+$nav-hover-bg:       rgba(255, 255, 255, 0.04);
 
 // ── Base ──────────────────────────────────────────────────────────────────────
 
 .sidebar {
+  position: relative;
   display: flex;
   flex-direction: column;
-  width: 240px;
+  width: 256px;
   height: 100%;
   background: $nav-bg;
-  border-right: 1px solid $nav-border;
+  border-right: none;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
   flex-shrink: 0;
   transition: width t.$transition-slow;
+}
+
+// Disable smooth transition while dragging so width follows the cursor instantly
+.sidebar--resizing {
+  transition: none;
+  user-select: none;
+}
+
+// ── Resize handle ────────────────────────────────────────────────────────────
+
+.sidebar-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 20;
+  transition: background 0.15s;
+
+  &:hover,
+  .sidebar--resizing & {
+    background: rgba(240, 165, 0, 0.5);
+  }
 }
 
 // ── Brand ─────────────────────────────────────────────────────────────────────
@@ -29,8 +56,8 @@ $nav-hover-bg:       rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
   gap: t.$space-3;
-  padding: t.$space-5 t.$space-4 t.$space-4;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
@@ -38,10 +65,10 @@ $nav-hover-bg:       rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: t.$radius-md;
-  background: rgba(110, 160, 219, 0.25);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #1a5fb4;
   color: #fff;
   flex-shrink: 0;
 }
@@ -49,12 +76,13 @@ $nav-hover-bg:       rgba(255, 255, 255, 0.06);
 .brand-name {
   flex: 1;
   font-family: t.$font-sans;
-  font-size: t.$font-size-sm;
-  font-weight: t.$font-weight-semibold;
+  font-size: 1.125rem;
+  font-weight: t.$font-weight-bold;
   color: #fff;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.025em;
   white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar-toggle {
@@ -83,19 +111,19 @@ $nav-hover-bg:       rgba(255, 255, 255, 0.06);
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: t.$space-3 0;
-  gap: 1px;
+  padding: 1rem 0.5rem;
+  gap: 0;
   overflow-y: auto;
 }
 
 .nav-section-label {
-  font-size: 11px;
+  font-size: 0.625rem;
   font-weight: t.$font-weight-semibold;
-  color: rgba(255, 255, 255, 0.35);
+  color: #6b7280;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: t.$space-4 t.$space-4 t.$space-1;
-  margin: 0;
+  letter-spacing: 0.1em;
+  padding: 0 0.5rem;
+  margin: 0 0 0.5rem;
 }
 
 // ── Standalone links ──────────────────────────────────────────────────────────
@@ -104,13 +132,17 @@ $nav-hover-bg:       rgba(255, 255, 255, 0.06);
   position: relative;
   display: flex;
   align-items: center;
-  gap: t.$space-3;
-  padding: t.$space-2 t.$space-4;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
   color: $nav-text;
   text-decoration: none;
-  font-size: t.$font-size-sm;
+  font-size: 0.875rem;
   font-weight: t.$font-weight-normal;
-  transition: background t.$transition-fast, color t.$transition-fast;
+  border-left: 4px solid transparent;
+  border-radius: 0 0.25rem 0.25rem 0;
+  margin-bottom: 2px;
+  transition: all 0.2s;
+  cursor: pointer;
 
   &:hover {
     background: $nav-hover-bg;
@@ -119,9 +151,9 @@ $nav-hover-bg:       rgba(255, 255, 255, 0.06);
 
   &--active {
     background: linear-gradient(90deg, $nav-active-bg-from 0%, $nav-active-bg-to 100%);
-    box-shadow: inset 3px 0 0 $nav-active-accent;
+    border-left-color: $nav-active-accent;
     color: #fff;
-    font-weight: t.$font-weight-medium;
+    font-weight: t.$font-weight-semibold;
   }
 }
 
@@ -132,36 +164,37 @@ $nav-hover-bg:       rgba(255, 255, 255, 0.06);
   flex-direction: column;
 }
 
-// Section header row — design: 12px bold uppercase white
+// Section header — InfoDocs-style label row with chevron
 .nav-group-trigger {
   position: relative;
   display: flex;
   align-items: center;
-  gap: t.$space-3;
-  padding: 10px t.$space-4;
+  justify-content: space-between;
+  padding: 0 0.5rem;
+  margin: 1.5rem 0 0.5rem;
   border: none;
   background: none;
-  font-size: 12px;
-  font-weight: t.$font-weight-bold;
+  font-size: 0.625rem;
+  font-weight: t.$font-weight-semibold;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1em;
   font-family: inherit;
-  color: #fff;
+  color: #6b7280;
   width: 100%;
   text-align: left;
   cursor: pointer;
-  transition: background t.$transition-fast;
+  transition: color t.$transition-fast;
 
-  &:hover {
-    background: $nav-hover-bg;
+  .nav-icon {
+    display: none;
   }
 
-  &--open {
-    background: rgba(255, 255, 255, 0.04);
+  &:hover {
+    color: #9ca3af;
+  }
 
-    .nav-chevron {
-      transform: rotate(90deg);
-    }
+  &--open .nav-chevron {
+    transform: rotate(180deg);
   }
 }
 
@@ -171,8 +204,8 @@ $nav-hover-bg:       rgba(255, 255, 255, 0.06);
 
 .nav-chevron {
   flex-shrink: 0;
-  color: rgba(255, 255, 255, 0.5);
-  transition: transform t.$transition-base;
+  color: #6b7280;
+  transition: transform 0.2s;
 }
 
 .nav-group-children {
@@ -189,48 +222,38 @@ $nav-hover-bg:       rgba(255, 255, 255, 0.06);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  padding: 2px 0 6px t.$space-5;
+  gap: 0;
+  padding: 0;
 }
 
 .nav-child {
   display: flex;
   align-items: center;
-  gap: t.$space-3;
-  padding: 8px t.$space-3;
-  color: $nav-text-dim;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  color: $nav-text;
   text-decoration: none;
-  font-size: t.$font-size-sm;
+  font-size: 0.875rem;
   position: relative;
-  transition: background t.$transition-fast, color t.$transition-fast;
+  border-left: 4px solid transparent;
+  border-radius: 0 0.25rem 0.25rem 0;
+  margin-bottom: 2px;
+  transition: all 0.2s;
 
   &::before {
-    content: '';
-    position: absolute;
-    left: -10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    transition: opacity t.$transition-fast;
+    display: none;
   }
 
   &:hover {
     background: $nav-hover-bg;
-    color: $nav-text;
+    color: #fff;
   }
 
   &--active {
     background: linear-gradient(90deg, $nav-active-bg-from 0%, $nav-active-bg-to 100%);
-    box-shadow: inset 3px 0 0 $nav-active-accent;
+    border-left-color: $nav-active-accent;
     color: #fff;
-    font-weight: t.$font-weight-medium;
-
-    &::before {
-      opacity: 0;
-    }
+    font-weight: t.$font-weight-semibold;
   }
 }
 
@@ -244,8 +267,8 @@ $nav-hover-bg:       rgba(255, 255, 255, 0.06);
 
 .nav-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-  margin: t.$space-2 0;
+  background: rgba(255, 255, 255, 0.1);
+  margin: t.$space-3 0.5rem;
 }
 
 .nav-group-divider {
@@ -254,15 +277,40 @@ $nav-hover-bg:       rgba(255, 255, 255, 0.06);
   margin: t.$space-1 t.$space-2;
 }
 
-// ── Footer (user identity + logout) ──────────────────────────────────────────
+// ── User bottom section (User Settings, Help Desk, User Guide, Sign Out) ────
+
+.sidebar-user-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem 0.5rem;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.nav-link--signout {
+  color: #f87171 !important;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  margin-top: 0.25rem;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: #fca5a5 !important;
+  }
+}
+
+// ── Footer (user identity + logout) — legacy, kept for collapsed mode ────────
 
 .sidebar-footer {
   display: flex;
   align-items: center;
   gap: t.$space-3;
-  padding: t.$space-3 t.$space-4;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.18);
+  padding: 0.75rem 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 

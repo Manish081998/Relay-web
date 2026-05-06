@@ -14,7 +14,7 @@
   position: relative;
   width: 42%;
   flex-shrink: 0;
-  background: t.$color-primary;
+  background: linear-gradient(160deg, #1a2b45 0%, #2a5298 60%, #1e3a5f 100%);
   display: flex;
   flex-direction: column;
   padding: 2.75rem 3rem;
@@ -69,7 +69,7 @@
 }
 
 .brand-heading {
-  font-family: t.$font-serif;
+  font-family: t.$font-sans;
   font-size: t.$font-size-4xl;
   font-weight: t.$font-weight-bold;
   line-height: t.$line-height-tight;
@@ -79,7 +79,7 @@
 
   em {
     font-style: italic;
-    color: rgba(255, 255, 255, 0.82);
+    color: #f0a500;
   }
 }
 
@@ -285,7 +285,7 @@
 }
 
 .form-title {
-  font-family: t.$font-serif;
+  font-family: t.$font-sans;
   font-size: t.$font-size-3xl;
   font-weight: t.$font-weight-bold;
   letter-spacing: -0.025em;

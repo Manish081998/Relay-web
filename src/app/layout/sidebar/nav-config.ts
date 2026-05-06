@@ -45,6 +45,15 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Annotation', route: '/documentum/test-annotation', icon: NAV_ICONS.annotation },
     ],
   },
+  {
+    label: 'Settings',
+    icon: NAV_ICONS.settings,
+    roles: 'all',
+    children: [
+      { label: 'Manage Queue', route: '/admin/manage-queue', icon: NAV_ICONS.manageQueue },
+      { label: 'Manage Users', route: '/admin/manage-users', icon: NAV_ICONS.manageUsers },
+    ],
+  },
 ];
 
 export const ADMIN_NAV: NavStandaloneItem[] = [
@@ -55,4 +64,10 @@ export const ADMIN_NAV: NavStandaloneItem[] = [
     roles: [Role.SuperAdmin, Role.Admin],
   },
   { label: 'Admin', route: '/admin', icon: NAV_ICONS.admin, roles: [Role.SuperAdmin] },
+];
+
+export const USER_NAV: NavStandaloneItem[] = [
+  { label: 'User Settings', route: '/profile', icon: NAV_ICONS.userSettings, roles: 'all' },
+  { label: 'Help Desk',     route: '/help-desk', icon: NAV_ICONS.helpDesk, roles: 'all' },
+  { label: 'User Guide',    route: '/user-guide', icon: NAV_ICONS.userGuide, roles: 'all' },
 ];
