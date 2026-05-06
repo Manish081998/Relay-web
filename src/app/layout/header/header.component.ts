@@ -39,12 +39,33 @@ export class HeaderComponent {
     reports:    'Reports',
     admin:      'Administration',
     profile:    'Profile',
+    forbidden:  'Access Denied',
   };
 
   readonly dropdownOpen = signal(false);
 
   readonly sectionTitle = computed(() => {
     const segment = (this.currentUrl() ?? '').split('/').filter(Boolean)[0] ?? '';
-    return this.sectionLabels[segment] ?? 'Project Relay';
+    return this.sectionLabels[segment] ?? 'Home';
+  });
+
+  /** Breadcrumb trail: e.g. ['Home', 'Intranet', 'Users'] */
+  readonly breadcrumbTrail = computed<string[]>(() => {
+    const segments = (this.currentUrl() ?? '').split('/').filter(Boolean);
+    const trail: string[] = ['Home'];
+
+    const section = segments[0] ?? '';
+    if (section) {
+      const sectionLabel = this.sectionLabels[section]
+        ?? section.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      trail.push(sectionLabel);
+    }
+
+    const page = segments[1];
+    if (page) {
+      trail.push(page.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+    }
+
+    return trail;
   });
 }

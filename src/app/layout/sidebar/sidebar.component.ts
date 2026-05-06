@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, NgZone, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
 import { AuthStore } from '../../core/auth/auth.store';
 import { UiStore } from '../../store/ui/ui.store';
 import { InitialsPipe } from '../../shared/pipes/initials.pipe';
-import { ADMIN_NAV, DASHBOARD_NAV, NAV_GROUPS, NavGroup, NavStandaloneItem } from './nav-config';
+import { ADMIN_NAV, DASHBOARD_NAV, NAV_GROUPS, USER_NAV, NavGroup, NavStandaloneItem } from './nav-config';
 
 @Component({
   selector: 'app-sidebar',
@@ -21,10 +21,23 @@ export class SidebarComponent {
   readonly user      = this.auth.currentUser;
   readonly collapsed = this.ui.sidebarCollapsed;
   private readonly router = inject(Router);
+  private readonly zone = inject(NgZone);
+  private readonly destroyRef = inject(DestroyRef);
+
+  // ── Resize state ───────────────────────────────────────────────────────────
+  private static readonly MIN_WIDTH = 200;
+  private static readonly MAX_WIDTH = 420;
+  private static readonly DEFAULT_WIDTH = 256;
+
+  readonly sidebarWidth = signal(SidebarComponent.DEFAULT_WIDTH);
+  readonly isResizing   = signal(false);
+
+  private resizeCleanup: (() => void) | null = null;
 
   readonly dashboard = DASHBOARD_NAV;
   readonly allGroups = NAV_GROUPS;
   readonly allAdmin  = ADMIN_NAV;
+  readonly userNav   = USER_NAV;
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -46,7 +59,7 @@ export class SidebarComponent {
           const override = manual.get(g.label);
           return override !== undefined
             ? override
-            : g.children.some(c => url.startsWith(c.route));
+            : true;
         })
         .map(g => g.label),
     );
@@ -75,5 +88,40 @@ export class SidebarComponent {
     }
     const isOpen = this.openGroupLabels().has(groupLabel);
     this._manualToggles.update(m => new Map(m).set(groupLabel, !isOpen));
+  }
+
+  // ── Drag-to-resize ──────────────────────────────────────────────────────────
+
+  onResizeStart(event: MouseEvent): void {
+    event.preventDefault();
+    this.isResizing.set(true);
+
+    const onMouseMove = (e: MouseEvent) => {
+      const newWidth = Math.min(
+        SidebarComponent.MAX_WIDTH,
+        Math.max(SidebarComponent.MIN_WIDTH, e.clientX),
+      );
+      this.zone.run(() => this.sidebarWidth.set(newWidth));
+    };
+
+    const onMouseUp = () => {
+      this.zone.run(() => this.isResizing.set(false));
+      this.cleanupResize();
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+
+    this.resizeCleanup = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    this.destroyRef.onDestroy(() => this.cleanupResize());
+  }
+
+  private cleanupResize(): void {
+    this.resizeCleanup?.();
+    this.resizeCleanup = null;
   }
 }
