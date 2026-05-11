@@ -1,0 +1,92 @@
+<div class="mu-page">
+
+  <!-- Page header -->
+  <div class="mu-title-row">
+    <div class="mu-title-left">
+      <h1 class="mu-title">Manage Users</h1>
+      <p class="mu-subtitle">View and manage all registered system users</p>
+    </div>
+    @if (!loading() && users().length > 0) {
+      <span class="mu-count-badge">{{ users().length }} users</span>
+    }
+  </div>
+
+  <!-- Results Grid -->
+  <div class="mu-grid-wrap">
+
+    @if (loading()) {
+      <div class="mu-loading">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Loading users…</span>
+      </div>
+    }
+
+    <div class="mu-tbl-scroll">
+      <table class="mu-tbl">
+        <colgroup>
+          <col style="width:155px" />  <!-- Full Name    -->
+          <col style="width:180px" />  <!-- Email        -->
+          <col style="width:110px" />  <!-- Brand        -->
+          <col style="width:120px" />  <!-- Global ID    -->
+          <col style="width:85px"  />  <!-- Status       -->
+          <col style="width:130px" />  <!-- Created By   -->
+          <col style="width:110px" />  <!-- Created Date -->
+          <col style="width:72px"  />  <!-- Actions      -->
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Brand</th>
+            <th>Global ID</th>
+            <th>Status</th>
+            <th>Created By</th>
+            <th>Created Date</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.userId; let i = $index) {
+            <tr [class.row-alt]="i % 2 !== 0">
+              <td class="cell-name">{{ user.firstName }} {{ user.lastName }}</td>
+              <td class="cell-trunc">{{ user.emailId }}</td>
+              <td>{{ user.brandName }}</td>
+              <td class="cell-id">{{ user.globalId }}</td>
+              <td>
+                <span class="status-chip" [attr.data-status]="user.isActive ? 'active' : 'inactive'">
+                  {{ user.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="cell-trunc">{{ user.createdBy }}</td>
+              <td>{{ user.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
+              <td class="col-actions">
+                <button class="action-btn" title="Edit user" (click)="openEdit(user)">
+                  <i class="pi pi-pencil"></i>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="cell-empty">
+                @if (!loading()) {
+                  <i class="pi pi-users"></i> No users found.
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Edit User Dialog -->
+<app-edit-user-dialog
+  [(visible)]="editVisible"
+  [user]="editingUser()"
+  [saving]="saving()"
+  [brands]="brands()"
+  (saved)="onSave($event)"
+/>
