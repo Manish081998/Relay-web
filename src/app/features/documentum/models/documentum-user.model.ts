@@ -1,15 +1,14 @@
 export interface BrandDto {
-  brandGuid: string;
+  brandId: number;
   brandName: string;
 }
 
 export interface DocumentumUserDto {
-  userId: string;
+  userId: number;
   globalId: string;
   emailId: string;
-  brandId: string;
+  brandId: number;
   brandName: string;
-  password: string;
   firstName: string;
   lastName: string;
   isActive: boolean;
@@ -18,8 +17,8 @@ export interface DocumentumUserDto {
 }
 
 export interface UpdateDocumentumUserRequest {
-  userId: string;
-  brandId: string;
+  userId: number;
+  brandId: number;
   isActive: boolean;
   modifiedBy: string;
 }

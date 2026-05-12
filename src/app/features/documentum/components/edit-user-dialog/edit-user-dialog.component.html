@@ -1,7 +1,7 @@
 <p-dialog
   [visible]="visible()"
   (visibleChange)="visible.set($event)"
-  [header]="dialogTitle"
+  header="Edit User"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
@@ -97,28 +97,6 @@
           </div>
         </div>
 
-        <!-- Row 3: Password (add mode only) -->
-        @if (mode() === 'add') {
-          <div class="eu-row eu-row-full">
-            <div class="eu-field">
-              <label for="eu-password" class="eu-label">
-                Password <span class="eu-req">*</span>
-              </label>
-              <input
-                id="eu-password"
-                pInputText
-                type="password"
-                formControlName="password"
-                placeholder="Enter password"
-                autocomplete="new-password"
-                [class.eu-invalid]="f['password'].invalid && f['password'].touched"
-              />
-              @if (f['password'].invalid && f['password'].touched) {
-                <span class="eu-err">Password is required.</span>
-              }
-            </div>
-          </div>
-        }
 
       </form>
 
@@ -132,7 +110,7 @@
             (ngModelChange)="onBrandChange($event)"
             [options]="brands()"
             optionLabel="brandName"
-            optionValue="brandGuid"
+            optionValue="brandId"
             placeholder="Select brand"
             styleClass="eu-brand-select"
             panelStyleClass="eu-brand-panel"
@@ -162,8 +140,8 @@
 
     </div><!-- /.eu-form -->
 
-    <!-- Info bar — edit mode only -->
-    @if (mode() === 'edit' && user()) {
+    <!-- Info bar -->
+    @if (user()) {
       <div class="eu-info-bar">
         <div class="eu-info-row">
           <span>
@@ -193,7 +171,7 @@
         @if (saving()) {
           <i class="pi pi-spin pi-spinner"></i>
         }
-        {{ saving() ? 'Saving…' : (mode() === 'add' ? 'Add User' : 'Save Changes') }}
+        {{ saving() ? 'Saving…' : 'Save Changes' }}
       </button>
     </div>
 

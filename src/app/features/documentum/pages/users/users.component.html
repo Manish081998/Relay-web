@@ -84,7 +84,8 @@
 
 <!-- Edit User Dialog -->
 <app-edit-user-dialog
-  [(visible)]="editVisible"
+  [visible]="editVisible()"
+  (visibleChange)="editVisible.set($event)"
   [user]="editingUser()"
   [saving]="saving()"
   [brands]="brands()"

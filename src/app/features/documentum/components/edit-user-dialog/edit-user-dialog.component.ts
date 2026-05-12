@@ -5,7 +5,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormsModule, FormBuilder, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { Dialog } from 'primeng/dialog';
-import { ButtonDirective } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { AuthStore } from '../../../../core/auth/auth.store';
@@ -14,7 +13,7 @@ import { BrandDto, DocumentumUserDto, UpdateDocumentumUserRequest } from '../../
 @Component({
   selector: 'app-edit-user-dialog',
   standalone: true,
-  imports: [Dialog, ButtonDirective, ReactiveFormsModule, FormsModule, InputTextModule, Select, DatePipe],
+  imports: [Dialog, ReactiveFormsModule, FormsModule, InputTextModule, Select, DatePipe],
   templateUrl: './edit-user-dialog.component.html',
   styleUrl: './edit-user-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,7 +23,6 @@ export class EditUserDialogComponent {
   private readonly authStore = inject(AuthStore);
 
   readonly visible = model<boolean>(false);
-  readonly mode    = input<'edit' | 'add'>('edit');
   readonly user    = input<DocumentumUserDto | null>(null);
   readonly saving  = input<boolean>(false);
   readonly brands  = input<BrandDto[]>([]);
@@ -32,28 +30,20 @@ export class EditUserDialogComponent {
   readonly saved = output<UpdateDocumentumUserRequest>();
 
   readonly form = this.fb.nonNullable.group({
-    firstName: ['', Validators.required],
-    lastName:  ['', Validators.required],
-    emailId:   ['', [Validators.required, Validators.email]],
-    globalId:  ['', Validators.required],
-    password:  [''],
+    firstName: [{ value: '', disabled: true }, Validators.required],
+    lastName:  [{ value: '', disabled: true }, Validators.required],
+    emailId:   [{ value: '', disabled: true }, [Validators.required, Validators.email]],
+    globalId:  [{ value: '', disabled: true }, Validators.required],
     isActive:  [true],
   });
 
-  // null means "derive from user input"; a string means user explicitly picked a brand
-  private readonly _brandOverride = signal<string | null>(null);
+  // null = not yet overridden; number = user explicitly picked a brand
+  private readonly _brandOverride = signal<number | null>(null);
 
-  // computed evaluates synchronously when read — no timing gap unlike effect()
-  readonly selectedBrandId = computed(() => {
-    const override = this._brandOverride();
-    if (override !== null) return override;
-    const u         = this.user();
-    const brandList = this.brands();
-    if (!u) return '';
-    return brandList.find(
-      b => b.brandGuid?.toLowerCase() === u.brandId?.toLowerCase()
-    )?.brandGuid ?? u.brandId ?? '';
-  });
+  // brandId is now an integer — user.brandId directly matches brandId in the options list
+  readonly selectedBrandId = computed<number | null>(() =>
+    this._brandOverride() ?? this.user()?.brandId ?? null
+  );
 
   // toSignal makes isActive reactive in zoneless OnPush — plain .value read won't re-render
   readonly isActiveValue = toSignal(this.form.controls.isActive.valueChanges, {
@@ -72,7 +62,6 @@ export class EditUserDialogComponent {
           globalId:  u.globalId ?? '',
           isActive:  u.isActive,
           emailId:   u.emailId  ?? '',
-          password:  '',
         });
       } else {
         this.form.reset({ isActive: true });
@@ -83,38 +72,12 @@ export class EditUserDialogComponent {
       this.form.markAsUntouched();
     });
 
-    // Mode-driven field rules: password required in add; name/email/globalId disabled in edit
-    effect(() => {
-      const isEdit = this.mode() === 'edit';
-
-      const pwCtrl = this.form.controls.password;
-      if (isEdit) {
-        pwCtrl.removeValidators(Validators.required);
-      } else {
-        pwCtrl.addValidators(Validators.required);
-      }
-      pwCtrl.updateValueAndValidity({ emitEvent: false });
-
-      const readonlyInEdit = ['firstName', 'lastName', 'emailId', 'globalId'] as const;
-      for (const field of readonlyInEdit) {
-        if (isEdit) {
-          this.form.controls[field].disable({ emitEvent: false });
-        } else {
-          this.form.controls[field].enable({ emitEvent: false });
-        }
-      }
-    });
   }
 
   get f() { return this.form.controls; }
 
-  get dialogTitle(): string {
-    return this.mode() === 'add' ? 'Add User' : 'Edit User';
-  }
-
-  onBrandChange(guid: string | null): void {
-    // Use || so an empty string from PrimeNG also falls back to null (no override)
-    this._brandOverride.set(guid || null);
+  onBrandChange(id: number | null): void {
+    this._brandOverride.set(id ?? null);
   }
 
   close(): void {
@@ -133,10 +96,10 @@ export class EditUserDialogComponent {
 
     // Use explicit user selection if set, otherwise fall back to the user's existing brandId.
     // Avoids depending on the brands list lookup which may be empty at submit time.
-    const brandId = this._brandOverride() ?? existing?.brandId ?? '';
+    const brandId = this._brandOverride() ?? existing?.brandId ?? 0;
 
     const req: UpdateDocumentumUserRequest = {
-      userId:    existing?.userId ?? '',
+      userId:    existing?.userId ?? 0,
       brandId,
       isActive:  v.isActive,
       modifiedBy,

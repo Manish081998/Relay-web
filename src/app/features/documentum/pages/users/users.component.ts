@@ -42,7 +42,7 @@ export class DocumentumUsersComponent implements OnInit {
 
   onSave(req: UpdateDocumentumUserRequest): void {
     this.saving.set(true);
-    this.usersService.updateById(req.userId, req)
+    this.usersService.update(req)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
