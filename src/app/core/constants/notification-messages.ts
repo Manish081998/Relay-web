@@ -70,6 +70,9 @@ export const NOTIFICATION_MESSAGES = {
       UPDATE_SUCCESS: 'User updated successfully.',
       UPDATE_FAILED: 'Failed to update user.',
     },
+    EDGE_ORDER: {
+      LOAD_FAILED: 'Failed to load edge orders.',
+    },
   },
 
   // ── WEBTOOL module ────────────────────────────────────────────────────────
