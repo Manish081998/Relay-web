@@ -13,33 +13,57 @@
 
   <!-- Results Grid -->
   <div class="mu-grid-wrap">
-    <app-prime-table
-      [columns]="columns"
-      [rows]="users()"
+    <p-table
+      [value]="users()"
       dataKey="userId"
+      [rowHover]="true"
       [loading]="loading()"
-      pageReport="Showing {first} to {last} of {totalRecords} users"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} users"
     >
-      <ng-template ptCellDef="firstName" let-user>
-        <span class="cell-name">{{ $any(user).firstName }} {{ $any(user).lastName }}</span>
+      <ng-template #header>
+        <tr>
+          <th pSortableColumn="firstName"   style="width: 155px">Full Name    <p-sortIcon field="firstName"   /></th>
+          <th pSortableColumn="emailId"     style="width: 180px">Email        <p-sortIcon field="emailId"     /></th>
+          <th pSortableColumn="brandName"   style="width: 110px">Brand        <p-sortIcon field="brandName"   /></th>
+          <th pSortableColumn="globalId"    style="width: 120px">Global ID    <p-sortIcon field="globalId"    /></th>
+          <th pSortableColumn="isActive"    style="width:  85px">Status       <p-sortIcon field="isActive"    /></th>
+          <th pSortableColumn="createdBy"   style="width: 130px">Created By   <p-sortIcon field="createdBy"   /></th>
+          <th pSortableColumn="createdDate" style="width: 110px">Created Date <p-sortIcon field="createdDate" /></th>
+          <th style="width: 72px; text-align: center">Actions</th>
+        </tr>
       </ng-template>
 
-      <ng-template ptCellDef="isActive" let-user>
-        <span class="status-chip" [attr.data-status]="$any(user).isActive ? 'active' : 'inactive'">
-          {{ $any(user).isActive ? 'Active' : 'Inactive' }}
-        </span>
+      <ng-template #body let-user>
+        <tr>
+          <td><span class="cell-name">{{ user.firstName }} {{ user.lastName }}</span></td>
+          <td class="cell-trunc">{{ user.emailId }}</td>
+          <td>{{ user.brandName }}</td>
+          <td class="cell-mono">{{ user.globalId }}</td>
+          <td>
+            <span class="status-chip" [attr.data-status]="user.isActive ? 'active' : 'inactive'">
+              {{ user.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td class="cell-trunc">{{ user.createdBy }}</td>
+          <td>{{ user.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
+          <td class="cell-actions">
+            <button class="action-btn" title="Edit user" (click)="openEdit(user)">
+              <i class="pi pi-pencil"></i>
+            </button>
+          </td>
+        </tr>
       </ng-template>
 
-      <ng-template ptCellDef="createdDate" let-user>
-        {{ $any(user).createdDate | date:'MM/dd/yy hh:mm a' }}
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="8" class="cell-empty">No records found.</td>
+        </tr>
       </ng-template>
-
-      <ng-template ptCellDef="actions" let-user>
-        <button class="action-btn" title="Edit user" (click)="openEdit($any(user))">
-          <i class="pi pi-pencil"></i>
-        </button>
-      </ng-template>
-    </app-prime-table>
+    </p-table>
   </div>
 
 </div>

@@ -4,10 +4,13 @@
 $blue:        #1a5fb4;
 $blue-hover:  #154d93;
 $blue-50:     #e7f0fa;
+$neutral-100: #eef2f6;
 $neutral-200: #dde3ea;
-$fg-1:        #1a2029;
-$fg-3:        #5c6773;
 $neutral-300: #c4ccd6;
+$neutral-400: #eef2f6;
+$fg-1:        #1a2029;
+$fg-2:        #2a323d;
+$fg-3:        #5c6773;
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 :host { display: block; font-family: t.$font-sans; }
@@ -58,10 +61,67 @@ $neutral-300: #c4ccd6;
   border: 1px solid $neutral-200;
 }
 
-// ── Cell styles (applied inside ng-template ptCellDef, scoped to this component)
+// ── p-table structural overrides ──────────────────────────────────────────────
+:host ::ng-deep {
+  .p-datatable-thead > tr > th {
+    font-size: 13px;
+    font-weight: 700;
+    color: $fg-1;
+    background: $neutral-100;
+    padding: 7px 10px;
+    border-top: 1px solid $neutral-300;
+    border-bottom: 2px solid $neutral-300;
+    white-space: nowrap;
+    font-family: t.$font-sans;
+  }
+
+  .p-datatable-tbody > tr > td {
+    font-size: 13px;
+    color: $fg-2;
+    padding: 6px 10px;
+    border-bottom: 1px solid $neutral-400;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: t.$font-sans;
+  }
+
+  .p-datatable-tbody > tr:hover > td {
+    background: $blue-50;
+  }
+
+  .p-datatable-emptymessage > td {
+    text-align: center;
+  }
+}
+
+// ── Cell styles ────────────────────────────────────────────────────────────────
 .cell-name {
   font-weight: 600;
   color: $fg-1;
+}
+
+td.cell-trunc { max-width: 0; }
+
+td.cell-mono {
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace;
+  font-size: 12px;
+  color: $fg-3;
+}
+
+td.cell-actions {
+  overflow: visible;
+  text-align: center;
+}
+
+td.cell-empty {
+  padding: 36px 16px;
+  color: $fg-3;
+  font-size: 12px;
+  font-style: italic;
+  white-space: normal;
+  text-align: center;
 }
 
 // ── Status chip ───────────────────────────────────────────────────────────────

@@ -3,10 +3,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
+import { TableModule } from 'primeng/table';
 import { DocumentumUsersService } from '../../services/documentum-users.service';
 import { BrandDto, DocumentumUserDto, UpdateDocumentumUserRequest } from '../../models/documentum-user.model';
 import { EditUserDialogComponent } from '../../components/edit-user-dialog/edit-user-dialog.component';
-import { PrimeTableComponent, PrimeCellDefDirective, PrimeTableColumn } from '../../../../shared';
 import { invalidateCache } from '../../../../core/interceptors/cache.interceptor';
 import { NOTIFICATION_MESSAGES as NM } from '../../../../core/constants/notification-messages';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -14,7 +14,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
 @Component({
   selector: 'app-documentum-users',
   standalone: true,
-  imports: [DatePipe, PrimeTableComponent, PrimeCellDefDirective, EditUserDialogComponent],
+  imports: [DatePipe, TableModule, EditUserDialogComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -23,17 +23,6 @@ export class DocumentumUsersComponent implements OnInit {
   private readonly usersService = inject(DocumentumUsersService);
   private readonly notify       = inject(NotificationService);
   private readonly destroyRef   = inject(DestroyRef);
-
-  readonly columns: PrimeTableColumn[] = [
-    { field: 'firstName',   header: 'Full Name',    width: '155px' },
-    { field: 'emailId',     header: 'Email',        width: '180px', cellClass: 'pt-cell-trunc' },
-    { field: 'brandName',   header: 'Brand',        width: '110px' },
-    { field: 'globalId',    header: 'Global ID',    width: '120px', cellClass: 'pt-cell-mono'  },
-    { field: 'isActive',    header: 'Status',       width: '85px'  },
-    { field: 'createdBy',   header: 'Created By',   width: '130px', cellClass: 'pt-cell-trunc' },
-    { field: 'createdDate', header: 'Created Date', width: '110px' },
-    { field: 'actions',     header: 'Actions',      width: '72px',  sortable: false, headerAlign: 'center', cellClass: 'pt-col-actions' },
-  ];
 
   readonly users       = signal<DocumentumUserDto[]>([]);
   readonly brands      = signal<BrandDto[]>([]);
