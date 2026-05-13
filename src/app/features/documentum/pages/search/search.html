@@ -1,358 +1,102 @@
-<div class="search-page">
-  <!-- ── Page Header ─────────────────────────────────────────────────────── -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-text">
-        <h2 class="title">Edge Orders Search</h2>
-      </div>
-    </div>
-    <a
-      *ngIf="headerLinkText"
-      class="header-link"
-      [href]="headerLinkHref"
-      target="_blank"
-      rel="noopener"
-    >
-      <i class="pi pi-external-link"></i>
-      {{ headerLinkText }}
-    </a>
+<div class="qs-page">
+
+  <!-- Page Title -->
+  <div class="qs-title-row">
+    <h1 class="qs-title">Search</h1>
   </div>
 
-  <!-- ── Search Panel ────────────────────────────────────────────────────── -->
-  <div class="panel">
-    <div class="panel-header">
-      <i class="pi pi-sliders-h"></i>
-      <span>Search Criteria</span>
+  <!-- Shared Search Panel -->
+  <app-order-search-panel
+    [productTypes]="productTypes()"
+    [brands]="brands()"
+    [queueNames]="queueNames()"
+    (brandChanged)="onBrandChanged($event)"
+    (search)="onSearch($event)"
+    (cleared)="onCleared()"
+  />
+
+  <!-- Record Summary -->
+  @if (searched() && !loading()) {
+    <div class="qs-summary">
+      Total Number of Active Queue Items: {{ selectedQueueName() || 'All Queues' }} = <strong>{{ totalCount() }}</strong>
+    </div>
+  }
+
+  <!-- Results Grid -->
+  <div class="qs-grid-wrap">
+
+    @if (loading()) {
+      <div class="qs-loading">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Loading…</span>
+      </div>
+    }
+
+    <div class="qs-tbl-scroll">
+      <table class="qs-tbl">
+        <colgroup>
+          <col style="width:110px" />  <!-- Rep PO          -->
+          <col style="width:90px"  />  <!-- Order Seq       -->
+          <col style="width:100px" />  <!-- Account #       -->
+          <col style="width:80px"  />  <!-- Brand           -->
+          <col style="width:140px" />  <!-- Rep Name        -->
+          <col style="width:90px"  />  <!-- Job #           -->
+          <col style="width:95px"  />  <!-- Total Net       -->
+          <col style="width:115px" />  <!-- Created Date    -->
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Purchase Order</th>
+            <th>Sales Order</th>
+            <th>Account Number</th>
+            <th>Brand</th>
+            <th>Rep Name</th>
+            <th>Job #</th>
+            <th class="col-r">Total Net</th>
+            <th>Created Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders(); track order.orderGuid; let i = $index) {
+            <tr [class.row-alt]="i % 2 !== 0">
+              <td class="cell-link cell-po" (click)="openOrder(order)">{{ order.repPO }}</td>
+              <td class="cell-seq">{{ order.orderSeq }}</td>
+              <td>{{ order.accountNumber }}</td>
+              <td>{{ order.brand }}</td>
+              <td class="cell-trunc">{{ order.repUserName }}</td>
+              <td>{{ order.jobNumber }}</td>
+              <td class="col-r">{{ order.totalNet }}</td>
+              <td>{{ order.orderDate | date:'MM/dd/yy hh:mm a' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="cell-empty">
+                @if (searched()) {
+                  <i class="pi pi-inbox"></i> No records found matching your criteria.
+                } @else {
+                  <i class="pi pi-search"></i> Enter search criteria above and click Search.
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
 
-    <form class="form" [formGroup]="form" (ngSubmit)="onSearch()">
-      <div class="grid">
-        <div class="field">
-          <label for="noRecords">No. Records</label>
-          <input
-            id="noRecords"
-            pInputText
-            type="text"
-            inputmode="numeric"
-            formControlName="noRecords"
-            autocomplete="off"
-            placeholder="e.g. 100"
-          />
-        </div>
-
-        <div class="field">
-          <label for="emailAddress">E-Mail Address</label>
-          <input
-            id="emailAddress"
-            pInputText
-            type="text"
-            formControlName="emailAddress"
-            autocomplete="off"
-            placeholder="user@example.com"
-          />
-        </div>
-
-        <div class="field">
-          <label for="pcUserName">PC UserName</label>
-          <input
-            id="pcUserName"
-            pInputText
-            type="text"
-            formControlName="pcUserName"
-            autocomplete="off"
-            placeholder="Username"
-          />
-        </div>
-
-        <div class="field">
-          <label for="release">Release</label>
-          <input
-            id="release"
-            pInputText
-            type="text"
-            formControlName="release"
-            autocomplete="off"
-            placeholder="Release number"
-          />
-        </div>
-
-        <div class="field">
-          <label for="repPo">Rep PO</label>
-          <input
-            id="repPo"
-            pInputText
-            type="text"
-            formControlName="repPo"
-            autocomplete="off"
-            placeholder="PO number"
-          />
-        </div>
-
-        <div class="field">
-          <label for="dateTime">Date / Time</label>
-          <input
-            id="dateTime"
-            pInputText
-            type="text"
-            formControlName="dateTime"
-            autocomplete="off"
-            placeholder="MM/DD/YYYY"
-          />
-        </div>
-
-        <div class="field">
-          <label for="releaseName">Release Name</label>
-          <input
-            id="releaseName"
-            pInputText
-            type="text"
-            formControlName="releaseName"
-            autocomplete="off"
-            placeholder="Release name"
-          />
-        </div>
-      </div>
-
-      <div class="actions">
-        <button type="button" class="btn-clear" (click)="onClear()">
-          <i class="pi pi-refresh"></i>
-          Clear
+    <!-- Pagination -->
+    @if (searched() && totalCount() > 0) {
+      <div class="qs-pager">
+        <button class="pg-btn" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">
+          &#8249; Prev
         </button>
-        <button type="submit" class="btn-search">
-          <i class="pi pi-search"></i>
-          Search
+        <span class="pg-info">
+          Page {{ currentPage() }} of {{ totalPages() }}
+        </span>
+        <button class="pg-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)">
+          Next &#8250;
         </button>
       </div>
-    </form>
-  </div>
+    }
 
-  <!-- ── Results ─────────────────────────────────────────────────────────── -->
-  <div class="results-card">
-    <div class="results-header">
-      <div class="results-title">
-        <i class="pi pi-table"></i>
-        <span>Results</span>
-        <span class="results-badge">{{ customers?.length ?? 0 }}</span>
-      </div>
-      <div class="results-actions">
-        <button class="results-btn" type="button">
-          <i class="pi pi-download"></i>
-          Export
-        </button>
-      </div>
-    </div>
-
-    <p-table
-      #dt
-      [value]="customers"
-      [(selection)]="selectedCustomers"
-      dataKey="id"
-      [rowHover]="true"
-      [rows]="10"
-      [showCurrentPageReport]="true"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [loading]="loading"
-      [paginator]="true"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-      [filterDelay]="0"
-      [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
-    >
-      <!-- <ng-template #caption>
-        <div class="flex justify-between">
-          <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (click)="clear(dt)" />
-          <p-iconField iconPosition="left">
-            <p-inputIcon>
-              <i class="pi pi-search"></i>
-            </p-inputIcon>
-            <input
-              pInputText
-              type="text"
-              [(ngModel)]="searchValue"
-              (input)="dt.filterGlobal($event.target.value, 'contains')"
-              placeholder="Search records…"
-            />
-          </p-iconField>
-        </div>
-      </ng-template> -->
-
-      <ng-template #header>
-        <tr>
-          
-          <th pSortableColumn="name" style="min-width: 14rem">
-            <div class="flex justify-between items-center gap-2">
-              Name
-              <p-sortIcon field="name" />
-              <p-columnFilter type="text" field="name" display="menu" class="ml-auto" />
-            </div>
-          </th>
-          <th pSortableColumn="country.name" style="min-width: 14rem">
-            <div class="flex justify-between items-center gap-2">
-              Country
-              <p-sortIcon field="country.name" />
-              <p-columnFilter type="text" field="country.name" display="menu" class="ml-auto" />
-            </div>
-          </th>
-          <th pSortableColumn="representative.name" style="min-width: 14rem">
-            <div class="flex justify-between items-center gap-2">
-              Agent
-              <p-sortIcon field="representative.name" />
-              <p-columnFilter
-                field="representative"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                class="ml-auto"
-              >
-                <ng-template #filter let-value let-filter="filterCallback">
-                  <p-multiselect
-                    [filter]="false"
-                    [options]="representatives"
-                    placeholder="Any"
-                    (onChange)="filter($event.value)"
-                    optionLabel="name"
-                    class="w-full"
-                  >
-                    <ng-template let-option #item>
-                      <div class="flex items-center gap-2">
-                        <img
-                          [alt]="option.label"
-                          src="https://primefaces.org/cdn/primeng/images/demo/avatar/{{
-                            option.image
-                          }}"
-                          style="width: 32px"
-                        />
-                        <span>{{ option.name }}</span>
-                      </div>
-                    </ng-template>
-                  </p-multiselect>
-                </ng-template>
-              </p-columnFilter>
-            </div>
-          </th>
-          <th pSortableColumn="date" style="min-width: 14rem">
-            <div class="flex justify-between items-center gap-2">
-              Date
-              <p-sortIcon field="date" />
-              <p-columnFilter type="date" field="date" display="menu" class="ml-auto" />
-            </div>
-          </th>
-          <th pSortableColumn="balance" style="min-width: 14rem">
-            <div class="flex justify-between items-center gap-2">
-              Balance
-              <p-sortIcon field="balance" />
-              <p-columnFilter
-                type="numeric"
-                field="balance"
-                display="menu"
-                currency="USD"
-                class="ml-auto"
-              />
-            </div>
-          </th>
-          <th pSortableColumn="status" style="min-width: 14rem">
-            <div class="flex justify-between items-center gap-2">
-              Status
-              <p-sortIcon field="status" />
-              <p-columnFilter field="status" matchMode="equals" display="menu" class="ml-auto">
-                <ng-template #filter let-value let-filter="filterCallback">
-                  <p-select
-                    [options]="statuses"
-                    (onChange)="filter($event.value)"
-                    placeholder="Any"
-                  >
-                    <ng-template let-option #item>
-                      <p-tag [value]="option.label" [severity]="getSeverity(option.label)" />
-                    </ng-template>
-                  </p-select>
-                </ng-template>
-              </p-columnFilter>
-            </div>
-          </th>
-          <th pSortableColumn="activity" style="min-width: 14rem">
-            <div class="flex justify-between items-center gap-2">
-              Activity
-              <p-sortIcon field="activity" />
-              <p-columnFilter
-                field="activity"
-                matchMode="between"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                class="ml-auto"
-              >
-                <ng-template #filter let-filter="filterCallback">
-                  <p-slider
-                    [(ngModel)]="activityValues"
-                    [range]="true"
-                    (onSlideEnd)="filter($event.values)"
-                    class="m-4"
-                  ></p-slider>
-                  <div class="flex items-center justify-between px-2">
-                    <span>{{ activityValues[0] }}</span>
-                    <span>{{ activityValues[1] }}</span>
-                  </div>
-                </ng-template>
-              </p-columnFilter>
-            </div>
-          </th>
-          <th style="width: 5rem"></th>
-        </tr>
-      </ng-template>
-
-      <ng-template #body let-customer>
-        <tr class="p-selectable-row">
-          
-          <td>{{ customer.name }}</td>
-          <td>
-            <div class="flex items-center gap-2">
-              <img
-                src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
-                [class]="'flag flag-' + customer.country.code"
-                style="width: 20px"
-              />
-              <span class="ml-1 align-middle">{{ customer.country.name }}</span>
-            </div>
-          </td>
-          <td>
-            <div class="flex items-center gap-2">
-              <img
-                [alt]="customer.representative.name"
-                src="https://primefaces.org/cdn/primeng/images/demo/avatar/{{
-                  customer.representative.image
-                }}"
-                width="32"
-                style="vertical-align: middle"
-              />
-              <span class="ml-1 align-middle">{{ customer.representative.name }}</span>
-            </div>
-          </td>
-          <td>{{ customer.date | date: 'MM/dd/yyyy' }}</td>
-          <td>{{ customer.balance | currency: 'USD' : 'symbol' }}</td>
-          <td>
-            <p-tag [value]="customer.status" [severity]="getSeverity(customer.status)" />
-          </td>
-          <td>
-            <p-progressBar [value]="customer.activity" [showValue]="false" />
-          </td>
-          <td style="text-align: center">
-            <p-button rounded icon="pi pi-cog" />
-          </td>
-        </tr>
-      </ng-template>
-
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="9">
-            <div class="empty-state">
-              <i class="pi pi-inbox"></i>
-              <span>No records found</span>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
   </div>
 </div>
