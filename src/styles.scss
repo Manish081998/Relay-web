@@ -1,6 +1,18 @@
 @use './styles/theme' as t;
 @use './styles/primeng-table';
 
+// ── Print page setup ──────────────────────────────────────────────────────────
+// Landscape because the line-items table has 14 columns
+@page { size: Letter landscape; margin: 1cm; }
+
+@media print {
+  html, body {
+    overflow: visible !important;
+    height: auto !important;
+    background: #fff !important;
+  }
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "primeicons/primeicons.css";
 

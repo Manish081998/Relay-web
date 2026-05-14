@@ -102,6 +102,7 @@ export class EdgeOrdersSearch implements OnInit {
       xml: row.xmlMacPacOrder,
       title: row.releaseName || row.releaseNumber || 'XML Document',
     });
+    debugger
     window.open(
       this.router.serializeUrl(
         this.router.createUrlTree(['/intranet/xml-viewer'], { queryParams: { key } }),
@@ -118,7 +119,7 @@ export class EdgeOrdersSearch implements OnInit {
     });
     window.open(
       this.router.serializeUrl(
-        this.router.createUrlTree(['/intranet/order-transmittal'], { queryParams: { key } }),
+        this.router.createUrlTree(['/print/order-transmittal'], { queryParams: { key } }),
       ),
       '_blank',
     );
@@ -140,6 +141,7 @@ export class EdgeOrdersSearch implements OnInit {
     const start = Date.now();
     try {
       const res = await firstValueFrom(this.svc.searchEdgeOrders(params));
+      debugger
       this.orders.set(res ?? []);
       this.apiResponseTime.set(Date.now() - start);
     } catch {

@@ -1,7 +1,12 @@
+// ── App chrome ───────────────────────────────────────────────────────────────
+
 .ot-wrapper {
-  
+  width: 100%;
+  min-height: 90vh;
   background: #e5e5e5;
-  min-height: 100%;
+  padding: 0 10px;
+  border-radius: 8px;
+  box-sizing: border-box;
 }
 
 .ot-toolbar {
@@ -38,6 +43,122 @@
   }
 }
 
+// ── Toolbar search ────────────────────────────────────────────────────────────
+
+.ot-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  max-width: 340px;
+}
+
+.ot-search-ico {
+  position: absolute;
+  left: 8px;
+  width: 12px;
+  height: 28px;
+  color: #8b9dc3;
+  pointer-events: none;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+// The input+icon are wrapped in a relative container inside .ot-search-wrap
+.ot-search-input-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.ot-search-input {
+  height: 28px;
+  padding: 0 8px 0 28px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 5px;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 150ms, box-shadow 150ms;
+
+  &::placeholder { color: #6b82a8; }
+
+  &:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25);
+  }
+}
+
+.ot-match-count {
+  font-size: 10.5px;
+  color: #8b9dc3;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ot-match-num {
+  font-weight: 700;
+  color: #e3b341;
+}
+
+.ot-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  color: #8b9dc3;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+  padding: 0;
+  flex-shrink: 0;
+
+  svg { width: 9px; height: 6px; }
+
+  &:hover { background: rgba(255, 255, 255, 0.18); color: #e2e8f0; }
+}
+
+.ot-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: none;
+  border: none;
+  color: #6b82a8;
+  cursor: pointer;
+  transition: color 120ms;
+  padding: 0;
+  flex-shrink: 0;
+
+  svg { width: 9px; height: 9px; }
+  &:hover { color: #e2e8f0; }
+}
+
+// ── Search highlights ─────────────────────────────────────────────────────────
+
+mark.ot-hl {
+  background: rgba(255, 211, 61, 0.35);
+  color: #7c4a00;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-style: normal;
+}
+
+mark.ot-hl.ot-hl-active {
+  background: rgba(255, 170, 0, 0.65);
+  color: #3d2000;
+  outline: 1px solid rgba(255, 200, 50, 0.8);
+}
+
 .ot-error {
   color: #f87171;
   padding: 16px;
@@ -46,201 +167,463 @@
   font-size: 13px;
 }
 
-/* ── Document container ────────────────────────────────────────────────── */
+// ── Document container ────────────────────────────────────────────────────────
 
 .ot-document {
   background: #fff;
-  color: #000;
-  width: 900px;
-  margin: 0 auto;
+  color: #111;
+  width: 100%;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 11px;
-}
-
-.ot-page {
-  padding: 20px 24px;
-  border-bottom: 1px solid #ccc;
+  font-size: 14px;
+  border: 1px solid #ccc;
 }
 
 .ot-page-break {
   border-top: 2px dashed #aaa;
-  border-bottom: none;
 }
 
-/* ── Tables — shared reset ──────────────────────────────────────────────── */
+// ── Typography primitives ─────────────────────────────────────────────────────
 
-.ot-page-header-table,
-.ot-band-table,
-.ot-address-table,
-.ot-details-table,
-.ot-shipping-table,
-.ot-meta-table,
-.ot-items-table,
-.ot-totals-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 4px;
+.ot-label {
+  color: #6b7280;
+  font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 
-  td, th {
-    font-size: 11px;
-    font-family: Arial, Helvetica, sans-serif;
+.ot-value {
+  color: #111;
+  font-size: 14px;
+}
+
+.ot-value-lg {
+  color: #111;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.ot-bold {
+  font-weight: 700;
+}
+
+.ot-field-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+
+  &--offset {
+    padding-left: 60px;
   }
 }
 
-/* ── Page 1 specific tables ─────────────────────────────────────────────── */
+.ot-inline-gap {
+  margin-left: 16px;
+}
 
-.ot-page-header-table {
-  border: 1px solid #000;
+// ── Title row ─────────────────────────────────────────────────────────────────
 
-  td {
-    border: 1px solid #000;
-    padding: 4px 6px;
-    font-size: 13px;
+.ot-doc-header {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-doc-header-left,
+.ot-doc-header-right {
+  flex: 1;
+  padding: 10px 16px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.ot-doc-header-left {
+  border-right: 1px solid #ccc;
+}
+
+// ── Rep / Amount / Program band ───────────────────────────────────────────────
+
+.ot-band {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-band-col {
+  flex: 1;
+  // padding: 18px 20px;
+
+  &:not(:last-child) {
+    border-right: 1px solid #ccc;
+  }
+
+  &--center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
 }
 
-.ot-band-table {
-  border: 1px solid #000;
+// ── Sold To / Ship To ─────────────────────────────────────────────────────────
 
-  td {
-    border: 1px solid #000;
-    padding: 4px 6px;
-    vertical-align: middle;
+.ot-address-row {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-address-box {
+  flex: 1;
+  padding: 18px 20px;
+
+  &:not(:last-child) {
+    border-right: 1px solid #ccc;
   }
 }
 
-.ot-address-table {
-  border: 1px solid #000;
+.ot-section-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: #374151;
+  text-align: center;
+  margin-bottom: 12px;
+}
 
-  td {
-    border: 1px solid #000;
-    padding: 3px 6px;
-    vertical-align: top;
-    width: 25%;
+// ── Order details ─────────────────────────────────────────────────────────────
+
+.ot-details-band {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-details-left,
+.ot-details-right {
+  flex: 1;
+  padding: 18px 20px;
+}
+
+.ot-details-left {
+  border-right: 1px solid #ccc;
+}
+
+// ── Shipping / Release comments ───────────────────────────────────────────────
+
+.ot-shipping-row {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-shipping-box,
+.ot-release-box {
+  flex: 1;
+  padding: 18px 20px;
+}
+
+.ot-shipping-box {
+  border-right: 1px solid #ccc;
+}
+
+.ot-release-title {
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: underline;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+// ── Metadata row ──────────────────────────────────────────────────────────────
+
+.ot-meta-row {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-meta-col {
+  flex: 1;
+  padding: 14px 20px;
+
+  &:not(:last-child) {
+    border-right: 1px solid #ccc;
   }
 }
 
-.ot-details-table {
-  border: 1px solid #000;
+// ── Page footer ───────────────────────────────────────────────────────────────
 
-  td {
-    border: 1px solid #000;
-    padding: 3px 6px;
-    vertical-align: top;
-  }
+.ot-page-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 10px;
+  color: #6b7280;
+  border-top: 1px solid #ccc;
 }
 
-.ot-shipping-table {
-  border: 1px solid #000;
-
-  td {
-    border: 1px solid #000;
-    padding: 4px 8px;
-    vertical-align: top;
-  }
+.ot-page-num {
+  font-weight: 600;
 }
 
-.ot-meta-table {
-  border: 1px solid #000;
+// ── Page 2: line items ────────────────────────────────────────────────────────
 
-  td {
-    border: 1px solid #000;
-    padding: 3px 6px;
-    width: 33.33%;
-  }
+.ot-items-section {
+  padding: 0 16px 12px;
 }
-
-/* ── Page 2: line items table ───────────────────────────────────────────── */
 
 .ot-list-models-heading {
   text-align: center;
   font-weight: bold;
-  font-size: 13px;
-  margin-bottom: 8px;
+  font-size: 14px;
+  padding: 14px 0 8px;
 }
 
 .ot-items-table {
-  border: 1px solid #000;
-  font-size: 10px;
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
 
   th {
     border: 1px solid #000;
-    padding: 2px 4px;
+    padding: 3px 4px;
     background: #f0f0f0;
     text-align: center;
-    font-size: 10px;
-    white-space: nowrap;
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+    word-break: normal;
+    overflow-wrap: break-word;
   }
 
   td {
     border: 1px solid #000;
-    padding: 2px 4px;
+    padding: 3px 4px;
     vertical-align: middle;
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+    word-break: break-word;
   }
 }
 
 .ot-tag-row td {
   background: #fafafa;
   font-size: 10px;
-  color: #444;
-  padding: 1px 6px 3px;
-  border-left: 1px solid #ccc;
-  border-right: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
+  color: #555;
+  padding: 2px 6px 4px;
+  border: 1px solid #ddd;
 }
 
 .ot-totals-table {
-  border: 1px solid #000;
-  margin-top: 6px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
 
   td {
     border: 1px solid #000;
-    padding: 3px 8px;
-    font-size: 11px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-family: Arial, Helvetica, sans-serif;
   }
 }
 
-/* ── Utilities ──────────────────────────────────────────────────────────── */
+// ── Utilities ─────────────────────────────────────────────────────────────────
 
-.ot-center  { text-align: center; }
-.ot-right   { text-align: right; }
-.ot-label   { font-weight: bold; white-space: nowrap; }
-.ot-field-label { font-size: 10px; }
-.ot-field-large { font-size: 13px; font-weight: bold; }
-.ot-section-header { font-weight: bold; text-align: center; }
-
-.ot-page-footer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 12px;
-  font-size: 9px;
-  color: #555;
-  border-top: 1px solid #ccc;
-  padding-top: 4px;
+// Legacy aliases kept for any external references.
+.ot-center {
+  text-align: center;
+}
+.ot-right {
+  text-align: right;
 }
 
-.ot-page-num {
+// Generated by config-driven table (col.align → 'ot-td-' + col.align).
+.ot-td-left {
+  text-align: left;
+}
+.ot-td-center {
+  text-align: center;
+}
+.ot-td-right {
+  text-align: right;
+}
+
+// ── Generic block layout (renderMode: 'block') ────────────────────────────────
+
+.ot-generic-block {
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-family: Arial, Helvetica, sans-serif;
+  page-break-inside: avoid;
+}
+
+.ot-generic-model-header {
+  background: #e8e8e8;
+  border-bottom: 1px solid #bbb;
+  padding: 4px 8px;
   font-weight: bold;
+  font-size: 12px;
 }
 
-/* ── Print overrides ────────────────────────────────────────────────────── */
+.ot-generic-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 4px 8px 6px;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-generic-kv-cell {
+  padding: 2px 4px;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ot-generic-kv-name {
+  display: inline;
+  font-style: italic;
+  color: #666;
+  font-size: 11px;
+}
+
+.ot-generic-kv-value {
+  display: inline;
+  color: #111;
+  font-weight: 500;
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+.ot-generic-pricing-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+
+  th {
+    border: 1px solid #000;
+    padding: 3px 4px;
+    background: #f0f0f0;
+    text-align: center;
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  td {
+    border: 1px solid #000;
+    padding: 3px 4px;
+    vertical-align: middle;
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+}
+
+.ot-generic-tag-row {
+  background: #fafafa;
+  font-size: 10px;
+  color: #555;
+  padding: 2px 8px 4px;
+  border-top: 1px solid #ddd;
+}
+
+// ── Print overrides ───────────────────────────────────────────────────────────
 
 @media print {
+  mark.ot-hl,
+  mark.ot-hl.ot-hl-active {
+    background: none !important;
+    color: inherit !important;
+    outline: none !important;
+  }
+
+
+  @page {
+    size: landscape;
+    margin: 8mm;
+  }
+
   .no-print {
     display: none !important;
+  }
+
+  // Eliminate all scroll containers so nothing clips
+  * {
+    overflow: visible !important;
+    min-width: 0 !important;
   }
 
   .ot-wrapper {
     background: #fff;
     padding: 0;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
   }
 
   .ot-document {
     width: 100%;
+    border: none;
+  }
+
+  .ot-items-section {
+    padding: 0;
   }
 
   .ot-page-break {
     page-break-before: always;
     border-top: none;
+  }
+
+  // Tighten up table cells further for print
+  .ot-items-table th {
+    font-size: 8px;
+    padding: 2px 2px;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .ot-items-table td {
+    font-size: 8px;
+    padding: 2px 2px;
+  }
+
+  .ot-tag-row td {
+    font-size: 8px;
+    padding: 1px 3px;
+  }
+
+  .ot-totals-table td {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .ot-generic-block {
+    margin-bottom: 6px;
+  }
+
+  .ot-generic-model-header {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .ot-generic-options-grid {
+    padding: 2px 6px 4px;
+  }
+
+  .ot-generic-kv-cell,
+  .ot-generic-kv-name,
+  .ot-generic-kv-value {
+    font-size: 8px;
+  }
+
+  .ot-generic-pricing-table th,
+  .ot-generic-pricing-table td {
+    font-size: 8px;
+    padding: 2px 2px;
+  }
+
+  .ot-generic-tag-row {
+    font-size: 8px;
+    padding: 1px 6px 3px;
   }
 }

@@ -10,6 +10,7 @@ export const webtoolRoutes: Routes = [
       { path: '', redirectTo: 'selections', pathMatch: 'full' },
       {
         path: 'selections/:id',
+        title: 'Selection',
         loadComponent: () =>
           import('./pages/selection-detail/selection-detail.component').then(
             m => m.SelectionDetailComponent,

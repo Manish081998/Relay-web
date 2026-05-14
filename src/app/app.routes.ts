@@ -11,6 +11,20 @@ export const routes: Routes = [
       import('./features/auth/auth.routes').then(m => m.authRoutes),
   },
 
+  // ── Standalone print/popup views (no shell chrome) ───────────────────────
+  {
+    path: 'print',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'order-transmittal',
+        title: 'Order Transmittal',
+        loadComponent: () =>
+          import('./features/intranet/pages/order-transmittal/order-transmittal').then(m => m.OrderTransmittal),
+      },
+    ],
+  },
+
   // ── Authenticated shell ───────────────────────────────────────────────────
   {
     path: '',
@@ -60,6 +74,7 @@ export const routes: Routes = [
 
       {
         path: 'forbidden',
+        title: 'Access Denied',
         loadComponent: () =>
           import('./shared/components/forbidden/forbidden.component').then(m => m.ForbiddenComponent),
       },
@@ -67,6 +82,7 @@ export const routes: Routes = [
       // ── 404 (inside shell so header + sidebar are visible) ──────────────
       {
         path: '**',
+        title: 'Page Not Found',
         loadComponent: () =>
           import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent),
       },
