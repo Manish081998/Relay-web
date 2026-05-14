@@ -21,18 +21,15 @@ export const intranetRoutes: Routes = [
       // },
       {
         path: 'Edge-Orders-Search',
+        title: 'Edge Orders',
         loadComponent: () =>
           import('./pages/edge-orders-search/edge-orders-search').then(m => m.EdgeOrdersSearch),
       },
       {
         path: 'xml-viewer',
+        title: 'XML Viewer',
         loadComponent: () =>
           import('./pages/xml-viewer/xml-viewer').then(m => m.XmlViewer),
-      },
-      {
-        path: 'order-transmittal',
-        loadComponent: () =>
-          import('./pages/order-transmittal/order-transmittal').then(m => m.OrderTransmittal),
       },
     ],
   },

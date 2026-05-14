@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
   OnInit,
   signal,
@@ -29,16 +30,19 @@ interface XmlNode {
   styleUrl: './xml-viewer.scss',
 })
 export class XmlViewer implements OnInit {
-  private readonly router = inject(Router);
-  private readonly route  = inject(ActivatedRoute);
+  private readonly router  = inject(Router);
+  private readonly route   = inject(ActivatedRoute);
+  private readonly elRef   = inject(ElementRef);
 
-  readonly xmlRaw = signal('');
-  readonly title = signal('XML Document');
-  readonly tree = signal<XmlNode[]>([]);
-  readonly parseError = signal('');
-  readonly searchQuery = signal('');
-  readonly copied = signal(false);
-  readonly allCollapsed = signal(false);
+  readonly xmlRaw           = signal('');
+  readonly title            = signal('XML Document');
+  readonly tree             = signal<XmlNode[]>([]);
+  readonly parseError       = signal('');
+  readonly searchQuery      = signal('');
+  readonly copied           = signal(false);
+  readonly allCollapsed     = signal(false);
+  readonly currentMatchIndex = signal(-1);
+  readonly markTotal        = signal(0);
 
   private nodeCounter = 0;
 
@@ -91,6 +95,31 @@ export class XmlViewer implements OnInit {
 
   onSearch(value: string): void {
     this.searchQuery.set(value);
+    this.currentMatchIndex.set(-1);
+    this.markTotal.set(0);
+  }
+
+  onSearchKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    this.navigateToMatch(event.shiftKey ? -1 : 1);
+  }
+
+  navigateToMatch(direction: 1 | -1 = 1): void {
+    const marks = Array.from(
+      this.elRef.nativeElement.querySelectorAll('mark.hl'),
+    ) as HTMLElement[];
+    if (!marks.length) return;
+    marks.forEach(m => m.classList.remove('hl-active'));
+    const total = marks.length;
+    this.markTotal.set(total);
+    const current = this.currentMatchIndex();
+    const next = current < 0 && direction === 1
+      ? 0
+      : ((current + direction) % total + total) % total;
+    this.currentMatchIndex.set(next);
+    marks[next].classList.add('hl-active');
+    marks[next].scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   isMatch(node: XmlNode): boolean {

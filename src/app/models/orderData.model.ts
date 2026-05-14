@@ -42,7 +42,13 @@ export interface OrderData {
   email: string;
   ctrlQty: string;
   jobGuid: string;
-  lineItems: LineItem[];
+  freightQuoteNumber: string;
+  /** Identifies which XML schema produced this order; drives table rendering. */
+  xmlType: 'titusgrd' | 'tnbheader' | 'titusterminal' | 'generic';
+  /** Each element is a map of column-key → display value, keyed by OrderTypeConfig.columns[].key */
+  lineItems: Record<string, string>[];
+  /** Generic type only: per-model option name/value pairs sorted by option_order. Index-parallel with lineItems. */
+  lineItemOptions?: Array<{ name: string; value: string }[]>;
   baseOrderCost: string;
   setupCharge: string;
   freight: string;

@@ -9,6 +9,7 @@ export const adminRoutes: Routes = [
     children: [
       {
         path: 'manage-users',
+        title: 'Manage Users',
         loadComponent: () =>
           import('./manage-users/manage-users').then(m => m.ManageUsers),
       },
