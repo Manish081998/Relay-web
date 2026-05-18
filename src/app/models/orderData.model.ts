@@ -1,4 +1,27 @@
 
+export interface SdaItem {
+  userName: string;
+  sdaNumber: string;
+  category: string;
+  productName: string;
+  discountGroup: string;
+  productQty: string;
+  listPrice: string;
+  reqMultiplier: string;
+  appNet: string;
+  isReleased: string;
+}
+
+export interface OrderSection {
+  /** Matches OrderTypeConfig.id — drives which table config to use when rendering. */
+  xmlType: string;
+  lineItems: Record<string, string>[];
+  /** Generic type only: per-model option name/value pairs sorted by option_order. Index-parallel with lineItems. */
+  lineItemOptions?: Array<{ name: string; value: string }[]>;
+  /** KRU block-layout only: per-model field key→value map, index-parallel with lineItems. */
+  lineItemBlockFields?: Array<Record<string, string>>;
+}
+
 export interface OrderData {
   repAccountNo: string;
   repPhone: string;
@@ -43,12 +66,13 @@ export interface OrderData {
   ctrlQty: string;
   jobGuid: string;
   freightQuoteNumber: string;
-  /** Identifies which XML schema produced this order; drives table rendering. */
-  xmlType: 'titusgrd' | 'tnbheader' | 'titusterminal' | 'generic';
-  /** Each element is a map of column-key → display value, keyed by OrderTypeConfig.columns[].key */
-  lineItems: Record<string, string>[];
-  /** Generic type only: per-model option name/value pairs sorted by option_order. Index-parallel with lineItems. */
-  lineItemOptions?: Array<{ name: string; value: string }[]>;
+  /** One element per product-type section found in the XML (e.g. TitusGRD, TitusTerminal). */
+  sections: OrderSection[];
+  sdaBrandName: string;
+  sdaExpireDate: string;
+  sdaVersion: string;
+  sdaPaNotes: string;
+  sdaItems: SdaItem[];
   baseOrderCost: string;
   setupCharge: string;
   freight: string;

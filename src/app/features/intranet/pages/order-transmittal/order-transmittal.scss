@@ -82,9 +82,13 @@
   font-family: Arial, Helvetica, sans-serif;
   width: 100%;
   box-sizing: border-box;
-  transition: border-color 150ms, box-shadow 150ms;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
 
-  &::placeholder { color: #6b82a8; }
+  &::placeholder {
+    color: #6b82a8;
+  }
 
   &:focus {
     outline: none;
@@ -116,13 +120,21 @@
   border-radius: 3px;
   color: #8b9dc3;
   cursor: pointer;
-  transition: background 120ms, color 120ms;
+  transition:
+    background 120ms,
+    color 120ms;
   padding: 0;
   flex-shrink: 0;
 
-  svg { width: 9px; height: 6px; }
+  svg {
+    width: 9px;
+    height: 6px;
+  }
 
-  &:hover { background: rgba(255, 255, 255, 0.18); color: #e2e8f0; }
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #e2e8f0;
+  }
 }
 
 .ot-search-clear {
@@ -139,8 +151,13 @@
   padding: 0;
   flex-shrink: 0;
 
-  svg { width: 9px; height: 9px; }
-  &:hover { color: #e2e8f0; }
+  svg {
+    width: 9px;
+    height: 9px;
+  }
+  &:hover {
+    color: #e2e8f0;
+  }
 }
 
 // ── Search highlights ─────────────────────────────────────────────────────────
@@ -176,6 +193,7 @@ mark.ot-hl.ot-hl-active {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
   border: 1px solid #ccc;
+  zoom: 1.5;
 }
 
 .ot-page-break {
@@ -377,16 +395,33 @@ mark.ot-hl.ot-hl-active {
   padding: 14px 0 8px;
 }
 
+.ot-sda-meta {
+  font-size: 11px;
+  padding: 2px 0;
+}
+
+.ot-section-label {
+  font-weight: 600;
+  font-size: 12px;
+  color: #374151;
+  background: #f0f0f0;
+  border: 1px solid #d1d5db;
+  border-bottom: none;
+  padding: 4px 8px;
+  margin-top: 16px;
+}
+
 .ot-items-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-
+  margin-bottom: 50px;
   th {
     border: 1px solid #000;
     padding: 3px 4px;
     background: #f0f0f0;
     text-align: center;
+    font-weight: bolder;
     font-size: 11px;
     font-family: Arial, Helvetica, sans-serif;
     overflow: hidden;
@@ -398,7 +433,8 @@ mark.ot-hl.ot-hl-active {
     border: 1px solid #000;
     padding: 3px 4px;
     vertical-align: middle;
-    font-size: 11px;
+     font-size: 11px;
+    font-weight: 600;
     font-family: Arial, Helvetica, sans-serif;
     overflow: hidden;
     word-break: break-word;
@@ -526,6 +562,64 @@ mark.ot-hl.ot-hl-active {
   border-top: 1px solid #ddd;
 }
 
+// ── KRU block layout (renderMode: 'kru-block') ────────────────────────────────
+
+.ot-kru-block {
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-family: Arial, Helvetica, sans-serif;
+  page-break-inside: avoid;
+}
+
+.ot-kru-block-header {
+  background: #d8e4f0;
+  border-bottom: 1px solid #9bb8d4;
+  padding: 4px 8px;
+  font-weight: bold;
+  font-size: 12px;
+  color: #1a3a5c;
+}
+
+.ot-kru-block-fields {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 4px 8px 6px;
+  border-bottom: 1px solid #ccc;
+  gap: 0;
+}
+
+.ot-kru-kv-cell {
+  padding: 2px 4px;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ot-kru-kv-name {
+  display: inline;
+  font-style: italic;
+  color: #666;
+  font-size: 10px;
+}
+
+.ot-kru-kv-value {
+  display: inline;
+  color: #111;
+  font-weight: 500;
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+.ot-kru-block-tag-row {
+  background: #fafafa;
+  font-size: 10px;
+  color: #555;
+  padding: 2px 8px 4px;
+  border-top: 1px solid #ddd;
+}
+
 // ── Print overrides ───────────────────────────────────────────────────────────
 
 @media print {
@@ -535,7 +629,6 @@ mark.ot-hl.ot-hl-active {
     color: inherit !important;
     outline: none !important;
   }
-
 
   @page {
     size: landscape;
@@ -563,6 +656,7 @@ mark.ot-hl.ot-hl-active {
   .ot-document {
     width: 100%;
     border: none;
+    zoom: 1;
   }
 
   .ot-items-section {
@@ -624,6 +718,30 @@ mark.ot-hl.ot-hl-active {
 
   .ot-generic-tag-row {
     font-size: 8px;
+    padding: 1px 6px 3px;
+  }
+
+  .ot-kru-block {
+    margin-bottom: 6px;
+  }
+
+  .ot-kru-block-header {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .ot-kru-block-fields {
+    padding: 2px 6px 4px;
+  }
+
+  .ot-kru-kv-cell,
+  .ot-kru-kv-name,
+  .ot-kru-kv-value {
+    font-size: 7px;
+  }
+
+  .ot-kru-block-tag-row {
+    font-size: 7px;
     padding: 1px 6px 3px;
   }
 }
