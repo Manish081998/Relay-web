@@ -185,93 +185,147 @@
       </div><!-- /page 1 -->
 
       <!-- ═══════════════════════════════════════════════════════
-           PAGE 2 — Line Items (config-driven table)
+           PAGE 2+ — Line Items (one section per product type)
            ═══════════════════════════════════════════════════════ -->
       <div class="ot-page ot-page-break">
         <div class="ot-items-section">
-
           <div class="ot-list-models-heading">List Models</div>
-
-          @if (config().renderMode === 'block') {
-            @for (item of o.lineItems; track item['line']; let i = $index) {
-              <div class="ot-generic-block">
-                <div class="ot-generic-model-header">Model : <span [innerHTML]="hl(item['model'])"></span></div>
-                <div class="ot-generic-options-grid">
-                  @for (opt of (o.lineItemOptions?.[i] ?? []); track $index) {
-                    <div class="ot-generic-kv-cell">
-                      <span class="ot-generic-kv-name" [innerHTML]="hl(opt.name)"></span>
-                      @if (opt.value) {
-                        <span class="ot-generic-kv-value" [innerHTML]="hl(opt.value)"></span>
-                      }
-                    </div>
-                  }
-                </div>
-                <table class="ot-generic-pricing-table" cellpadding="3" cellspacing="0">
-                  <colgroup>
-                    @for (col of config().columns; track col.key) {
-                      <col [style.width]="col.widthPct + '%'">
+          @for (section of o.sections; track $index) {
+            @let cfg = cfgFor(section.xmlType);
+            @if (o.sections.length > 1) {
+              <div class="ot-section-label">{{ cfg.label }}</div>
+            }
+            <!-- ── Block layout (Generic / PEN) ──────────────────────────── -->
+            @if (cfg.renderMode === 'block') {
+              @for (item of section.lineItems; track item['line']; let i = $index) {
+                <div class="ot-generic-block">
+                  <div class="ot-generic-model-header">Model : <span [innerHTML]="hl(item['model'])"></span></div>
+                  <div class="ot-generic-options-grid">
+                    @for (opt of (section.lineItemOptions?.[i] ?? []); track $index) {
+                      <div class="ot-generic-kv-cell">
+                        <span class="ot-generic-kv-name" [innerHTML]="hl(opt.name)"></span>
+                        @if (opt.value) {
+                          <span class="ot-generic-kv-value" [innerHTML]="hl(opt.value)"></span>
+                        }
+                      </div>
                     }
-                  </colgroup>
-                  <thead>
+                  </div>
+                  <table class="ot-generic-pricing-table" cellpadding="3" cellspacing="0">
+                    <colgroup>
+                      @for (col of cfg.columns; track col.key) {
+                        <col [style.width]="col.widthPct + '%'">
+                      }
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        @for (col of cfg.columns; track col.key) {
+                          <th>{{ col.label }}</th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        @for (col of cfg.columns; track col.key) {
+                          <td [class]="'ot-td-' + col.align" [innerHTML]="hl(item[col.key])"></td>
+                        }
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="ot-generic-tag-row">
+                    Tag: <span [innerHTML]="hl(item['tag'])"></span>&nbsp;&nbsp;&nbsp;Comments: <span [innerHTML]="hl(item['multiplier'])"></span>
+                    @if (item['comment']) { &nbsp;&nbsp;<span [innerHTML]="hl(item['comment'])"></span> }
+                  </div>
+                </div>
+              }
+            <!-- ── KRU block layout (complex fan coil units) ──────────────── -->
+            } @else if (cfg.renderMode === 'kru-block') {
+              @for (item of section.lineItems; track item['line']; let i = $index) {
+                <div class="ot-kru-block">
+                  <div class="ot-kru-block-header">
+                    Line:&nbsp;<span [innerHTML]="hl(item['line'])"></span>&nbsp;&nbsp;
+                    Qty:&nbsp;<span [innerHTML]="hl(item['qty'])"></span>&nbsp;&nbsp;
+                    Model:&nbsp;<span [innerHTML]="hl(item['model'])"></span>
+                  </div>
+                  <div class="ot-kru-block-fields">
+                    @for (bf of cfg.blockFields!; track bf.xmlTag) {
+                      @if ((section.lineItemBlockFields?.[i] ?? {})[bf.xmlTag]) {
+                        <div class="ot-kru-kv-cell">
+                          <span class="ot-kru-kv-name" [innerHTML]="hl(bf.label)"></span>
+                          <span class="ot-kru-kv-value" [innerHTML]="hl((section.lineItemBlockFields![i])[bf.xmlTag])"></span>
+                        </div>
+                      }
+                    }
+                  </div>
+                  <table class="ot-generic-pricing-table" cellpadding="3" cellspacing="0">
+                    <colgroup>
+                      @for (col of cfg.columns; track col.key) {
+                        <col [style.width]="col.widthPct + '%'">
+                      }
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        @for (col of cfg.columns; track col.key) {
+                          <th>{{ col.label }}</th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        @for (col of cfg.columns; track col.key) {
+                          <td [class]="'ot-td-' + col.align" [innerHTML]="hl(item[col.key])"></td>
+                        }
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="ot-kru-block-tag-row">
+                    Tag:&nbsp;<span [innerHTML]="hl(item['tag'])"></span>&nbsp;&nbsp;&nbsp;Comments:&nbsp;<span [innerHTML]="hl(item['multiplier'])"></span>
+                    @if (item['comment']) { &nbsp;&nbsp;<span [innerHTML]="hl(item['comment'])"></span> }
+                  </div>
+                </div>
+              }
+
+            <!-- ── Table layout (all TTS / TNB types) ────────────────────── -->
+            } @else {
+              <table class="ot-items-table" cellpadding="3" cellspacing="0">
+                <colgroup>
+                  @for (col of cfg.columns; track col.key) {
+                    <col [style.width]="col.widthPct + '%'">
+                  }
+                </colgroup>
+
+                <thead>
+                  @for (row of cfg.headerRows; track $index) {
                     <tr>
-                      @for (col of config().columns; track col.key) {
-                        <th>{{ col.label }}</th>
+                      @for (cell of row; track $index) {
+                        <th
+                          [attr.rowspan]="cell.rowspan && cell.rowspan > 1 ? cell.rowspan : null"
+                          [attr.colspan]="cell.colspan && cell.colspan > 1 ? cell.colspan : null">
+                          {{ cell.label }}
+                        </th>
                       }
                     </tr>
-                  </thead>
-                  <tbody>
+                  }
+                </thead>
+
+                <tbody>
+                  @for (item of section.lineItems; track item['line']) {
                     <tr>
-                      @for (col of config().columns; track col.key) {
+                      @for (col of cfg.columns; track col.key) {
                         <td [class]="'ot-td-' + col.align" [innerHTML]="hl(item[col.key])"></td>
                       }
                     </tr>
-                  </tbody>
-                </table>
-                <div class="ot-generic-tag-row">
-                  Tag: <span [innerHTML]="hl(item['tag'])"></span>&nbsp;&nbsp;&nbsp;Comments: <span [innerHTML]="hl(item['multiplier'])"></span>
-                  @if (item['comment']) { &nbsp;&nbsp;<span [innerHTML]="hl(item['comment'])"></span> }
-                </div>
-              </div>
+                    <tr class="ot-tag-row">
+                      <td [attr.colspan]="cfg.columns.length">
+                        Tag: <span [innerHTML]="hl(item['tag'])"></span>&nbsp;&nbsp;&nbsp;Comments: <span [innerHTML]="hl(item['multiplier'])"></span>
+                        @if (item['comment']) { &nbsp;&nbsp;<span [innerHTML]="hl(item['comment'])"></span> }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
             }
-          } @else {
-            <table class="ot-items-table" cellpadding="3" cellspacing="0">
-              <colgroup>
-                @for (col of config().columns; track col.key) {
-                  <col [style.width]="col.widthPct + '%'">
-                }
-              </colgroup>
 
-              <thead>
-                @for (row of config().headerRows; track $index) {
-                  <tr>
-                    @for (cell of row; track $index) {
-                      <th
-                        [attr.rowspan]="cell.rowspan && cell.rowspan > 1 ? cell.rowspan : null"
-                        [attr.colspan]="cell.colspan && cell.colspan > 1 ? cell.colspan : null">
-                        {{ cell.label }}
-                      </th>
-                    }
-                  </tr>
-                }
-              </thead>
-
-              <tbody>
-                @for (item of o.lineItems; track item['line']) {
-                  <tr>
-                    @for (col of config().columns; track col.key) {
-                      <td [class]="'ot-td-' + col.align" [innerHTML]="hl(item[col.key])"></td>
-                    }
-                  </tr>
-                  <tr class="ot-tag-row">
-                    <td [attr.colspan]="config().columns.length">
-                      Tag: <span [innerHTML]="hl(item['tag'])"></span>&nbsp;&nbsp;&nbsp;Comments: <span [innerHTML]="hl(item['multiplier'])"></span>
-                      @if (item['comment']) { &nbsp;&nbsp;<span [innerHTML]="hl(item['comment'])"></span> }
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          }
+          }<!-- /sections loop -->
 
           <table class="ot-totals-table" cellpadding="3" cellspacing="0">
             <tr>
@@ -296,6 +350,64 @@
         </div>
 
       </div><!-- /page 2 -->
+
+      <!-- ═══════════════════════════════════════════════════════
+           SDA Details (all brands — shown only when SDA data present)
+           ═══════════════════════════════════════════════════════ -->
+      @if (o.sdaItems.length) {
+        <div class="ot-page ot-page-break">
+          <div class="ot-list-models-heading">Details of SDA</div>
+
+          @if (o.sdaBrandName) {
+            <div class="ot-sda-meta">
+              <span [innerHTML]="hl(o.sdaBrandName)"></span>
+              @if (o.sdaExpireDate) {
+                &nbsp;&mdash;&nbsp;Expires: <span [innerHTML]="hl(o.sdaExpireDate)"></span>
+              }
+            </div>
+          }
+          @if (o.sdaVersion) {
+            <div class="ot-sda-meta" [innerHTML]="hl(o.sdaVersion)"></div>
+          }
+          @if (o.sdaPaNotes) {
+            <div class="ot-sda-meta">PA Notes: <span [innerHTML]="hl(o.sdaPaNotes)"></span></div>
+          }
+
+          <table class="ot-items-table" cellpadding="3" cellspacing="0">
+            <thead>
+              <tr>
+                <th>User Name</th>
+                <th>SDA Number</th>
+                <th>Category</th>
+                <th>Product</th>
+                <th>Disc. Group</th>
+                <th>Qty</th>
+                <th>Total List</th>
+                <th>Appr. Multiplier</th>
+                <th>App. Net</th>
+                <th>Released</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (sda of o.sdaItems; track $index) {
+                <tr>
+                  <td [innerHTML]="hl(sda.userName)"></td>
+                  <td [innerHTML]="hl(sda.sdaNumber)"></td>
+                  <td [innerHTML]="hl(sda.category)"></td>
+                  <td [innerHTML]="hl(sda.productName)"></td>
+                  <td [innerHTML]="hl(sda.discountGroup)"></td>
+                  <td class="ot-td-right" [innerHTML]="hl(sda.productQty)"></td>
+                  <td class="ot-td-right" [innerHTML]="hl(sda.listPrice)"></td>
+                  <td class="ot-td-right" [innerHTML]="hl(sda.reqMultiplier)"></td>
+                  <td class="ot-td-right" [innerHTML]="hl(sda.appNet)"></td>
+                  <td [innerHTML]="hl(sda.isReleased)"></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+        </div><!-- /sda page -->
+      }
 
     </div><!-- /document -->
   }

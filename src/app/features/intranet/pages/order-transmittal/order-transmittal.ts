@@ -1,12 +1,20 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { OrderData } from 'src/app/models/orderData.model';
+import { OrderData, SdaItem } from 'src/app/models/orderData.model';
 import {
+  Brand,
   OrderTypeConfig,
-  TITUSGRD_CONFIG,
-  detectOrderConfig,
+  detectAllOrderConfigs,
+  getConfigById,
 } from '../../models/order-config.model';
 
 @Component({
@@ -18,46 +26,66 @@ import {
   styleUrl: './order-transmittal.scss',
 })
 export class OrderTransmittal implements OnInit {
-  private readonly route     = inject(ActivatedRoute);
-  private readonly titleSvc  = inject(Title);
-  private readonly elRef     = inject(ElementRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly titleSvc = inject(Title);
+  private readonly elRef = inject(ElementRef);
 
-  readonly order              = signal<OrderData | null>(null);
-  readonly config             = signal<OrderTypeConfig>(TITUSGRD_CONFIG);
-  readonly parseError         = signal('');
-  readonly releaseNumber      = signal('');
-  readonly printDate          = signal('');
-  readonly searchQuery        = signal('');
-  readonly currentMatchIndex  = signal(-1);
-  readonly markTotal          = signal(0);
+  readonly order = signal<OrderData | null>(null);
+  readonly parseError = signal('');
+  readonly releaseNumber = signal('');
+  readonly printDate = signal('');
+  readonly searchQuery = signal('');
+  readonly currentMatchIndex = signal(-1);
+  readonly markTotal = signal(0);
 
   ngOnInit(): void {
     this.printDate.set(new Date().toLocaleDateString('en-US'));
 
     const key = this.route.snapshot.queryParamMap.get('key');
-    if (key) {
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        const data = JSON.parse(stored) as { xml?: string; releaseNumber?: string };
-        this.releaseNumber.set(data.releaseNumber ?? '');
-        if (data.xml) {
-          this.parseXml(data.xml);
-          return;
-        }
+    if (!key) {
+      this.parseError.set('No XML content received. Please go back and click a release number.');
+      return;
+    }
+
+    // sessionStorage is checked first on every load, including refreshes.
+    // On the very first load the data arrives via localStorage (cross-tab delivery);
+    // we migrate it to sessionStorage and immediately remove it from localStorage so
+    // it never accumulates. On subsequent loads (refresh) sessionStorage already has it.
+    let raw = sessionStorage.getItem(key);
+    if (!raw) {
+      raw = localStorage.getItem(key);
+      if (raw) {
+        sessionStorage.setItem(key, raw);
+        localStorage.removeItem(key);
       }
     }
 
-    const state = history.state as { xml?: string; releaseNumber?: string };
-    this.releaseNumber.set(state?.releaseNumber ?? '');
-    if (state?.xml) {
-      this.parseXml(state.xml);
+    if (!raw) {
+      this.parseError.set('No XML content received. Please go back and click a release number.');
+      return;
+    }
+
+    const data = JSON.parse(raw) as { xml?: string; releaseNumber?: string };
+    this.releaseNumber.set(data.releaseNumber ?? '');
+    if (data.xml) {
+      this.parseXml(data.xml);
     } else {
       this.parseError.set('No XML content received. Please go back and click a release number.');
     }
   }
 
-  goBack(): void { window.close(); }
-  print(): void  { window.print(); }
+  /** Resolves a section's xmlType string back to its full OrderTypeConfig. */
+  cfgFor(xmlType: string): OrderTypeConfig {
+    return getConfigById(xmlType);
+  }
+
+  goBack(): void {
+    window.close();
+  }
+
+  print(): void {
+    window.print();
+  }
 
   onSearch(value: string): void {
     this.searchQuery.set(value);
@@ -76,13 +104,12 @@ export class OrderTransmittal implements OnInit {
       this.elRef.nativeElement.querySelectorAll('mark.ot-hl'),
     ) as HTMLElement[];
     if (!marks.length) return;
-    marks.forEach(m => m.classList.remove('ot-hl-active'));
+    marks.forEach((m) => m.classList.remove('ot-hl-active'));
     const total = marks.length;
     this.markTotal.set(total);
     const current = this.currentMatchIndex();
-    const next = current < 0 && direction === 1
-      ? 0
-      : ((current + direction) % total + total) % total;
+    const next =
+      current < 0 && direction === 1 ? 0 : (((current + direction) % total) + total) % total;
     this.currentMatchIndex.set(next);
     marks[next].classList.add('ot-hl-active');
     marks[next].scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -102,7 +129,6 @@ export class OrderTransmittal implements OnInit {
     return el.querySelector(selector)?.textContent?.trim() ?? '';
   }
 
-  /** Returns the first non-empty text value found among the given XML tag names. */
   private firstOf(mc: Element, tags: string[]): string {
     for (const tag of tags) {
       const val = mc.querySelector(tag)?.textContent?.trim();
@@ -120,110 +146,145 @@ export class OrderTransmittal implements OnInit {
         return;
       }
 
-      const tts = doc.querySelector('TTS');
-      if (!tts) {
-        this.parseError.set('Unexpected XML structure: missing TTS element.');
+      const brandRoot = doc.querySelector('TTS');
+      if (!brandRoot) {
+        this.parseError.set('Unexpected XML structure: no <TTS> root element found.');
         return;
       }
 
-      // Detect schema type and select corresponding config.
-      const cfg = detectOrderConfig(tts);
-      this.config.set(cfg);
+      const brand = brandRoot.querySelector('Brand SellingWareHouse')?.textContent?.trim() as
+        | Brand
+        | undefined;
+      const configs = detectAllOrderConfigs(brandRoot, brand);
 
-      // Parse line items using the config's column definitions.
-      const lineItems: Record<string, string>[] = Array.from(
-        tts.querySelectorAll(cfg.groupSelector),
-      ).map((group) => {
-        const mc = group.querySelector('ModelConfig')!;
-        const item: Record<string, string> = {};
+      const sections = configs.map((cfg) => {
+        const groups = Array.from(brandRoot!.querySelectorAll(cfg.groupSelector)) as Element[];
 
-        for (const col of cfg.columns) {
-          item[col.key] = this.firstOf(mc, col.xmlTags);
-        }
+        const lineItems: Record<string, string>[] = groups.map((group) => {
+          const mc = group.querySelector('ModelConfig')!;
+          const item: Record<string, string> = {};
+          for (const col of cfg.columns) {
+            item[col.key] = this.firstOf(mc, col.xmlTags);
+          }
+          item['tag'] = this.q(mc, 'TagText') || this.q(mc, 'Tag');
+          item['comment'] = this.q(mc, 'Comment');
+          item['multiplier'] = this.q(mc, 'Multiplier');
+          item['model'] = this.firstOf(mc, ['Model']);
+          return item;
+        });
 
-        // Meta fields shared by all types — not rendered as table columns.
-        item['tag']        = this.q(mc, 'TagText') || this.q(mc, 'Tag');
-        item['comment']    = this.q(mc, 'Comment');
-        item['multiplier'] = this.q(mc, 'Multiplier');
-        item['model']      = this.firstOf(mc, ['Model']);
+        const lineItemOptions =
+          cfg.id === 'generic'
+            ? groups.map((group) => {
+                const mc = group.querySelector('ModelConfig')!;
+                return Array.from(mc.querySelectorAll('options > option') as NodeListOf<Element>)
+                  .map((opt) => ({
+                    name: opt.querySelector('option_name')?.textContent?.trim() ?? '',
+                    value: opt.querySelector('option_value')?.textContent?.trim() ?? '',
+                    order: parseInt(
+                      opt.querySelector('option_order')?.textContent?.trim() ?? '0',
+                      10,
+                    ),
+                  }))
+                  .filter((o) => o.name !== '')
+                  .sort((a, b) => a.order - b.order)
+                  .map(({ name, value }) => ({ name, value }));
+              })
+            : undefined;
 
-        return item;
+        const lineItemBlockFields =
+          cfg.renderMode === 'kru-block' && cfg.blockFields
+            ? groups.map((group) => {
+                const mc = group.querySelector('ModelConfig')!;
+                const fields: Record<string, string> = {};
+                for (const bf of cfg.blockFields!) {
+                  fields[bf.xmlTag] = mc.querySelector(bf.xmlTag)?.textContent?.trim() ?? '';
+                }
+                return fields;
+              })
+            : undefined;
+
+        return { xmlType: cfg.id as string, lineItems, lineItemOptions, lineItemBlockFields };
       });
 
-      // Generic type: extract per-model <options> into a parallel array.
-      const lineItemOptions = cfg.id === 'generic'
-        ? Array.from(tts.querySelectorAll(cfg.groupSelector)).map(group => {
-            const mc = group.querySelector('ModelConfig')!;
-            return Array.from(mc.querySelectorAll('options > option'))
-              .map(opt => ({
-                name:  opt.querySelector('option_name')?.textContent?.trim() ?? '',
-                value: opt.querySelector('option_value')?.textContent?.trim() ?? '',
-                order: parseInt(opt.querySelector('option_order')?.textContent?.trim() ?? '0', 10),
-              }))
-              .filter(o => o.name !== '')
-              .sort((a, b) => a.order - b.order)
-              .map(({ name, value }) => ({ name, value }));
-          })
-        : undefined;
+      const sdaItems: SdaItem[] = Array.from(
+        brandRoot.querySelectorAll('SpecialInfo SDADetails Item'),
+      ).map((item) => ({
+        userName: item.querySelector('UserName')?.textContent?.trim() ?? '',
+        sdaNumber: item.querySelector('SDA_Number')?.textContent?.trim() ?? '',
+        category: item.querySelector('Category')?.textContent?.trim() ?? '',
+        productName: item.querySelector('ProductName')?.textContent?.trim() ?? '',
+        discountGroup: item.querySelector('DiscountGroup')?.textContent?.trim() ?? '',
+        productQty: item.querySelector('ProductQuantity')?.textContent?.trim() ?? '',
+        listPrice: item.querySelector('Product_x0020_ListPrice')?.textContent?.trim() ?? '',
+        reqMultiplier: item.querySelector('ReqMultiplier')?.textContent?.trim() ?? '',
+        appNet: item.querySelector('AppNet')?.textContent?.trim() ?? '',
+        isReleased: item.querySelector('IsReleased')?.textContent?.trim() ?? '',
+      }));
+
+      const firstSda = brandRoot.querySelector('SpecialInfo SDADetails Item');
 
       const parsedOrder: OrderData = {
-        repAccountNo:         this.q(tts, 'Brand AccountInfo RepAccountNo'),
-        repPhone:             this.q(tts, 'Brand AccountInfo Phone'),
-        repFax:               this.q(tts, 'Brand AccountInfo Fax'),
-        program:              this.q(tts, 'MarketingProgram Program'),
-        programCode:          this.q(tts, 'MarketingProgram ProgramCode'),
-        totalNetWoFrt:        this.q(tts, 'PricingTotals NetMinusFreight'),
-        soldToName:           this.q(tts, 'Address SoldTo Name1'),
-        soldToAddress:        this.q(tts, 'Address SoldTo Street1'),
-        soldToCity:           this.q(tts, 'Address SoldTo City'),
-        soldToState:          this.q(tts, 'Address SoldTo State'),
-        soldToZip:            this.q(tts, 'Address SoldTo Zip'),
-        shipToName:           this.q(tts, 'Address ShipTo Name1'),
-        shipToCareOf:         this.q(tts, 'Address ShipTo careof'),
-        shipToAddress:        this.q(tts, 'Address ShipTo Street1'),
-        shipToAddress2:       this.q(tts, 'Address ShipTo Street2'),
-        shipToCity:           this.q(tts, 'Address ShipTo City'),
-        shipToState:          this.q(tts, 'Address ShipTo State'),
-        shipToZip:            this.q(tts, 'Address ShipTo Zip'),
-        repPONo:              this.q(tts, 'OrderInfo RepPONo'),
-        jobName:              this.q(tts, 'OrderInfo JobName'),
-        custAccountNo:        this.q(tts, 'OrderInfo CustAccountNo'),
-        custPO:               this.q(tts, 'OrderInfo CustomerPONo'),
-        salesperson:          this.q(tts, 'OrderInfo SalesPerson'),
-        jobGuid:              this.q(tts, 'OrderInfo JobGuid'),
-        fma:                  this.q(tts, 'SpecialInfo FMA'),
-        specialItems:         this.q(tts, 'SpecialItems IsSpecial'),
-        xLines:               this.q(tts, 'SpecialItems XLines'),
-        commLines:            this.q(tts, 'SpecialItems CommLines'),
-        markOrder:            this.q(tts, 'Shipping ShippingMethod MarkOrder'),
-        callBefore:           this.q(tts, 'Shipping ShippingMethod CallBeforeDelivery'),
-        shippingInstructions: this.q(tts, 'Shipping ShippingMethod ShippingInstructions'),
-        terms:                this.q(tts, 'Shipping ShippingMethod Terms'),
-        shipVia:              this.q(tts, 'Shipping ShippingMethod ShipVia'),
-        noPartial:            this.q(tts, 'Shipping ShippingMethod NoPartial'),
-        releaseComments:      this.q(tts, 'Shipping ShippingCharges CommentsToFactory'),
-        modelCount:           this.q(tts, 'QuantityInfo ModelCount'),
-        jobNumber:            this.q(tts, 'QuantityInfo JobNumber'),
-        jobCreated:           this.q(tts, 'QuantityInfo JobInitiatedDate'),
-        lineCount:            this.q(tts, 'QuantityInfo LineCount'),
-        edgeVersion:          this.q(tts, 'QuantityInfo VersionNumber'),
-        email:                this.q(tts, 'QuantityInfo email'),
-        ctrlQty:              this.q(tts, 'SpecialItems CtrlQty'),
-        freightQuoteNumber:   this.q(tts, 'PricingTotals FreightQuoteNumber'),
-        xmlType:              cfg.id,
-        lineItems,
-        lineItemOptions,
-        baseOrderCost:        this.q(tts, 'PricingTotals BaseOrderCost'),
-        setupCharge:          this.q(tts, 'PricingTotals SetupCharge'),
-        freight:              this.q(tts, 'PricingTotals Freight'),
-        totalOrderCost:       this.q(tts, 'PricingTotals TotalOrderCost'),
-        totalListPrice:       this.q(tts, 'PricingTotals TotalListPrice'),
+        repAccountNo: this.q(brandRoot, 'Brand AccountInfo RepAccountNo'),
+        repPhone: this.q(brandRoot, 'Brand AccountInfo Phone'),
+        repFax: this.q(brandRoot, 'Brand AccountInfo Fax'),
+        program: this.q(brandRoot, 'MarketingProgram Program'),
+        programCode: this.q(brandRoot, 'MarketingProgram ProgramCode'),
+        totalNetWoFrt: this.q(brandRoot, 'PricingTotals NetMinusFreight'),
+        soldToName: this.q(brandRoot, 'Address SoldTo Name1'),
+        soldToAddress: this.q(brandRoot, 'Address SoldTo Street1'),
+        soldToCity: this.q(brandRoot, 'Address SoldTo City'),
+        soldToState: this.q(brandRoot, 'Address SoldTo State'),
+        soldToZip: this.q(brandRoot, 'Address SoldTo Zip'),
+        shipToName: this.q(brandRoot, 'Address ShipTo Name1'),
+        shipToCareOf: this.q(brandRoot, 'Address ShipTo careof'),
+        shipToAddress: this.q(brandRoot, 'Address ShipTo Street1'),
+        shipToAddress2: this.q(brandRoot, 'Address ShipTo Street2'),
+        shipToCity: this.q(brandRoot, 'Address ShipTo City'),
+        shipToState: this.q(brandRoot, 'Address ShipTo State'),
+        shipToZip: this.q(brandRoot, 'Address ShipTo Zip'),
+        repPONo: this.q(brandRoot, 'OrderInfo RepPONo'),
+        jobName: this.q(brandRoot, 'OrderInfo JobName'),
+        custAccountNo: this.q(brandRoot, 'OrderInfo CustAccountNo'),
+        custPO: this.q(brandRoot, 'OrderInfo CustomerPONo'),
+        salesperson: this.q(brandRoot, 'OrderInfo SalesPerson'),
+        jobGuid: this.q(brandRoot, 'OrderInfo JobGuid'),
+        fma: this.q(brandRoot, 'SpecialInfo FMA'),
+        specialItems: this.q(brandRoot, 'SpecialItems IsSpecial'),
+        xLines: this.q(brandRoot, 'SpecialItems XLines'),
+        commLines: this.q(brandRoot, 'SpecialItems CommLines'),
+        markOrder: this.q(brandRoot, 'Shipping ShippingMethod MarkOrder'),
+        callBefore: this.q(brandRoot, 'Shipping ShippingMethod CallBeforeDelivery'),
+        shippingInstructions: this.q(brandRoot, 'Shipping ShippingMethod ShippingInstructions'),
+        terms: this.q(brandRoot, 'Shipping ShippingMethod Terms'),
+        shipVia: this.q(brandRoot, 'Shipping ShippingMethod ShipVia'),
+        noPartial: this.q(brandRoot, 'Shipping ShippingMethod NoPartial'),
+        releaseComments: this.q(brandRoot, 'Shipping ShippingCharges CommentsToFactory'),
+        modelCount: this.q(brandRoot, 'QuantityInfo ModelCount'),
+        jobNumber: this.q(brandRoot, 'QuantityInfo JobNumber'),
+        jobCreated: this.q(brandRoot, 'QuantityInfo JobInitiatedDate'),
+        lineCount: this.q(brandRoot, 'QuantityInfo LineCount'),
+        edgeVersion: this.q(brandRoot, 'QuantityInfo VersionNumber'),
+        email: this.q(brandRoot, 'QuantityInfo email'),
+        ctrlQty: this.q(brandRoot, 'SpecialItems CtrlQty'),
+        freightQuoteNumber: this.q(brandRoot, 'PricingTotals FreightQuoteNumber'),
+        sections,
+        sdaBrandName: firstSda?.querySelector('BrandName')?.textContent?.trim() ?? '',
+        sdaExpireDate: firstSda?.querySelector('SDA_Expire_Date')?.textContent?.trim() ?? '',
+        sdaVersion: firstSda?.querySelector('SDA_Version')?.textContent?.trim() ?? '',
+        sdaPaNotes: firstSda?.querySelector('panote')?.textContent?.trim() ?? '',
+        sdaItems,
+        baseOrderCost: this.q(brandRoot, 'PricingTotals BaseOrderCost'),
+        setupCharge: this.q(brandRoot, 'PricingTotals SetupCharge'),
+        freight: this.q(brandRoot, 'PricingTotals Freight'),
+        totalOrderCost: this.q(brandRoot, 'PricingTotals TotalOrderCost'),
+        totalListPrice: this.q(brandRoot, 'PricingTotals TotalListPrice'),
       };
 
       this.order.set(parsedOrder);
 
-      const rel = this.releaseNumber();
-      this.titleSvc.setTitle(rel ? `Order Transmittal — ${rel}` : 'Order Transmittal');
+      const repPO = parsedOrder.repPONo;
+      this.titleSvc.setTitle(repPO ? `Order Transmittal — ${repPO}` : 'Order Transmittal');
     } catch (e) {
       this.parseError.set('Failed to parse XML: ' + String(e));
     }

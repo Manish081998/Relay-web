@@ -102,7 +102,6 @@ export class EdgeOrdersSearch implements OnInit {
       xml: row.xmlMacPacOrder,
       title: row.releaseName || row.releaseNumber || 'XML Document',
     });
-    debugger
     window.open(
       this.router.serializeUrl(
         this.router.createUrlTree(['/intranet/xml-viewer'], { queryParams: { key } }),
@@ -125,12 +124,13 @@ export class EdgeOrdersSearch implements OnInit {
     );
   }
 
-  // Persists payload to localStorage and prunes entries older than 2 hours
-  // with the same prefix so storage doesn't grow unbounded.
+  // Writes payload to localStorage for the new tab to pick up and migrate to sessionStorage.
+  // Entries are normally deleted by the receiver on first read; this fallback prune removes
+  // anything left behind if the tab was opened but never fully loaded (e.g. immediately closed).
   private storePayload(prefix: string, data: object): string {
     const key = `${prefix}-${Date.now()}`;
     localStorage.setItem(key, JSON.stringify(data));
-    const cutoff = Date.now() - 2 * 60 * 60 * 1000;
+    const cutoff = Date.now() - 60 * 60 * 1000; // 1 hour is plenty for an unloaded tab
     Object.keys(localStorage)
       .filter((k) => k.startsWith(`${prefix}-`) && Number(k.replace(`${prefix}-`, '')) < cutoff)
       .forEach((k) => localStorage.removeItem(k));
@@ -141,7 +141,6 @@ export class EdgeOrdersSearch implements OnInit {
     const start = Date.now();
     try {
       const res = await firstValueFrom(this.svc.searchEdgeOrders(params));
-      debugger
       this.orders.set(res ?? []);
       this.apiResponseTime.set(Date.now() - start);
     } catch {
