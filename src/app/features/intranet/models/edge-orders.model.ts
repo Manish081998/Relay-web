@@ -14,7 +14,6 @@ export interface EdgeOrderDto {
   orderSource:      string;
 }
 
-// Query parameters sent to the API — remain PascalCase per backend contract
 export interface EdgeOrderSearchParams {
   EmailId?:       string;
   ReleaseNumber?: string;
@@ -22,11 +21,13 @@ export interface EdgeOrderSearchParams {
   PcUserName?:    string;
   RecordedDate?:  string;
   ReleaseName?:   string;
+  PageNumber?:    number;
+  PageSize?:      number;
 }
 
-export interface EdgeOrderColDef {
-  field:       keyof EdgeOrderDto;
-  header:      string;
-  isXml?:      boolean;
-  dateFormat?: string;  // when set, cell renders via DatePipe with this format
+export interface EdgeOrdersPagedResponse {
+  items:      EdgeOrderDto[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize:   number;
 }
