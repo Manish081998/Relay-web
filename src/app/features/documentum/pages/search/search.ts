@@ -72,6 +72,8 @@ export class Search {
   readonly sortField     = signal<string>('');
   readonly sortDirection = signal<'asc' | 'desc' | ''>('');
 
+  readonly skeletonRows = Array.from({ length: 20 });
+
   readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.totalCount() / this.pageSize())),
   );

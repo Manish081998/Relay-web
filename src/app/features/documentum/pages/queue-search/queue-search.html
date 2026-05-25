@@ -57,15 +57,8 @@
   <!-- Results Grid -->
   <div class="qs-grid-wrap">
 
-    @if (loading()) {
-      <div class="qs-loading">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>Loading…</span>
-      </div>
-    }
-
     <div class="qs-tbl-scroll">
-      <table class="qs-tbl resizable">
+      <table class="qs-tbl" [class.resizable]="!loading()">
         <thead>
           <tr>
             <th class="col-chk" style="width:36px;min-width:36px">
@@ -242,48 +235,77 @@
           </tr>
         </thead>
         <tbody>
-          @for (order of orders(); track order.orderGuid; let i = $index) {
-            <tr [class.row-alt]="i % 2 !== 0" [class.row-selected]="isRowSelected(order.orderGuid)">
-              <td class="col-chk">
-                <label class="chk-wrap">
-                  <input type="checkbox"
-                         [checked]="isRowSelected(order.orderGuid)"
-                         (change)="toggleRow(order.orderGuid)" />
-                  <span class="chk-box">
-                    <i class="pi pi-check"></i>
-                  </span>
-                </label>
-              </td>
-              <td class="cell-link cell-po" (click)="openOrder(order)">{{ order.repPO }}</td>
-              <!-- <td class="cell-seq">{{ order.salesOrderNumber || order.orderSeq }}</td> -->
-              <td class="cell-seq">{{ order.salesOrderNumber }}</td>
-              <td>{{ order.priority }}</td>
-              <td>{{ order.accountNumber }}</td>
-              <!-- <td class="cell-trunc">{{ order.repName || order.repUserName }}</td> -->
-              <td class="cell-trunc">{{ order.repName }}</td>
-              <td class="cell-trunc">{{ order.queueName }}</td>
-              <td>{{ order.productType }}</td>
-              <td>{{ order.region }}</td>
-              <td class="cell-trunc">{{ order.jobName }}</td>
-              <td>{{ order.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
-              <td>{{ order.orderDate | date:'MM/dd/yy hh:mm a' }}</td>
-              <td class="cell-trunc">{{ order.packageOwner }}</td>
-              <td>{{ order.brand }}</td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="14" class="cell-empty">
-                @if (searched()) {
-                  <i class="pi pi-inbox"></i> No records found matching your criteria.
-                } @else {
-                  <i class="pi pi-search"></i> Enter search criteria above and click Search.
-                }
-              </td>
-            </tr>
+          @if (loading()) {
+            @for (_ of skeletonRows; track $index; let i = $index) {
+              <tr class="sk-row" [class.row-alt]="i % 2 !== 0" [style.animation-delay]="(i * 80) + 'ms'">
+                <td class="col-chk"><div class="sk-pill" style="width:16px;height:16px;border-radius:3px"></div></td>
+                <td><div class="sk-pill" [style.width]="(60 + (i * 7) % 30) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(50 + (i * 11) % 35) + '%'"></div></td>
+                <td><div class="sk-pill" style="width:40%"></div></td>
+                <td><div class="sk-pill" [style.width]="(55 + (i * 13) % 30) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(50 + (i * 9) % 40) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(45 + (i * 17) % 40) + '%'"></div></td>
+                <td><div class="sk-pill" style="width:50%"></div></td>
+                <td><div class="sk-pill" style="width:45%"></div></td>
+                <td><div class="sk-pill" [style.width]="(40 + (i * 11) % 45) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(60 + (i * 7) % 25) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(55 + (i * 13) % 30) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(50 + (i * 9) % 35) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(40 + (i * 11) % 30) + '%'"></div></td>
+              </tr>
+            }
+          } @else {
+            @for (order of orders(); track order.orderGuid; let i = $index) {
+              <tr [class.row-alt]="i % 2 !== 0" [class.row-selected]="isRowSelected(order.orderGuid)">
+                <td class="col-chk">
+                  <label class="chk-wrap">
+                    <input type="checkbox"
+                           [checked]="isRowSelected(order.orderGuid)"
+                           (change)="toggleRow(order.orderGuid)" />
+                    <span class="chk-box">
+                      <i class="pi pi-check"></i>
+                    </span>
+                  </label>
+                </td>
+                <td class="cell-link cell-po" (click)="openOrder(order)">{{ order.repPO }}</td>
+                <td class="cell-seq">{{ order.salesOrderNumber }}</td>
+                <td>{{ order.priority }}</td>
+                <td>{{ order.accountNumber }}</td>
+                <td class="cell-trunc">{{ order.repName }}</td>
+                <td class="cell-trunc">{{ order.queueName }}</td>
+                <td>{{ order.productType }}</td>
+                <td>{{ order.region }}</td>
+                <td class="cell-trunc">{{ order.jobName }}</td>
+                <td>{{ order.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
+                <td>{{ order.orderDate | date:'MM/dd/yy hh:mm a' }}</td>
+                <td class="cell-trunc">{{ order.packageOwner }}</td>
+                <td>{{ order.brand }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="14" class="cell-empty">
+                  @if (searched()) {
+                    <i class="pi pi-inbox"></i> No records found matching your criteria.
+                  } @else {
+                    <i class="pi pi-search"></i> Enter search criteria above and click Search.
+                  }
+                </td>
+              </tr>
+            }
           }
         </tbody>
       </table>
     </div>
+
+    @if (loading()) {
+      <div class="app-loading-overlay">
+        <div class="app-loader">
+          <div class="app-dots"><span class="app-dot"></span><span class="app-dot"></span><span class="app-dot"></span></div>
+          <span class="app-loader__title">Please wait while we set things up for you...</span>
+          <span class="app-loader__sub">This might take a few seconds</span>
+        </div>
+      </div>
+    }
 
     <!-- Pagination -->
     @if (searched() && totalCount() > 0) {

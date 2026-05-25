@@ -169,7 +169,7 @@
         (click)="submit()"
       >
         @if (saving()) {
-          <i class="pi pi-spin pi-spinner"></i>
+          <span class="app-spinner app-spinner--xs"></span>
         }
         {{ saving() ? 'Saving…' : 'Save Changes' }}
       </button>

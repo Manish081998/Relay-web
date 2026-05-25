@@ -326,18 +326,24 @@ $text-faint:   t.$color-text-subtle;
   position: relative;
 }
 
-// ── Loading ───────────────────────────────────────────────────────────────────
-.eo-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 28px;
-  font-size: t.$font-size-sm;
-  color: $text-muted;
 
-  i { font-size: 1.1rem; color: $primary; }
+// ── Skeleton loader (pulse glow) ─────────────────────────────────────────────
+@keyframes sk-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
 }
+
+.sk-row {
+  animation: sk-pulse 1.4s ease-in-out infinite both;
+}
+
+.sk-pill {
+  height: 11px;
+  border-radius: 6px;
+  background: rgba($primary, 0.18);
+}
+
+// Overlay uses global .app-loading-overlay from styles.scss
 
 // ── Scrollable table wrapper ──────────────────────────────────────────────────
 .eo-tbl-scroll { overflow-x: auto; }

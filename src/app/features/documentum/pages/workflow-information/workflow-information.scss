@@ -246,7 +246,11 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   border-top: 3px solid ds.$brand;
   border-radius: 0 0 t.$radius-lg t.$radius-lg;
   box-shadow: t.$shadow-sm;
+  position: relative;
+  min-height: 200px;
 }
+
+// Overlay uses global .app-loading-overlay from styles.scss
 
 // ═════════════════════════════════════════════════════════════════════════════
 // SECTION — Light header with accent bar
@@ -408,30 +412,6 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   border: 1px solid $amber-bdr;
 }
 
-.od-pkg-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 40px 20px;
-  color: ds.$text-muted;
-  font-size: t.$font-size-sm;
-
-  &::before {
-    content: '';
-    display: block;
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(ds.$brand, 0.15);
-    border-top-color: ds.$brand;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-  }
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 // ═════════════════════════════════════════════════════════════════════════════
 // NOTES — Inline add panel
@@ -819,15 +799,6 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   font-weight: t.$font-weight-medium;
 }
 
-.od-upload-bar__spinner {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(ds.$brand, 0.2);
-  border-top-color: ds.$brand;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
 
 .od-upload-alert {
   display: flex;
@@ -919,30 +890,6 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   letter-spacing: 0.02em;
 }
 
-.vd-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 72px 24px;
-  color: ds.$text-muted;
-  font-size: t.$font-size-sm;
-}
-
-.vd-spinner {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(ds.$brand, 0.10);
-  border-top-color: ds.$brand;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .vd-empty {
   display: flex;
@@ -1160,16 +1107,6 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   border-top: 1px solid #eef0f2;
 }
 
-.note-dialog-spinner {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(#fff, 0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  margin-right: 4px;
-}
 
 // ═════════════════════════════════════════════════════════════════════════════
 // FOOTER

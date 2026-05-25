@@ -446,19 +446,7 @@
   }
 }
 
-.spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: t.$color-bg-surface;
-  border-radius: 50%;
-  animation: spin 0.65s linear infinite;
-  flex-shrink: 0;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+// Login overlay uses global .app-loading-overlay--fixed from styles.scss
 
 // ── Dev panel ─────────────────────────────────────────────────────────────────
 .dev-divider {

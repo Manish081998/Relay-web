@@ -90,6 +90,16 @@
     <!-- ═══ Tab Content ═══ -->
     <div class="od-tab-content">
 
+    @if (isLoadingOrder()) {
+      <div class="app-loading-overlay">
+        <div class="app-loader">
+          <div class="app-dots"><span class="app-dot"></span><span class="app-dot"></span><span class="app-dot"></span></div>
+          <span class="app-loader__title">Please wait while we set things up for you...</span>
+          <span class="app-loader__sub">This might take a few seconds</span>
+        </div>
+      </div>
+    }
+
     <!-- ═══ Tab: Order Info ═══ -->
     @if (activeTab() === 'info') {
 
@@ -108,9 +118,7 @@
           </div>
         </div>
 
-        @if (isLoadingOrder()) {
-          <div class="od-pkg-loading">Loading order information...</div>
-        } @else if (order(); as o) {
+        @if (order(); as o) {
           <div class="od-pkg-grid">
             <div class="od-pkg-field">
               <span class="od-pkg-label">Sales Order Number</span>
@@ -262,7 +270,7 @@
 
       @if (isUploading()) {
         <div class="od-upload-bar">
-          <span class="od-upload-bar__spinner"></span>
+          <span class="app-spinner app-spinner--xs"></span>
           Uploading document...
         </div>
       }
@@ -671,9 +679,10 @@
     </ng-template>
 
     @if (isLoadingVersions()) {
-      <div class="vd-loading">
-        <span class="vd-spinner"></span>
-        <span>Loading versions…</span>
+      <div class="app-loader">
+        <div class="app-dots"><span class="app-dot"></span><span class="app-dot"></span><span class="app-dot"></span></div>
+        <span class="app-loader__title">Please wait while we set things up for you...</span>
+        <span class="app-loader__sub">This might take a few seconds</span>
       </div>
     } @else if (documentVersions().length === 0) {
       <div class="vd-empty">
@@ -783,7 +792,7 @@
             (click)="saveNote()"
           >
             @if (isSavingNote()) {
-              <span class="note-dialog-spinner"></span>
+              <span class="app-spinner app-spinner--xs"></span>
             }
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="20 6 9 17 4 12"/>

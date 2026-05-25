@@ -34,7 +34,7 @@
         (click)="onSearch()"
       >
         @if (searching()) {
-          <i class="pi pi-spin pi-spinner"></i>
+          <span class="app-spinner app-spinner--xs"></span>
         } @else {
           <i class="pi pi-search"></i>
         }
@@ -129,7 +129,7 @@
           (click)="onSaveUser()"
         >
           @if (saving()) {
-            <i class="pi pi-spin pi-spinner"></i>
+            <span class="app-spinner app-spinner--xs"></span>
           } @else {
             <i class="pi pi-save"></i>
           }

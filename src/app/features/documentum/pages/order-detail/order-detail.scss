@@ -227,7 +227,11 @@
   border-top: 3px solid ds.$brand;
   border-radius: 0 0 t.$radius-lg t.$radius-lg;
   box-shadow: t.$shadow-sm;
+  position: relative;
+  min-height: 200px;
 }
+
+// Overlay uses global .app-loading-overlay from styles.scss
 
 // ═════════════════════════════════════════════════════════════════════════════
 // SECTION — Light header
@@ -574,30 +578,6 @@
   letter-spacing: 0.02em;
 }
 
-.vd-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 72px 24px;
-  color: ds.$text-muted;
-  font-size: t.$font-size-sm;
-}
-
-.vd-spinner {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(ds.$brand, 0.10);
-  border-top-color: ds.$brand;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .vd-empty {
   display: flex;
@@ -811,17 +791,6 @@
   margin-top: 20px;
   padding-top: 18px;
   border-top: 1px solid #eef0f2;
-}
-
-.note-dialog-spinner {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(#fff, 0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  margin-right: 4px;
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
