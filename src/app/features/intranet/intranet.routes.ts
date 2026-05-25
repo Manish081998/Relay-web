@@ -26,6 +26,12 @@ export const intranetRoutes: Routes = [
           import('./pages/edge-orders-search/edge-orders-search').then(m => m.EdgeOrdersSearch),
       },
       {
+        path: 'edit-order',
+        title: 'Edit Order',
+        loadComponent: () =>
+          import('./pages/edit-order/edit-order').then(m => m.EditOrder),
+      },
+      {
         path: 'xml-viewer',
         title: 'XML Viewer',
         loadComponent: () =>

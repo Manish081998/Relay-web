@@ -104,6 +104,7 @@
       <table class="eo-tbl">
         <thead>
           <tr>
+            <th class="col-edit" style="width:44px;min-width:44px"></th>
             <th class="sortable" [class.sort-active]="sortField() === 'releaseNumber'" style="width:100px;min-width:60px" (click)="onSort('releaseNumber')" #thRelease>
               Release
               <span class="sort-icon">
@@ -242,6 +243,11 @@
         <tbody>
           @for (row of orders(); track row.releaseNumber; let i = $index) {
             <tr [class.row-alt]="i % 2 !== 0">
+              <td class="col-edit">
+                <button type="button" class="btn-edit" (click)="openEditOrder(row)" title="Edit Order">
+                  <i class="pi pi-pencil"></i>
+                </button>
+              </td>
               <td class="cell-release">
                 @if (row.xmlMacPacOrder) {
                   <button type="button" class="release-btn" (click)="openOrderTransmittal(row)">
@@ -272,7 +278,7 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="13" class="cell-empty">
+              <td colspan="14" class="cell-empty">
                 @if (searched()) {
                   <i class="pi pi-inbox"></i> No records found matching your criteria.
                 } @else {
