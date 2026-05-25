@@ -477,9 +477,59 @@ $text-faint:   t.$color-text-subtle;
   }
 }
 
+// ── Edit button column ────────────────────────────────────────────────────────
+.col-edit {
+  width: 44px;
+  min-width: 44px;
+  text-align: center;
+  padding: 0 !important;
+}
+
+.btn-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: t.$radius-sm;
+  color: $text-faint;
+  cursor: pointer;
+  transition: all t.$transition-fast;
+
+  i { font-size: 0.7rem; }
+
+  &:hover {
+    color: $primary;
+    background: rgba($primary, 0.08);
+    border-color: rgba($primary, 0.2);
+  }
+
+  &:active {
+    background: rgba($primary, 0.14);
+  }
+}
+
 // ── Link buttons inside the table ─────────────────────────────────────────────
-.release-btn { @include fc.link-btn; font-weight: 600; }
-.xml-btn     { @include fc.link-btn; font-weight: 500; }
+%link-btn-base {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #1a5fb4;
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color t.$transition-fast;
+
+  &:hover { color: #154d93; }
+}
+
+.release-btn { @extend %link-btn-base; font-weight: 600; }
+.xml-btn     { @extend %link-btn-base; font-weight: 500; }
 
 // ── Pagination ────────────────────────────────────────────────────────────────
 .eo-pager {

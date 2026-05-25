@@ -1,0 +1,414 @@
+<div class="eo-page" [formGroup]="form">
+
+  <!-- ── Page Header ─────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <h1 class="page-title">Edit Order</h1>
+  </div>
+
+  <!-- ── Address Card ───────────────────────────────────────────────────────── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Address</span>
+    </div>
+
+    <div class="card-body">
+      <div class="address-sides">
+
+        <!-- Sold To -->
+        <div class="address-section" formGroupName="soldTo">
+          <h3 class="address-label">Sold To</h3>
+          <div class="address-col">
+            <div class="field-row">
+              <label class="field-label">Name 1</label>
+              <input pInputText class="field-input" formControlName="name1" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Street 1</label>
+              <input pInputText class="field-input" formControlName="street1" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Street 2</label>
+              <input pInputText class="field-input" formControlName="street2" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">careof</label>
+              <input pInputText class="field-input" formControlName="careof" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">City</label>
+              <input pInputText class="field-input" formControlName="city" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">State</label>
+              <input pInputText class="field-input" formControlName="state" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Zip</label>
+              <input pInputText class="field-input" formControlName="zip" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Attention</label>
+              <input pInputText class="field-input" formControlName="attention" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Country</label>
+              <p-select
+                formControlName="country"
+                [options]="countries"
+                styleClass="field-select"
+                panelStyleClass="edit-order-select-panel"
+                appendTo="body"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="side-divider"></div>
+
+        <!-- Ship To -->
+        <div class="address-section" formGroupName="shipTo">
+          <h3 class="address-label">Ship To</h3>
+          <div class="address-col">
+            <div class="field-row">
+              <label class="field-label">Name 1</label>
+              <input pInputText class="field-input" formControlName="name1" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Street 1</label>
+              <input pInputText class="field-input" formControlName="street1" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Street 2</label>
+              <input pInputText class="field-input" formControlName="street2" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">careof</label>
+              <input pInputText class="field-input" formControlName="careof" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">City</label>
+              <input pInputText class="field-input" formControlName="city" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">State</label>
+              <input pInputText class="field-input" formControlName="state" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Zip</label>
+              <input pInputText class="field-input" formControlName="zip" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Attention</label>
+              <input pInputText class="field-input" formControlName="attention" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Country</label>
+              <p-select
+                formControlName="country"
+                [options]="countries"
+                styleClass="field-select"
+                panelStyleClass="edit-order-select-panel"
+                appendTo="body"
+              />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Bottom Row: Brand Info + Marketing Program ─────────────────────────── -->
+  <div class="bottom-row">
+
+    <!-- Brand / Account Info -->
+    <div class="card" formGroupName="brandAccount">
+      <div class="card-header">
+        <span class="card-title">Brand / Account Info</span>
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">Rep Account No</label>
+            <input pInputText class="field-input" formControlName="repAccountNo" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Phone</label>
+            <input pInputText class="field-input" formControlName="phone" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Fax</label>
+            <input pInputText class="field-input" formControlName="fax" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marketing Program -->
+    <div class="card" formGroupName="marketingProgram">
+      <div class="card-header">
+        <span class="card-title">Marketing Program</span>
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">Program Code</label>
+            <input pInputText class="field-input" formControlName="programCode" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Program</label>
+            <input pInputText class="field-input" formControlName="program" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Secure SDA</label>
+            <p-checkbox formControlName="secureSda" [binary]="true" inputId="secureSda" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Order Info Card ──────────────────────────────────────────────────────── -->
+  <div class="card" formGroupName="orderInfo">
+    <div class="card-header">
+      <span class="card-title">Order Info</span>
+    </div>
+    <div class="card-body">
+      <div class="order-info-grid">
+        <div class="field-row">
+          <label class="field-label">Order Date</label>
+          <input pInputText class="field-input" formControlName="orderDate" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Rep P O No</label>
+          <input pInputText class="field-input" formControlName="repPoNo" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Customer P O No</label>
+          <input pInputText class="field-input" formControlName="customerPoNo" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Cust Account No</label>
+          <input pInputText class="field-input" formControlName="custAccountNo" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Job Name</label>
+          <input pInputText class="field-input" formControlName="jobName" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Sales Person</label>
+          <input pInputText class="field-input" formControlName="salesPerson" autocomplete="off" />
+        </div>
+        <div class="field-row order-info-full">
+          <label class="field-label">Job Guid</label>
+          <input pInputText class="field-input" formControlName="jobGuid" autocomplete="off" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Shipping Card ────────────────────────────────────────────────────────── -->
+  <div class="card" formGroupName="shipping">
+    <div class="card-header">
+      <span class="card-title">Shipping</span>
+    </div>
+    <div class="card-body">
+      <div class="subsection-label">Shipping Method</div>
+      <div class="address-col">
+        <div class="field-row">
+          <label class="field-label">Ship Via</label>
+          <input pInputText class="field-input" formControlName="shipVia" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Call Before Delivery</label>
+          <input pInputText class="field-input" formControlName="callBeforeDelivery" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Terms</label>
+          <input pInputText class="field-input" formControlName="terms" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Mark Order</label>
+          <input pInputText class="field-input" formControlName="markOrder" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">No Partial</label>
+          <input pInputText class="field-input" formControlName="noPartial" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Shipping Instructions</label>
+          <input pInputText class="field-input" formControlName="shippingInstructions" autocomplete="off" />
+        </div>
+        <div class="field-row shipping-terms-row">
+          <label class="field-label">Ship Terms</label>
+          <div class="field-input-wrap">
+            <p-select
+              formControlName="shipTerms"
+              [options]="shipTermsOptions"
+              styleClass="field-select"
+              panelStyleClass="edit-order-select-panel"
+              appendTo="body"
+            />
+            <span class="field-helper">Leave Ship Terms blank for standard shipping.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Quantity Info + Pricing Totals ───────────────────────────────────────── -->
+  <div class="bottom-row">
+
+    <!-- Quantity Info -->
+    <div class="card" formGroupName="quantityInfo">
+      <div class="card-header">
+        <span class="card-title">Quantity Info</span>
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">Job Number</label>
+            <input pInputText class="field-input" formControlName="jobNumber" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Model Count</label>
+            <input pInputText class="field-input" formControlName="modelCount" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Version Number</label>
+            <input pInputText class="field-input" formControlName="versionNumber" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Product Version</label>
+            <input pInputText class="field-input" formControlName="productVersion" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Line Count</label>
+            <input pInputText class="field-input" formControlName="lineCount" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">brandlogo</label>
+            <input pInputText class="field-input" formControlName="brandlogo" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Job Initiated Date</label>
+            <input pInputText class="field-input" formControlName="jobInitiatedDate" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">email</label>
+            <input pInputText class="field-input" formControlName="email" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing Totals -->
+    <div class="card" formGroupName="pricingTotals">
+      <div class="card-header">
+        <span class="card-title">Pricing Totals</span>
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">Base Order Cost</label>
+            <input pInputText class="field-input" formControlName="baseOrderCost" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Setup Charge</label>
+            <input pInputText class="field-input" formControlName="setupCharge" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Freight</label>
+            <input pInputText class="field-input" formControlName="freight" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Total Order Cost</label>
+            <input pInputText class="field-input" formControlName="totalOrderCost" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Total List Price</label>
+            <input pInputText class="field-input" formControlName="totalListPrice" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Net Minus Freight</label>
+            <input pInputText class="field-input" formControlName="netMinusFreight" autocomplete="off" />
+          </div>
+          <div class="field-row pricing-full">
+            <label class="field-label">Freight Quote Number</label>
+            <input pInputText class="field-input" formControlName="freightQuoteNumber" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Special Info + Special Items ─────────────────────────────────────────── -->
+  <div class="bottom-row">
+
+    <!-- Special Info -->
+    <div class="card" formGroupName="specialInfo">
+      <div class="card-header">
+        <span class="card-title">Special Info</span>
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">S D A No</label>
+            <input pInputText class="field-input" formControlName="sdaNo" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">F M A</label>
+            <input pInputText class="field-input" formControlName="fma" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Special Items -->
+    <div class="card" formGroupName="specialItems">
+      <div class="card-header">
+        <span class="card-title">Special Items</span>
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">Is Special</label>
+            <p-select
+              formControlName="isSpecial"
+              [options]="isSpecialOptions"
+              styleClass="field-select"
+              panelStyleClass="edit-order-select-panel"
+              appendTo="body"
+            />
+          </div>
+          <div class="field-row">
+            <label class="field-label">X Lines</label>
+            <input pInputText class="field-input" formControlName="xLines" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Comm Lines</label>
+            <input pInputText class="field-input" formControlName="commLines" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Ctrl Qty</label>
+            <input pInputText class="field-input" formControlName="ctrlQty" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">F M A Lines</label>
+            <input pInputText class="field-input" formControlName="fmaLines" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Page Actions ───────────────────────────────────────────────────────── -->
+  <div class="page-actions">
+    <button type="button" class="btn-cancel">Cancel Changes</button>
+    <button type="button" class="btn-submit">Submit All Changes</button>
+  </div>
+
+</div>
