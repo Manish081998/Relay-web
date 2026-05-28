@@ -79,6 +79,14 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   z-index: 1;
 }
 
+.od-card__bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
 .od-card__bar-btn {
   @extend %btn-base;
   position: relative;
@@ -93,6 +101,26 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   &:hover {
     background: rgba(255, 255, 255, 0.22);
     border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  &--warn {
+    background: rgba(255, 160, 50, 0.18);
+    border-color: rgba(255, 160, 50, 0.4);
+
+    &:hover {
+      background: rgba(255, 160, 50, 0.32);
+      border-color: rgba(255, 160, 50, 0.6);
+    }
+  }
+
+  &--success {
+    background: rgba(72, 199, 142, 0.18);
+    border-color: rgba(72, 199, 142, 0.4);
+
+    &:hover {
+      background: rgba(72, 199, 142, 0.32);
+      border-color: rgba(72, 199, 142, 0.6);
+    }
   }
 }
 
@@ -304,26 +332,38 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   font-size: 11px;
   padding: 6px 14px;
   gap: 5px;
-  background: ds.$surface;
-  color: ds.$brand;
-  border: 1px solid rgba(ds.$brand, 0.3);
+  background: ds.$brand;
+  color: #fff;
+  border: 1px solid ds.$brand;
   font-weight: t.$font-weight-semibold;
   letter-spacing: 0.02em;
 
   &:hover {
-    background: rgba(ds.$brand, 0.06);
-    border-color: ds.$brand;
+    background: ds.$brand-dark;
+    border-color: ds.$brand-dark;
+  }
+
+  &--secondary {
+    background: #fff;
+    color: ds.$brand;
+    border-color: rgba(ds.$brand, 0.35);
+
+    &:hover {
+      background: rgba(ds.$brand, 0.06);
+      border-color: ds.$brand;
+    }
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    background: ds.$border;
     color: ds.$text-muted;
     border-color: ds.$border;
     &:hover {
       color: ds.$text-muted;
       border-color: ds.$border;
-      background: ds.$surface;
+      background: ds.$border;
     }
   }
 }

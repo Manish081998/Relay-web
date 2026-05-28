@@ -31,7 +31,7 @@
       </div>
       <div class="field">
         <label for="region">Region</label>
-        <p-select id="region" formControlName="region" [options]="regions" optionLabel="label" optionValue="value" placeholder="Select" [showClear]="true" appendTo="body" panelStyleClass="order-search-select-panel" styleClass="w-full" />
+        <p-select id="region" formControlName="region" [options]="regions()" optionLabel="label" optionValue="value" placeholder="Select" [showClear]="true" appendTo="body" panelStyleClass="order-search-select-panel" styleClass="w-full" />
       </div>
       <div class="field">
         <label for="captureDateTo">Date To</label>

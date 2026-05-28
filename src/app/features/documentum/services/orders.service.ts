@@ -69,11 +69,21 @@ export class OrdersService {
     );
   }
 
-  getProductTypes(): Observable<DropdownOption[]> {
-    return this.api.get<string[]>(
-      `${this.env.apiBaseUrl}/api/documentum/orders/product-types`,
+  getRegionsByBrand(brandName: string): Observable<DropdownOption[]> {
+    return this.api.get<{ regionId: number; regionName: string }[]>(
+      `${this.env.apiBaseUrl}/api/documentum/orders/regions`,
+      { params: { brandName } },
     ).pipe(
-      map(types => types.map(t => ({ label: t, value: t }))),
+      map(regions => regions.map(r => ({ label: r.regionName, value: r.regionName }))),
+    );
+  }
+
+  getProductTypes(brandName: string): Observable<DropdownOption[]> {
+    return this.api.get<{ productTypeId: number; productTypeName: string }[]>(
+      `${this.env.apiBaseUrl}/api/documentum/orders/product-types`,
+      { params: { brandName } },
+    ).pipe(
+      map(types => types.map(t => ({ label: t.productTypeName, value: t.productTypeName }))),
     );
   }
 }

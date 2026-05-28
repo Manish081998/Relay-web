@@ -118,7 +118,7 @@ export class WorkflowInformation {
     if (stateOrder) {
       this.order.set(stateOrder);
       this.isLoadingOrder.set(false);
-      this.loadRouteToDepartment(stateOrder.brand);
+      this.loadRouteToDepartment(stateOrder.brand, stateOrder.queueName);
       this.loadDocuments(stateOrder.orderSeq);
       this.loadNotes(stateOrder.orderSeq);
     } else {
@@ -130,7 +130,7 @@ export class WorkflowInformation {
             next: (order) => {
               this.order.set(order);
               this.isLoadingOrder.set(false);
-              this.loadRouteToDepartment(order.brand);
+              this.loadRouteToDepartment(order.brand, order.queueName);
               this.loadDocuments(order.orderSeq);
               this.loadNotes(order.orderSeq);
             },
@@ -144,10 +144,14 @@ export class WorkflowInformation {
     }
   }
 
-  private loadRouteToDepartment(brand: string | undefined): void {
+  private loadRouteToDepartment(brand: string | undefined, currentQueueName?: string): void {
     if (brand) {
+      const excludeQueue = (currentQueueName ?? '').trim().toLowerCase();
       this.ordersService.getRouteToDepartment(brand)
         .pipe(
+          map(queues => excludeQueue
+            ? queues.filter(q => q.value.trim().toLowerCase() !== excludeQueue)
+            : queues),
           timeout(15000),
           catchError((err) => { console.error('loadRouteToDepartment error:', err); return of([]); }),
           takeUntilDestroyed(this.destroyRef),

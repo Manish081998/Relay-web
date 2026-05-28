@@ -29,6 +29,7 @@ export class QueueSearch {
   private lastRequest: OrderSearchRequest | null = null;
 
   readonly productTypes = signal<DropdownOption[]>([]);
+  readonly regions    = signal<DropdownOption[]>([]);
   readonly brands     = signal<DropdownOption[]>([]);
   readonly queueNames = signal<DropdownOption[]>([]);
   readonly orders     = signal<OrderItem[]>([]);
@@ -68,10 +69,6 @@ export class QueueSearch {
   );
 
   constructor() {
-    this.ordersService.getProductTypes()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(types => this.productTypes.set(types));
-
     this.ordersService.getBrands()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(brands => this.brands.set(brands));
@@ -130,10 +127,20 @@ export class QueueSearch {
 
   onBrandChanged(brandName: string): void {
     if (brandName) {
+      this.ordersService.getProductTypes(brandName)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(types => this.productTypes.set(types));
+
+      this.ordersService.getRegionsByBrand(brandName)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(regions => this.regions.set(regions));
+
       this.ordersService.getQueuesByBrand(brandName)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(queues => this.queueNames.set(queues));
     } else {
+      this.productTypes.set([]);
+      this.regions.set([]);
       this.queueNames.set([]);
     }
   }
