@@ -227,7 +227,11 @@
   border-top: 3px solid ds.$brand;
   border-radius: 0 0 t.$radius-lg t.$radius-lg;
   box-shadow: t.$shadow-sm;
+  position: relative;
+  min-height: 200px;
 }
+
+// Overlay uses global .app-loading-overlay from styles.scss
 
 // ═════════════════════════════════════════════════════════════════════════════
 // SECTION — Light header
@@ -277,16 +281,25 @@
   font-size: 11px;
   padding: 6px 14px;
   gap: 5px;
-  background: ds.$surface;
-  color: ds.$brand;
-  border: 1px solid rgba(ds.$brand, 0.3);
+  background: ds.$brand;
+  color: #fff;
+  border: 1px solid ds.$brand;
   font-weight: t.$font-weight-semibold;
   letter-spacing: 0.02em;
 
-  &:hover { background: rgba(ds.$brand, 0.06); border-color: ds.$brand; }
+  &:hover { background: ds.$brand-dark; border-color: ds.$brand-dark; }
+
+  &--secondary {
+    background: #fff;
+    color: ds.$brand;
+    border-color: rgba(ds.$brand, 0.35);
+
+    &:hover { background: rgba(ds.$brand, 0.06); border-color: ds.$brand; }
+  }
+
   &:disabled {
-    opacity: 0.5; cursor: not-allowed; color: ds.$text-muted; border-color: ds.$border;
-    &:hover { color: ds.$text-muted; border-color: ds.$border; background: ds.$surface; }
+    opacity: 0.5; cursor: not-allowed; background: ds.$border; color: ds.$text-muted; border-color: ds.$border;
+    &:hover { background: ds.$border; color: ds.$text-muted; border-color: ds.$border; }
   }
 }
 
@@ -574,30 +587,6 @@
   letter-spacing: 0.02em;
 }
 
-.vd-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 72px 24px;
-  color: ds.$text-muted;
-  font-size: t.$font-size-sm;
-}
-
-.vd-spinner {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(ds.$brand, 0.10);
-  border-top-color: ds.$brand;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .vd-empty {
   display: flex;
@@ -811,17 +800,6 @@
   margin-top: 20px;
   padding-top: 18px;
   border-top: 1px solid #eef0f2;
-}
-
-.note-dialog-spinner {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(#fff, 0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  margin-right: 4px;
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

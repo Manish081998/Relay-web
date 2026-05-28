@@ -16,7 +16,6 @@ import { AppTitleStrategy } from './core/title-strategy';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { cacheInterceptor } from './core/interceptors/cache.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
-import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { ENVIRONMENT } from './core/tokens/environment.token';
 import { environment } from '../environments/environment';
 
@@ -49,10 +48,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withFetch(),
       withInterceptors([
-        loadingInterceptor, // 1. show/hide global loader
-        authInterceptor,    // 2. attach token
-        cacheInterceptor,   // 3. serve/store cached GET responses
-        errorInterceptor,   // 4. handle HTTP errors globally
+        authInterceptor,    // 1. attach token
+        cacheInterceptor,   // 2. serve/store cached GET responses
+        errorInterceptor,   // 3. handle HTTP errors globally
       ]),
     ),
     MessageService,

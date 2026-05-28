@@ -79,6 +79,14 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   z-index: 1;
 }
 
+.od-card__bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
 .od-card__bar-btn {
   @extend %btn-base;
   position: relative;
@@ -93,6 +101,26 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   &:hover {
     background: rgba(255, 255, 255, 0.22);
     border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  &--warn {
+    background: rgba(255, 160, 50, 0.18);
+    border-color: rgba(255, 160, 50, 0.4);
+
+    &:hover {
+      background: rgba(255, 160, 50, 0.32);
+      border-color: rgba(255, 160, 50, 0.6);
+    }
+  }
+
+  &--success {
+    background: rgba(72, 199, 142, 0.18);
+    border-color: rgba(72, 199, 142, 0.4);
+
+    &:hover {
+      background: rgba(72, 199, 142, 0.32);
+      border-color: rgba(72, 199, 142, 0.6);
+    }
   }
 }
 
@@ -246,7 +274,11 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   border-top: 3px solid ds.$brand;
   border-radius: 0 0 t.$radius-lg t.$radius-lg;
   box-shadow: t.$shadow-sm;
+  position: relative;
+  min-height: 200px;
 }
+
+// Overlay uses global .app-loading-overlay from styles.scss
 
 // ═════════════════════════════════════════════════════════════════════════════
 // SECTION — Light header with accent bar
@@ -300,26 +332,38 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   font-size: 11px;
   padding: 6px 14px;
   gap: 5px;
-  background: ds.$surface;
-  color: ds.$brand;
-  border: 1px solid rgba(ds.$brand, 0.3);
+  background: ds.$brand;
+  color: #fff;
+  border: 1px solid ds.$brand;
   font-weight: t.$font-weight-semibold;
   letter-spacing: 0.02em;
 
   &:hover {
-    background: rgba(ds.$brand, 0.06);
-    border-color: ds.$brand;
+    background: ds.$brand-dark;
+    border-color: ds.$brand-dark;
+  }
+
+  &--secondary {
+    background: #fff;
+    color: ds.$brand;
+    border-color: rgba(ds.$brand, 0.35);
+
+    &:hover {
+      background: rgba(ds.$brand, 0.06);
+      border-color: ds.$brand;
+    }
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    background: ds.$border;
     color: ds.$text-muted;
     border-color: ds.$border;
     &:hover {
       color: ds.$text-muted;
       border-color: ds.$border;
-      background: ds.$surface;
+      background: ds.$border;
     }
   }
 }
@@ -408,30 +452,6 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   border: 1px solid $amber-bdr;
 }
 
-.od-pkg-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 40px 20px;
-  color: ds.$text-muted;
-  font-size: t.$font-size-sm;
-
-  &::before {
-    content: '';
-    display: block;
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(ds.$brand, 0.15);
-    border-top-color: ds.$brand;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-  }
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 // ═════════════════════════════════════════════════════════════════════════════
 // NOTES — Inline add panel
@@ -819,15 +839,6 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   font-weight: t.$font-weight-medium;
 }
 
-.od-upload-bar__spinner {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(ds.$brand, 0.2);
-  border-top-color: ds.$brand;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
 
 .od-upload-alert {
   display: flex;
@@ -919,30 +930,6 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   letter-spacing: 0.02em;
 }
 
-.vd-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 72px 24px;
-  color: ds.$text-muted;
-  font-size: t.$font-size-sm;
-}
-
-.vd-spinner {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(ds.$brand, 0.10);
-  border-top-color: ds.$brand;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .vd-empty {
   display: flex;
@@ -1160,16 +1147,6 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   border-top: 1px solid #eef0f2;
 }
 
-.note-dialog-spinner {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(#fff, 0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  margin-right: 4px;
-}
 
 // ═════════════════════════════════════════════════════════════════════════════
 // FOOTER

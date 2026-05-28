@@ -40,6 +40,7 @@ export class Search {
   private lastRequest: OrderSearchRequest | null = null;
 
   readonly productTypes = signal<DropdownOption[]>([]);
+  readonly regions    = signal<DropdownOption[]>([]);
   readonly brands     = signal<DropdownOption[]>([]);
   readonly queueNames = signal<DropdownOption[]>([]);
   readonly orders     = signal<OrderItem[]>([]);
@@ -72,15 +73,13 @@ export class Search {
   readonly sortField     = signal<string>('');
   readonly sortDirection = signal<'asc' | 'desc' | ''>('');
 
+  readonly skeletonRows = Array.from({ length: 20 });
+
   readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.totalCount() / this.pageSize())),
   );
 
   constructor() {
-    this.ordersService.getProductTypes()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(types => this.productTypes.set(types));
-
     this.ordersService.getBrands()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(brands => this.brands.set(brands));
@@ -139,10 +138,20 @@ export class Search {
 
   onBrandChanged(brandName: string): void {
     if (brandName) {
+      this.ordersService.getProductTypes(brandName)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(types => this.productTypes.set(types));
+
+      this.ordersService.getRegionsByBrand(brandName)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(regions => this.regions.set(regions));
+
       this.ordersService.getQueuesByBrand(brandName)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(queues => this.queueNames.set(queues));
     } else {
+      this.productTypes.set([]);
+      this.regions.set([]);
       this.queueNames.set([]);
     }
   }

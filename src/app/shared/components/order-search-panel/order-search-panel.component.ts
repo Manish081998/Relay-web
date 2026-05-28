@@ -24,11 +24,7 @@ export class OrderSearchPanelComponent {
   readonly showAcquireButton = input(false);
 
   readonly productTypes = input<DropdownOption[]>([]);
-  readonly regions: DropdownOption[] = [
-    { label: 'East', value: 'EAST' },
-    { label: 'West', value: 'WEST' },
-    { label: 'Central', value: 'CENTRAL' },
-  ];
+  readonly regions = input<DropdownOption[]>([]);
   readonly priorities: DropdownOption[] = [
     { label: '1', value: '1' },
     { label: '2', value: '2' },
@@ -75,6 +71,8 @@ export class OrderSearchPanelComponent {
 
   onBrandChange(): void {
     const brand = this.form.get('brand')!.value;
+    this.form.get('productType')!.reset();
+    this.form.get('region')!.reset();
     this.form.get('queueName')!.reset();
     this.brandChanged.emit(brand ?? '');
   }

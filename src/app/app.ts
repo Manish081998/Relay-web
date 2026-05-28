@@ -1,8 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Toast } from 'primeng/toast';
-import { UiStore } from './store/ui/ui.store';
-
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, Toast],
@@ -15,15 +13,6 @@ import { UiStore } from './store/ui/ui.store';
       styleClass="relay-toast"
     />
     <router-outlet />
-
-    @if (uiStore.isLoading()) {
-      <div class="loading-overlay" role="status" aria-label="Loading">
-        <div class="spinner"></div>
-      </div>
-    }
   `,
-  styleUrl: './app.scss',
 })
-export class App {
-  protected readonly uiStore = inject(UiStore);
-}
+export class App {}

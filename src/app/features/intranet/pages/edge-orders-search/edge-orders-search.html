@@ -93,15 +93,8 @@
   <!-- ── Results Grid ───────────────────────────────────────────────────────── -->
   <div class="eo-grid-wrap">
 
-    @if (loading()) {
-      <div class="eo-loading">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>Loading…</span>
-      </div>
-    }
-
     <div class="eo-tbl-scroll">
-      <table class="eo-tbl">
+      <table class="eo-tbl" [class.resizable]="!loading()">
         <thead>
           <tr>
             <th class="col-edit" style="width:44px;min-width:44px"></th>
@@ -241,6 +234,26 @@
           </tr>
         </thead>
         <tbody>
+          @if (loading()) {
+            @for (_ of skeletonRows; track $index; let i = $index) {
+              <tr class="sk-row" [class.row-alt]="i % 2 !== 0" [style.animation-delay]="(i * 80) + 'ms'">
+                <td class="col-edit"><div class="sk-pill" style="width:20px;height:20px;border-radius:3px"></div></td>
+                <td><div class="sk-pill" [style.width]="(55 + (i * 7) % 30) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(50 + (i * 11) % 35) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(45 + (i * 13) % 30) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(50 + (i * 9) % 35) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(55 + (i * 7) % 25) + '%'"></div></td>
+                <td><div class="sk-pill" style="width:40%"></div></td>
+                <td><div class="sk-pill" style="width:45%"></div></td>
+                <td><div class="sk-pill" [style.width]="(50 + (i * 11) % 40) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(45 + (i * 13) % 30) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(60 + (i * 7) % 25) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(40 + (i * 9) % 30) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(50 + (i * 11) % 25) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(45 + (i * 7) % 35) + '%'"></div></td>
+              </tr>
+            }
+          } @else {
           @for (row of orders(); track row.releaseNumber; let i = $index) {
             <tr [class.row-alt]="i % 2 !== 0">
               <td class="col-edit">
@@ -287,9 +300,20 @@
               </td>
             </tr>
           }
+          }
         </tbody>
       </table>
     </div>
+
+    @if (loading()) {
+      <div class="app-loading-overlay">
+        <div class="app-loader">
+          <div class="app-dots"><span class="app-dot"></span><span class="app-dot"></span><span class="app-dot"></span></div>
+          <span class="app-loader__title">Please wait while we set things up for you...</span>
+          <span class="app-loader__sub">This might take a few seconds</span>
+        </div>
+      </div>
+    }
 
     <!-- Pagination -->
     @if (searched() && totalCount() > 0) {

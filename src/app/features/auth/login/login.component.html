@@ -125,7 +125,6 @@
 
           <button class="login-btn" type="submit" [disabled]="loading()">
             @if (loading()) {
-              <span class="spinner"></span>
               Signing in…
             } @else {
               Sign in
@@ -156,4 +155,14 @@
       </p>
     </div>
   </main>
+
+  @if (loading()) {
+    <div class="app-loading-overlay app-loading-overlay--fixed">
+      <div class="app-loader">
+        <div class="app-dots"><span class="app-dot"></span><span class="app-dot"></span><span class="app-dot"></span></div>
+        <span class="app-loader__title">Please wait while we set things up for you...</span>
+        <span class="app-loader__sub">This might take a few seconds</span>
+      </div>
+    </div>
+  }
 </div>
