@@ -75,7 +75,13 @@ export const NOTIFICATION_MESSAGES = {
       DELETE_FAILED: 'Failed to remove user.',
     },
     EDGE_ORDER: {
-      LOAD_FAILED: 'Failed to load edge orders.',
+      LOAD_FAILED:      'Failed to load edge orders.',
+      UPDATE_SUCCESS:   'All changes submitted successfully.',
+      UPDATE_FAILED:    'Failed to submit changes.',
+      SUBMIT_SUCCESS:          'Order submitted successfully.',
+      SUBMIT_FAILED:           'Failed to submit order.',
+      PLANT_CODE_UPDATE_SUCCESS: 'Plant code updated successfully.',
+      PLANT_CODE_UPDATE_FAILED:  'Failed to update plant code.',
     },
   },
 

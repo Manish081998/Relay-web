@@ -6,12 +6,14 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { InputTextModule } from 'primeng/inputtext';
 import { DatePickerModule } from 'primeng/datepicker';
 import { EdgeOrdersService } from '../../services/edge-orders.service';
 import { EdgeOrderDto, EdgeOrderSearchParams } from '../../models/edge-orders.model';
 import { NOTIFICATION_MESSAGES as NM } from '../../../../core/constants/notification-messages';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { AuthStore } from '../../../../core/auth/auth.store';
 
 @Component({
   selector: 'app-edge-orders-search',
@@ -22,10 +24,11 @@ import { NotificationService } from '../../../../core/services/notification.serv
   styleUrl: './edge-orders-search.scss',
 })
 export class EdgeOrdersSearch implements OnInit {
-  private readonly svc    = inject(EdgeOrdersService);
-  private readonly notify = inject(NotificationService);
-  private readonly fb     = inject(FormBuilder);
-  private readonly router = inject(Router);
+  private readonly svc       = inject(EdgeOrdersService);
+  private readonly notify    = inject(NotificationService);
+  private readonly fb        = inject(FormBuilder);
+  private readonly router    = inject(Router);
+  private readonly authStore = inject(AuthStore);
 
   readonly orders      = signal<EdgeOrderDto[]>([]);
   readonly loading     = signal(false);
@@ -193,13 +196,20 @@ export class EdgeOrdersSearch implements OnInit {
 
     this.loading.set(true);
     try {
-      const res = await firstValueFrom(this.svc.getOrderByGuid(row.orderGuid, row.repPO));
+      const userId = this.authStore.currentUser()?.globalId ?? '';
+      const res = await firstValueFrom(this.svc.getOrderByGuid(row.orderGuid, row.repPO, userId));
       if (res.success && res.data) {
-        const key = this.storePayload('edit-order', res.data);
+        const payload = { ...res.data, brand: res.data.brand || row.brand || '' };
+        const key = this.storePayload('edit-order', payload);
         this.router.navigate(['/intranet/edit-order'], { queryParams: { key } });
+      } else {
+        this.notify.warning(res.message || NM.INTRANET.EDGE_ORDER.LOAD_FAILED, 'Intranet');
       }
-    } catch {
-      this.notify.error(NM.INTRANET.EDGE_ORDER.LOAD_FAILED, 'Intranet');
+    } catch (err) {
+      const msg = err instanceof HttpErrorResponse
+        ? (err.error?.message ?? NM.INTRANET.EDGE_ORDER.LOAD_FAILED)
+        : NM.INTRANET.EDGE_ORDER.LOAD_FAILED;
+      this.notify.warning(msg, 'Intranet');
     } finally {
       this.loading.set(false);
     }
