@@ -35,6 +35,12 @@ $divider:      rgba(t.$color-border, 0.4);
   border-bottom: 1px solid $border;
 }
 
+.page-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .page-title {
   margin: 0;
   font-size: t.$font-size-lg;
@@ -75,12 +81,53 @@ $divider:      rgba(t.$color-border, 0.4);
   padding: 10px 16px;
 }
 
+// ── FastTrack label + message ─────────────────────────────────────────────────
+.fasttrack-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fasttrack-subtitle {
+  font-size: t.$font-size-xs;
+  font-weight: t.$font-weight-semibold;
+  color: #dc2626;
+}
+
+.fasttrack-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px 0 10px;
+  background: rgba(26, 95, 180, 0.1);
+  border-left: 3px solid #1a5fb4;
+  font-size: 0.625rem;
+  font-weight: t.$font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #1a5fb4;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: default;
+  pointer-events: none;
+  user-select: none;
+  animation: ft-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes ft-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(26, 95, 180, 0); }
+  50%       { box-shadow: 0 0 0 5px rgba(26, 95, 180, 0.2); }
+}
+
+
 // ── Line Items grid ───────────────────────────────────────────────────────────
 .li-card-body { padding: 0; }
 
 .li-table-wrap {
   width: 100%;
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 300px;
 }
 
 .li-table {
@@ -94,6 +141,9 @@ $divider:      rgba(t.$color-border, 0.4);
   }
 
   th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     padding: 6px 10px;
     text-align: left;
     font-size: 0.6rem;
@@ -101,6 +151,7 @@ $divider:      rgba(t.$color-border, 0.4);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: $text-muted;
+    background: $surface-alt;
     border-bottom: 1px solid $border;
     white-space: nowrap;
   }
@@ -152,6 +203,9 @@ $divider:      rgba(t.$color-border, 0.4);
 
 .address-label {
   margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: t.$font-size-sm;
   font-weight: t.$font-weight-bold;
   color: $text;
@@ -214,6 +268,13 @@ input.field-input[pInputText] {
   transition: border-color t.$transition-fast, background t.$transition-fast, box-shadow t.$transition-fast;
 
   &::placeholder { color: $text-faint; font-size: 0.625rem; }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: $surface-alt !important;
+    border-color: $border !important;
+    color: $text-faint !important;
+  }
   &:hover  { border-color: $border-str !important; background: $surface !important; }
   &:focus  {
     border-color: $primary !important;
@@ -390,6 +451,146 @@ input.field-input[pInputText] {
 
   &:hover { box-shadow: 0 4px 14px rgba($primary, 0.35); transform: translateY(-1px); }
   &:active { transform: translateY(0); box-shadow: 0 1px 4px rgba($primary, 0.15); }
+
+  &:disabled {
+    background: $surface-alt;
+    border: 1px solid $border;
+    color: $text-faint;
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+
+    &:hover { box-shadow: none; transform: none; }
+  }
+}
+
+// ── Edited section highlight ──────────────────────────────────────────────────
+.card--edited {
+  border-left: 3px solid #d97706;
+  box-shadow: t.$shadow-card, -3px 0 12px rgba(#d97706, 0.1);
+}
+
+.address-section--edited .address-label {
+  color: #d97706;
+}
+
+.edited-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 7px;
+  border-radius: 99px;
+  font-size: 0.5rem;
+  font-weight: t.$font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.card-header .edited-badge {
+  margin-left: auto;
+  background: rgba(#d97706, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(#d97706, 0.45);
+}
+
+.address-label .edited-badge {
+  background: rgba(#d97706, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(#d97706, 0.3);
+}
+
+// ── Secure SDA native checkbox ────────────────────────────────────────────────
+.sda-check {
+  width: 18px;
+  height: 18px;
+  accent-color: $primary;
+  border: 1.5px solid $border-str;
+  border-radius: 4px;
+  background: $input-bg;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+// ── Plant Code clickable button in table ──────────────────────────────────────
+.plant-code-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  height: 22px;
+  padding: 0 8px;
+  background: rgba($primary, 0.08);
+  border: 1px solid rgba($primary, 0.35);
+  border-radius: t.$radius-sm;
+  font-size: t.$font-size-xs;
+  font-family: t.$font-sans;
+  font-weight: t.$font-weight-semibold;
+  color: $primary;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background t.$transition-fast, border-color t.$transition-fast;
+
+  &:hover {
+    background: rgba($primary, 0.18);
+    border-color: $primary;
+  }
+}
+
+// ── Plant Code popup dialog ───────────────────────────────────────────────────
+:host ::ng-deep .pc-modal {
+  .p-dialog {
+    background: $surface;
+    border: 1px solid $border-str;
+    border-radius: t.$radius-lg;
+    overflow: hidden;
+    box-shadow: t.$shadow-card, 0 12px 40px rgba(0, 0, 0, 0.45);
+  }
+
+  .p-dialog-header {
+    background: linear-gradient(135deg, $primary 0%, $primary-dk 100%);
+    padding: 10px 16px;
+
+    .p-dialog-title {
+      font-size: t.$font-size-xs;
+      font-weight: t.$font-weight-bold;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #fff;
+    }
+  }
+
+  .p-dialog-content {
+    background: $surface;
+    padding: 16px 16px 0;
+  }
+}
+
+.pc-label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: t.$font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $text-muted;
+  margin-bottom: 4px;
+}
+
+.pc-dialog-body {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 16px;
+}
+
+.pc-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 0 4px;
+  border-top: 1px solid $border;
 }
 
 // ── Responsive ────────────────────────────────────────────────────────────────

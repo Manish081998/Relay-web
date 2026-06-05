@@ -1,26 +1,259 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, computed, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { concat } from 'rxjs';
+import { switchMap, toArray } from 'rxjs/operators';
 import { InputTextModule } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
-import { CheckboxModule } from 'primeng/checkbox';
-import { LineItem, OrderByGuidData } from '../../models/edge-orders.model';
+import { Dialog } from 'primeng/dialog';
+import { AuthStore } from '../../../../core/auth/auth.store';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { NOTIFICATION_MESSAGES as NM } from '../../../../core/constants/notification-messages';
+import { EdgeOrdersService } from '../../services/edge-orders.service';
+import { LineItem, OrderByGuidData, PlantCode, PlantCodeUpdateDto, ShipTerm } from '../../models/edge-orders.model';
 
 @Component({
   selector: 'app-edit-order',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, InputTextModule, Select, CheckboxModule],
+  imports: [CommonModule, ReactiveFormsModule, InputTextModule, Select, Dialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './edit-order.html',
   styleUrl: './edit-order.scss',
 })
 export class EditOrder implements OnInit {
-  private readonly fb    = inject(FormBuilder);
-  private readonly route = inject(ActivatedRoute);
-  private readonly cdr   = inject(ChangeDetectorRef);
+  private readonly fb              = inject(FormBuilder);
+  private readonly route           = inject(ActivatedRoute);
+  private readonly router          = inject(Router);
+  private readonly cdr             = inject(ChangeDetectorRef);
+  private readonly destroyRef      = inject(DestroyRef);
+  private readonly authStore       = inject(AuthStore);
+  private readonly edgeOrdersSvc   = inject(EdgeOrdersService);
+  private readonly notify          = inject(NotificationService);
 
-  readonly lineItems = signal<LineItem[]>([]);
+  readonly lineItems              = signal<LineItem[]>([]);
+  readonly isFastTrack            = signal(false);
+  readonly marshalFileLabel       = signal('');
+  readonly plantCodes             = signal<PlantCode[]>([]);
+  readonly plantCodeOptions       = computed(() =>
+    this.plantCodes().map(pc => ({ label: `${pc.code} - ${pc.description}`, value: pc.code })),
+  );
+  readonly plantCodePopupVisible  = signal(false);
+  readonly plantCodeControl       = this.fb.control<string>('');
+
+  private _popupLineItem: LineItem | null = null;
+  private _orderData: OrderByGuidData | null = null;
+
+  private readonly _editedSections = signal<Set<string>>(new Set());
+  private readonly _submitting      = signal(false);
+
+  readonly editedSections = this._editedSections.asReadonly();
+  readonly isSubmitting   = this._submitting.asReadonly();
+  readonly hasEdits       = computed(() => this._editedSections().size > 0);
+
+  isEdited(section: string): boolean {
+    return this.editedSections().has(section);
+  }
+
+  cancelChanges(): void {
+    this.router.navigate(['/intranet/Edge-Orders-Search']);
+  }
+
+  openPlantCodePopup(item: LineItem): void {
+    this._popupLineItem = item;
+    this.plantCodeControl.setValue(item.plantCode ?? '');
+    this.plantCodePopupVisible.set(true);
+  }
+
+  closePlantCodePopup(): void {
+    this.plantCodePopupVisible.set(false);
+    this._popupLineItem = null;
+  }
+
+  savePlantCode(): void {
+    const data   = this._orderData;
+    const item   = this._popupLineItem;
+    const newCode = this.plantCodeControl.value;
+    if (!data || !item || !newCode) return;
+
+    const dto: PlantCodeUpdateDto = {
+      lineNumber:       item.line,
+      newPlantCode:     newCode,
+      isSecondaryPlant: true,
+    };
+
+    const orderGuid = data.orderGuid;
+    const po        = data.orderInfo.repPoNo;
+    const userId    = this.authStore.currentUser()?.globalId ?? '';
+
+    this.edgeOrdersSvc.updatePlantCode(orderGuid, po, userId, dto)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          if (res.success && res.data) {
+            this.notify.success(NM.INTRANET.EDGE_ORDER.PLANT_CODE_UPDATE_SUCCESS, 'Edge Orders');
+            this.closePlantCodePopup();
+          } else {
+            this.notify.error(NM.INTRANET.EDGE_ORDER.PLANT_CODE_UPDATE_FAILED, 'Edge Orders');
+          }
+        },
+        error: () => {
+          this.notify.error(NM.INTRANET.EDGE_ORDER.PLANT_CODE_UPDATE_FAILED, 'Edge Orders');
+        },
+      });
+  }
+
+  submitChanges(): void {
+    const data = this._orderData;
+    if (!data || this._submitting()) return;
+
+    const sections  = [...this._editedSections()];
+    const orderGuid = data.orderGuid;
+    const fileName  = data.fileName;
+    const po        = data.orderInfo.repPoNo;
+    const brand     = data.brand ?? '';
+    const globalId  = this.authStore.currentUser()?.globalId ?? '';
+
+    this._submitting.set(true);
+
+    const calls = sections.map(sectionName => {
+      const apiName = EditOrder.SECTION_API_NAMES[sectionName] ?? sectionName;
+      return this.edgeOrdersSvc.updateSection(
+        orderGuid,
+        apiName,
+        globalId,
+        fileName,
+        po,
+        brand,
+        { section: apiName, fields: this.sectionFields(sectionName) },
+      );
+    });
+
+    concat(...calls)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        toArray(),
+        switchMap(() => this.edgeOrdersSvc.submitOrder(orderGuid, po, brand, globalId)),
+      )
+      .subscribe({
+        next: (res) => {
+          this._submitting.set(false);
+          this._editedSections.set(new Set());
+          if (res.success && res.data) {
+            this.notify.success(NM.INTRANET.EDGE_ORDER.SUBMIT_SUCCESS, 'Edge Orders');
+            this.router.navigate(['/intranet/Edge-Orders-Search']);
+          } else {
+            this.notify.error(NM.INTRANET.EDGE_ORDER.SUBMIT_FAILED, 'Edge Orders');
+          }
+        },
+        error: () => {
+          this._submitting.set(false);
+        },
+      });
+  }
+
+  private static readonly SECTION_API_NAMES: Record<string, string> = {
+    shippingMethod:  'ShippingMethod',
+    shippingCharges: 'ShippingCharges',
+  };
+
+  // Maps form control names → exact XML element tag names per section.
+  // Keys not listed fall back to their form control name as-is.
+  private static readonly XML_TAG_MAP: Record<string, Record<string, string>> = {
+    soldTo: {
+      name1:     'Name1',
+      street1:   'Street1',
+      street2:   'Street2',
+      city:      'City',
+      state:     'State',
+      zip:       'Zip',
+      careof:    'careof',    // lowercase in SoldTo XML
+      attention: 'attention', // lowercase in SoldTo XML
+      country:   'country',   // lowercase in SoldTo XML
+    },
+    shipTo: {
+      name1:     'Name1',
+      street1:   'Street1',
+      street2:   'Street2',
+      city:      'City',
+      state:     'State',
+      zip:       'Zip',
+      careof:    'careof',
+      attention: 'Attention', // capitalised in ShipTo XML
+      country:   'Country',   // capitalised in ShipTo XML
+    },
+    brandAccount: {
+      repAccountNo: 'RepAccountNo',
+      phone:        'Phone',
+      fax:          'Fax',
+    },
+    marketingProgram: {
+      programCode: 'ProgramCode',
+      program:     'Program',
+      secureSda:   'SecureSDA',
+    },
+    orderInfo: {
+      orderDate:     'OrderDate',
+      repPoNo:       'RepPONo',
+      customerPoNo:  'CustomerPONo',
+      custAccountNo: 'CustAccountNo',
+      jobName:       'JobName',
+      salesPerson:   'SalesPerson',
+      jobGuid:       'JobGuid',
+    },
+    quantityInfo: {
+      jobNumber:        'JobNumber',
+      modelCount:       'ModelCount',
+      versionNumber:    'VersionNumber',
+      lineCount:        'LineCount',
+      brandlogo:        'brandlogo',        // lowercase in XML
+      jobInitiatedDate: 'JobInitiatedDate',
+      email:            'email',            // lowercase in XML
+      productVersion:   'productVersion',
+    },
+    specialInfo: {
+      sdaNo: 'SDANo',
+      fma:   'FMA',
+    },
+    specialItems: {
+      isSpecial:  'IsSpecial',
+      xLines:     'XLines',
+      commLines:  'CommLines',
+      ctrlQty:    'CtrlQty',
+      fmaLines:   'FMALines',
+    },
+    pricingTotals: {
+      baseOrderCost:      'BaseOrderCost',
+      setupCharge:        'SetupCharge',
+      freight:            'Freight',
+      totalOrderCost:     'TotalOrderCost',
+      totalListPrice:     'TotalListPrice',
+      netMinusFreight:    'NetMinusFreight',
+      freightQuoteNumber: 'FreightQuoteNumber',
+    },
+    shippingMethod: {
+      shipVia:              'ShipVia',
+      callBeforeDelivery:   'CallBeforeDelivery',
+      terms:                'Terms',
+      markOrder:            'MarkOrder',
+      noPartial:            'NoPartial',
+      shippingInstructions: 'ShippingInstructions',
+      shipTerms:            'ShipTerms',
+    },
+    shippingCharges: {
+      commentsToFactory:      'CommentsToFactory',
+      customerServiceRequest: 'CustomerServiceRequest',
+    },
+  };
+
+  private sectionFields(sectionKey: string): Record<string, string> {
+    const raw    = (this.form.get(sectionKey) as FormGroup).getRawValue() as Record<string, unknown>;
+    const tagMap = EditOrder.XML_TAG_MAP[sectionKey] ?? {};
+    return Object.fromEntries(
+      Object.entries(raw).map(([k, v]) => [tagMap[k] ?? k, v == null ? '' : String(v)]),
+    );
+  }
 
   readonly countries = [
     'UNITED STATES OF AMERICA',
@@ -75,14 +308,16 @@ export class EditOrder implements OnInit {
       program:     '',
       secureSda:   this.fb.nonNullable.control(false),
     }),
-    shipping: this.fb.nonNullable.group({
-      shipVia:                '',
-      terms:                  '',
-      noPartial:              '',
-      shipTerms:              '',
-      callBeforeDelivery:     '',
-      markOrder:              '',
-      shippingInstructions:   '',
+    shippingMethod: this.fb.nonNullable.group({
+      shipVia:              '',
+      callBeforeDelivery:   '',
+      terms:                '',
+      markOrder:            '',
+      noPartial:            '',
+      shippingInstructions: '',
+      shipTerms:            '',
+    }),
+    shippingCharges: this.fb.nonNullable.group({
       commentsToFactory:      '',
       customerServiceRequest: '',
     }),
@@ -120,9 +355,10 @@ export class EditOrder implements OnInit {
 
   readonly isSpecialOptions = ['no', 'yes'];
 
-  readonly shipTermsOptions = [
-    '', 'No Charge', 'Prepaid', 'Collect', 'Third Party', 'FOB Destination', 'FOB Origin',
-  ];
+  readonly shipTermsData    = signal<ShipTerm[]>([]);
+  readonly shipTermsOptions = computed(() =>
+    this.shipTermsData().map(st => ({ label: `${st.code} - ${st.description}`, value: st.code })),
+  );
 
   ngOnInit(): void {
     const key = this.route.snapshot.queryParamMap.get('key');
@@ -130,13 +366,38 @@ export class EditOrder implements OnInit {
     const raw = localStorage.getItem(key);
     if (!raw) return;
     const data = JSON.parse(raw) as OrderByGuidData;
+    this._orderData = data;
     this.patchFromApiResponse(data);
+    this.form.get('orderInfo.jobGuid')!.disable({ emitEvent: false });
+    this.form.get('quantityInfo.lineCount')!.disable({ emitEvent: false });
+    this.form.get('quantityInfo.jobInitiatedDate')!.disable({ emitEvent: false });
+    this.trackSectionChanges();
     this.cdr.markForCheck();
+  }
+
+  private trackSectionChanges(): void {
+    const sections = [
+      'orderInfo', 'soldTo', 'shipTo', 'brandAccount',
+      'marketingProgram', 'shippingMethod', 'shippingCharges', 'quantityInfo',
+      'pricingTotals', 'specialInfo', 'specialItems',
+    ] as const;
+
+    for (const key of sections) {
+      this.form.get(key)!.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this._editedSections.update(s => new Set([...s, key]));
+        });
+    }
   }
 
   private patchFromApiResponse(data: OrderByGuidData): void {
     const allItems = (data.lineItemFamilies ?? []).flatMap(f => f.items ?? []);
     this.lineItems.set(allItems);
+    this.plantCodes.set(data.plantCodes ?? []);
+    this.shipTermsData.set(data.shipTerms ?? []);
+    this.isFastTrack.set(data.isFastTrack ?? false);
+    this.marshalFileLabel.set(data.marshalFileLabel ?? '');
 
     const oi       = data.orderInfo;
     const soldTo   = data.address?.soldTo;
@@ -148,6 +409,7 @@ export class EditOrder implements OnInit {
     const pt       = data.pricingTotals  ?? {};
     const qi       = data.quantityInfo   ?? {};
     const si       = data.specialInfo    ?? {};
+    const spi      = data.specialItems   ?? {};
 
     this.form.patchValue({
       orderInfo: {
@@ -185,11 +447,18 @@ export class EditOrder implements OnInit {
       marketingProgram: {
         programCode: mp?.programCode ?? '',
         program:     mp?.program     ?? '',
+        secureSda:   mp?.secureSda?.toLowerCase() === 'true',
       },
-      shipping: {
-        shipVia:                shipMeth?.shipVia                ?? '',
-        noPartial:              shipMeth?.noPartial              ?? '',
-        shipTerms:              shipMeth?.shipTerms              ?? '',
+      shippingMethod: {
+        shipVia:              shipMeth?.shipVia              ?? '',
+        callBeforeDelivery:   shipMeth?.callBeforeDelivery   ?? '',
+        terms:                shipMeth?.terms                ?? '',
+        markOrder:            shipMeth?.markOrder            ?? '',
+        noPartial:            shipMeth?.noPartial            ?? '',
+        shippingInstructions: shipMeth?.shippingInstructions ?? '',
+        shipTerms:            shipMeth?.shipTerms            ?? '',
+      },
+      shippingCharges: {
         commentsToFactory:      shipChrg?.commentsToFactory      ?? '',
         customerServiceRequest: shipChrg?.customerServiceRequest ?? '',
       },
@@ -213,6 +482,13 @@ export class EditOrder implements OnInit {
       specialInfo: {
         sdaNo: si['SDANo'] ?? '',
         fma:   si['FMA']   ?? '',
+      },
+      specialItems: {
+        isSpecial: spi['isSpecial'] ?? '',
+        xLines:    spi['xLines']    ?? '',
+        commLines: spi['commLines'] ?? '',
+        ctrlQty:   spi['ctrlQty']   ?? '',
+        fmaLines:  spi['fmaLines']  ?? '',
       },
     });
   }
