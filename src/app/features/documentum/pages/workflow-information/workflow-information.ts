@@ -18,13 +18,14 @@ import {
 import { SalesOrderNoteDto } from '../../models/note.model';
 import { AnnotationDialogComponent } from '../../components/annotation-dialog/annotation-dialog.component';
 import { Dialog } from 'primeng/dialog';
+import { Tooltip } from 'primeng/tooltip';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { invalidateCache } from '../../../../core/interceptors/cache.interceptor';
 
 @Component({
   selector: 'app-workflow-information',
   standalone: true,
-  imports: [CommonModule, FormsModule, AnnotationDialogComponent, Dialog],
+  imports: [CommonModule, FormsModule, AnnotationDialogComponent, Dialog, Tooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './workflow-information.html',
   styleUrl: './workflow-information.scss',
@@ -57,7 +58,7 @@ export class WorkflowInformation {
 
   readonly workflow = {
     queueName: 'Release to Production',
-    state: 'Dormant',
+    state: 'Acquired',
     startedOn: '12/22/25',
   };
 

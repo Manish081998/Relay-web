@@ -17,11 +17,12 @@ import {
 } from '../../models/document.model';
 import { SalesOrderNoteDto } from '../../models/note.model';
 import { Dialog } from 'primeng/dialog';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-order-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, Dialog],
+  imports: [CommonModule, FormsModule, Dialog, Tooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-detail.html',
   styleUrl: './order-detail.scss',
