@@ -491,6 +491,16 @@ $text-faint:   t.$color-text-subtle;
   padding: 0 !important;
 }
 
+.link-edi {
+  color: #a78bfa;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
 .btn-edit {
   display: inline-flex;
   align-items: center;

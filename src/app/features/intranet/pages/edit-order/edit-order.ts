@@ -44,6 +44,7 @@ export class EditOrder implements OnInit {
 
   private _popupLineItem: LineItem | null = null;
   private _orderData: OrderByGuidData | null = null;
+  private _returnUrl = '/intranet/Edge-Orders-Search';
 
   private readonly _editedSections = signal<Set<string>>(new Set());
   private readonly _submitting      = signal(false);
@@ -57,7 +58,7 @@ export class EditOrder implements OnInit {
   }
 
   cancelChanges(): void {
-    this.router.navigate(['/intranet/Edge-Orders-Search']);
+    this.router.navigate([this._returnUrl]);
   }
 
   openPlantCodePopup(item: LineItem): void {
@@ -105,6 +106,7 @@ export class EditOrder implements OnInit {
   }
 
   submitChanges(): void {
+    debugger;
     const data = this._orderData;
     if (!data || this._submitting()) return;
 
@@ -142,7 +144,7 @@ export class EditOrder implements OnInit {
           this._editedSections.set(new Set());
           if (res.success && res.data) {
             this.notify.success(NM.INTRANET.EDGE_ORDER.SUBMIT_SUCCESS, 'Edge Orders');
-            this.router.navigate(['/intranet/Edge-Orders-Search']);
+            this.router.navigate([this._returnUrl]);
           } else {
             this.notify.error(NM.INTRANET.EDGE_ORDER.SUBMIT_FAILED, 'Edge Orders');
           }
@@ -361,7 +363,9 @@ export class EditOrder implements OnInit {
   );
 
   ngOnInit(): void {
-    const key = this.route.snapshot.queryParamMap.get('key');
+    const key       = this.route.snapshot.queryParamMap.get('key');
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (returnUrl) this._returnUrl = returnUrl;
     if (!key) return;
     const raw = localStorage.getItem(key);
     if (!raw) return;
@@ -463,12 +467,13 @@ export class EditOrder implements OnInit {
         customerServiceRequest: shipChrg?.customerServiceRequest ?? '',
       },
       pricingTotals: {
-        baseOrderCost:   pt['BaseOrderCost']   ?? '',
-        setupCharge:     pt['SetupCharge']     ?? '',
-        freight:         pt['Freight']         ?? '',
-        totalOrderCost:  pt['TotalOrderCost']  ?? '',
-        totalListPrice:  pt['TotalListPrice']  ?? '',
-        netMinusFreight: pt['NetMinusFreight'] ?? '',
+        baseOrderCost:      pt['BaseOrderCost']      ?? '',
+        setupCharge:        pt['SetupCharge']        ?? '',
+        freight:            pt['Freight']            ?? '',
+        totalOrderCost:     pt['TotalOrderCost']     ?? '',
+        totalListPrice:     pt['TotalListPrice']     ?? '',
+        netMinusFreight:    pt['NetMinusFreight']    ?? '',
+        freightQuoteNumber: pt['FreightQuoteNumber'] ?? '',
       },
       quantityInfo: {
         jobNumber:        qi['JobNumber']        ?? '',

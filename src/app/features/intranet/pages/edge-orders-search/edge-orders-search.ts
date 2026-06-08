@@ -201,7 +201,7 @@ export class EdgeOrdersSearch implements OnInit {
       if (res.success && res.data) {
         const payload = { ...res.data, brand: res.data.brand || row.brand || '' };
         const key = this.storePayload('edit-order', payload);
-        this.router.navigate(['/intranet/edit-order'], { queryParams: { key } });
+        this.router.navigate(['/intranet/edit-order'], { queryParams: { key, returnUrl: '/intranet/Edge-Orders-Search' } });
       } else {
         this.notify.warning(res.message || NM.INTRANET.EDGE_ORDER.LOAD_FAILED, 'Intranet');
       }

@@ -23,13 +23,12 @@ export class EdgeOrdersService {
     );
   }
 
-  getOrderByGuid(orderGuid: string, repPo: string, userId: string): Observable<GetOrderByGuidResponse> {
+  getOrderByGuid(orderGuid: string | undefined, repPo: string, userId: string): Observable<GetOrderByGuidResponse> {
+    const params: Record<string, string> = { RepPo: repPo, UserId: userId };
+    if (orderGuid) params['OrderGuid'] = orderGuid;
     return this.api.get<GetOrderByGuidResponse>(
       API_ENDPOINTS.INTRANET.GET_ORDER_BY_GUID,
-      {
-        params:  { OrderGuid: orderGuid, RepPo: repPo, UserId: userId },
-        headers: { 'X-Silent-Errors': '400', 'X-Skip-Cache': 'true' },
-      },
+      { params, headers: { 'X-Silent-Errors': '400', 'X-Skip-Cache': 'true' } },
     );
   }
 

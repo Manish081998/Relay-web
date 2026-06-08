@@ -257,9 +257,7 @@
           @for (row of orders(); track row.releaseNumber; let i = $index) {
             <tr [class.row-alt]="i % 2 !== 0">
               <td class="col-edit">
-                <button type="button" class="btn-edit" (click)="openEditOrder(row)" title="Edit Order">
-                  <i class="pi pi-pencil"></i>
-                </button>
+                <a class="link-edi" (click)="openEditOrder(row)">EDI</a>
               </td>
               <td class="cell-release">
                 @if (row.xmlMacPacOrder) {

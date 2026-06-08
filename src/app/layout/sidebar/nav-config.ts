@@ -36,6 +36,7 @@ export const NAV_GROUPS: NavGroup[] = [
     roles: [Role.SuperAdmin, Role.Admin, Role.User],
     children: [
       { label: 'Edge Orders Search', route: '/intranet/Edge-Orders-Search', icon: NAV_ICONS.users, color: '#60a5fa' },
+      { label: 'EDI', route: '/intranet/edi', icon: NAV_ICONS.selections, color: '#a78bfa' },
     ],
   },
   {
