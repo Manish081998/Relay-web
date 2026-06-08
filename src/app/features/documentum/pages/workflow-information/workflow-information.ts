@@ -147,11 +147,16 @@ export class WorkflowInformation {
 
   private loadRouteToDepartment(brand: string | undefined, currentQueueName?: string): void {
     if (brand) {
-      const excludeQueue = (currentQueueName ?? '').trim().toLowerCase();
+      // Exclude current queue — check both the order's queueName and the hardcoded workflow queueName
+      const excludeNames = new Set(
+        [currentQueueName, this.workflow.queueName]
+          .filter(Boolean)
+          .map(n => n!.trim().toLowerCase()),
+      );
       this.ordersService.getRouteToDepartment(brand)
         .pipe(
-          map(queues => excludeQueue
-            ? queues.filter(q => q.value.trim().toLowerCase() !== excludeQueue)
+          map(queues => excludeNames.size > 0
+            ? queues.filter(q => !excludeNames.has(q.value.trim().toLowerCase()))
             : queues),
           timeout(15000),
           catchError((err) => { console.error('loadRouteToDepartment error:', err); return of([]); }),
