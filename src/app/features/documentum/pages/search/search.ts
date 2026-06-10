@@ -178,7 +178,7 @@ export class Search {
   openOrder(order: OrderItem): void {
     this.router.navigate(
       ['/documentum/order-detail', order.orderGuid],
-      { queryParams: { orderSeq: order.orderSeq } },
+      { queryParams: { orderSeq: order.orderSeq, po: order.repPO } },
     );
   }
 
