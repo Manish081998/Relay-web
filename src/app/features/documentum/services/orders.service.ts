@@ -61,11 +61,11 @@ export class OrdersService {
   }
 
   getRouteToDepartment(brandName: string): Observable<DropdownOption[]> {
-    return this.api.get<string[]>(
+    return this.api.get<{ queueId: number; queueName: string }[]>(
       `${this.env.apiBaseUrl}/api/documentum/orders/route-to-department`,
       { params: { brandName } },
     ).pipe(
-      map(queues => queues.map(q => ({ label: q, value: q }))),
+      map(queues => queues.map(q => ({ label: q.queueName, value: q.queueId.toString() }))),
     );
   }
 

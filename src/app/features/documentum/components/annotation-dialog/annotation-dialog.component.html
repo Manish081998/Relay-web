@@ -8,7 +8,7 @@
   [closable]="true"
   [style]="{ width: '92vw', 'max-width': '1600px' }"
   [contentStyle]="{ padding: '0', overflow: 'hidden', height: 'calc(88vh - 130px)' }"
-  styleClass="annot-modal"
+  [styleClass]="'annot-modal' + (readOnly() ? ' annot-modal--readonly' : '')"
   maskStyleClass="annot-modal-mask"
   (onHide)="close()"
 >
@@ -36,7 +36,7 @@
         (click)="close()"
       ></button>
 
-      @if (mode() === 'upload') {
+      @if (mode() === 'upload' && !readOnly()) {
         <button
           pButton
           icon="pi pi-cloud-upload"

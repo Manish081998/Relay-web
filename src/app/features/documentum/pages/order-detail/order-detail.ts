@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy, Component,
+  ChangeDetectionStrategy, Component, computed,
   DestroyRef, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -8,25 +8,28 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, timeout } from 'rxjs';
 import { OrdersService } from '../../services/orders.service';
+import { WorkflowService } from '../../services/workflow.service';
 import { SalesOrderDocumentService } from '../../services/sales-order-document.service';
 import { SalesOrderNoteService } from '../../services/sales-order-note.service';
 import { OrderItem } from '../../models/order.model';
+import { WorkflowHistoryItem } from '../../models/workflow.model';
 import {
   SalesOrderDocumentDto,
   SalesOrderDocumentVersionDto,
 } from '../../models/document.model';
 import { SalesOrderNoteDto } from '../../models/note.model';
+import { AnnotationDialogComponent } from '../../components/annotation-dialog/annotation-dialog.component';
 import { Dialog } from 'primeng/dialog';
 import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-order-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, Dialog, Tooltip],
+  imports: [CommonModule, FormsModule, AnnotationDialogComponent, Dialog, Tooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-detail.html',
   styleUrl: './order-detail.scss',
-  providers: [SalesOrderDocumentService, SalesOrderNoteService],
+  providers: [SalesOrderDocumentService, SalesOrderNoteService, WorkflowService],
 })
 export class OrderDetail {
   private readonly router = inject(Router);
@@ -34,6 +37,7 @@ export class OrderDetail {
   private readonly ordersService = inject(OrdersService);
   private readonly docService = inject(SalesOrderDocumentService);
   private readonly noteService = inject(SalesOrderNoteService);
+  private readonly workflowService = inject(WorkflowService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly orderGuid = input<string>('');
@@ -74,14 +78,27 @@ export class OrderDetail {
   readonly newNoteText = signal('');
   readonly isSavingNote = signal(false);
 
-  readonly workflowHistory = [
-    { activityName: 'Initiate', comments: 'Creation of Sales Order Package', userName: 'swaney.sales', timestamp: '10/13/24 09:02 am', eventType: 'Creation', orderStatus: 'Order Initiated' },
-    { activityName: 'Release to Production', comments: 'ccarfwja acquired task for final production release', userName: 'ccarfwja', timestamp: '12/22/25 06:42 pm', eventType: 'Acquire', orderStatus: '' },
-  ];
+  readonly workflowHistory = signal<WorkflowHistoryItem[]>([]);
+  readonly historyPage = signal(1);
+  readonly historyPageSize = 5;
+  readonly historyTotalPages = computed(() =>
+    Math.max(1, Math.ceil(this.workflowHistory().length / this.historyPageSize)),
+  );
+  readonly pagedHistory = computed(() => {
+    const all = this.workflowHistory();
+    const start = (this.historyPage() - 1) * this.historyPageSize;
+    return all.slice(start, start + this.historyPageSize);
+  });
+
+  // ── Annotation dialog (read-only preview on this page) ────────────────────
+  readonly showAnnotationDialog = signal(false);
+  readonly annotationFile = signal<File | null>(null);
+  readonly annotationDocName = signal('');
 
   // ── Document Management (API-driven) ─────────────────────────────────────
   readonly salesOrderDocs = signal<SalesOrderDocumentDto[]>([]);
   readonly supportDocs = signal<SalesOrderDocumentDto[]>([]);
+  readonly totalDocCount = computed(() => this.salesOrderDocs().length + this.supportDocs().length);
 
   // Version history dialog
   readonly showVersionPanel = signal(false);
@@ -102,6 +119,7 @@ export class OrderDetail {
             this.updatePackageInfo(order);
             this.loadDocuments(order.orderSeq);
             this.loadNotes(order.orderSeq);
+            this.loadWorkflowHistory(order.orderSeq);
           },
           error: () => {
             this.isLoadingOrder.set(false);
@@ -110,6 +128,21 @@ export class OrderDetail {
     } else {
       this.isLoadingOrder.set(false);
     }
+  }
+
+  private loadWorkflowHistory(orderSeq: number): void {
+    this.workflowService.getHistory(orderSeq)
+      .pipe(
+        timeout(15000),
+        catchError((err) => { console.error('loadWorkflowHistory error:', err); return of([] as WorkflowHistoryItem[]); }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(history => this.workflowHistory.set(history));
+  }
+
+  goToHistoryPage(page: number): void {
+    if (page < 1 || page > this.historyTotalPages()) return;
+    this.historyPage.set(page);
   }
 
   private updatePackageInfo(o: OrderItem): void {
@@ -158,22 +191,25 @@ export class OrderDetail {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(versions => {
         if (versions.length > 0) {
-          this.openPreview(versions[0].documentPath, doc.mimeType);
+          this.openBlobPreview(versions[0].documentPath, doc.documentName, doc.mimeType);
         }
       });
   }
 
   previewVersion(version: SalesOrderDocumentVersionDto): void {
-    this.openPreview(version.documentPath, version.mimeType);
+    this.openBlobPreview(version.documentPath, `Version ${version.versionNumber}`, version.mimeType);
   }
 
-  private openPreview(documentPath: string, mimeType: string): void {
+  private openBlobPreview(documentPath: string, title: string, mimeType: string): void {
     this.docService.getPreviewBlob(documentPath)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (blob) => {
-          const url = URL.createObjectURL(new Blob([blob], { type: mimeType }));
-          window.open(url, '_blank');
+          const fileName = documentPath.split('/').pop() ?? 'document';
+          const file = new File([blob], fileName, { type: mimeType });
+          this.annotationFile.set(file);
+          this.annotationDocName.set(title);
+          this.showAnnotationDialog.set(true);
         },
         error: (err) => console.error('Failed to load document preview:', err),
       });

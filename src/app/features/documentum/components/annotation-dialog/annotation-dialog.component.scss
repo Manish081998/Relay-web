@@ -119,6 +119,18 @@
     }
   }
 
+  // ── Read-only mode: hide annotation toolbar + save button ──────────────
+  &--readonly {
+    // Hide the entire annotation toolbar (Select, Highlight, Draw, Save, etc.)
+    .av-toolbar {
+      display: none !important;
+    }
+    // Also hide any inline save/annotation controls from the viewer
+    .annot-toolbar {
+      display: none !important;
+    }
+  }
+
   // Premium gradient button — re-declared here because the footer
   // is teleported outside the page component's style scope.
   .modal-footer .premium-btn.p-button {
