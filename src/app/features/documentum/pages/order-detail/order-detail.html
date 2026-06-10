@@ -11,57 +11,57 @@
         </span>
         <h2 class="od-pkg-bar-title">Sales Order Package Information</h2>
       </div>
-      <div style="display: flex; gap: 8px;">
-        <button class="od-pkg-bar-btn" disabled>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-          </svg>
-          Import Support Doc
-        </button>
+      <div class="od-pkg-bar-actions">
         <button class="od-pkg-bar-btn" disabled>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
           </svg>
-          Edit Package Metadata
+          Edit Package Info
         </button>
       </div>
     </div>
-    <div class="od-pkg-body">
+    <div class="od-pkg-body-inner">
       <div class="od-pkg-grid">
         <div class="od-pkg-field">
           <span class="od-pkg-label">Sales Order Number</span>
-          <span class="od-pkg-value">{{ packageInfo.salesOrderNumber }}</span>
+          <span class="od-pkg-value od-pkg-value--mono">{{ packageInfo.salesOrderNumber || '—' }}</span>
         </div>
         <div class="od-pkg-field">
           <span class="od-pkg-label">Product Type</span>
-          <span class="od-pkg-value">{{ packageInfo.productType }}</span>
+          <span class="od-pkg-value">{{ packageInfo.productType || '—' }}</span>
         </div>
         <div class="od-pkg-field">
           <span class="od-pkg-label">Capture Date</span>
-          <span class="od-pkg-value">{{ packageInfo.captureDate }}</span>
+          <span class="od-pkg-value">{{ packageInfo.captureDate ? (packageInfo.captureDate | date:'MM/dd/yy hh:mm a') : '—' }}</span>
         </div>
 
         <div class="od-pkg-field">
           <span class="od-pkg-label">Purchase Order Number</span>
-          <span class="od-pkg-value">{{ packageInfo.purchaseOrderNumber }}</span>
+          <span class="od-pkg-value od-pkg-value--mono">{{ packageInfo.purchaseOrderNumber || '—' }}</span>
         </div>
         <div class="od-pkg-field">
           <span class="od-pkg-label">Region</span>
-          <span class="od-pkg-value">{{ packageInfo.region }}</span>
+          <span class="od-pkg-value">
+            @if (packageInfo.region) {
+              <span class="od-pkg-tag">{{ packageInfo.region }}</span>
+            } @else {
+              —
+            }
+          </span>
         </div>
         <div class="od-pkg-field">
           <span class="od-pkg-label">Completion Date</span>
-          <span class="od-pkg-value">{{ packageInfo.completionDate }}</span>
+          <span class="od-pkg-value">{{ packageInfo.completionDate ? (packageInfo.completionDate | date:'MM/dd/yy hh:mm a') : '—' }}</span>
         </div>
 
         <div class="od-pkg-field">
           <span class="od-pkg-label">Account Number</span>
-          <span class="od-pkg-value">{{ packageInfo.accountNumber }}</span>
+          <span class="od-pkg-value od-pkg-value--mono">{{ packageInfo.accountNumber || '—' }}</span>
         </div>
         <div class="od-pkg-field">
           <span class="od-pkg-label">Rep Name</span>
-          <span class="od-pkg-value">{{ packageInfo.repName }}</span>
+          <span class="od-pkg-value">{{ packageInfo.repName || '—' }}</span>
         </div>
         <div class="od-pkg-field">
           <span class="od-pkg-label">Status</span>
@@ -81,17 +81,29 @@
           <span class="od-pkg-value">{{ packageInfo.subBrand || '—' }}</span>
         </div>
         <div class="od-pkg-field">
-          <span class="od-pkg-label">Queue Owner</span>
+          <span class="od-pkg-label">Task Owner</span>
           <span class="od-pkg-value">{{ packageInfo.queueOwner || '—' }}</span>
         </div>
 
         <div class="od-pkg-field">
           <span class="od-pkg-label">Brand</span>
-          <span class="od-pkg-value">{{ packageInfo.brand }}</span>
+          <span class="od-pkg-value">
+            @if (packageInfo.brand) {
+              <span class="od-pkg-tag od-pkg-tag--brand">{{ packageInfo.brand }}</span>
+            } @else {
+              —
+            }
+          </span>
         </div>
         <div class="od-pkg-field">
           <span class="od-pkg-label">Priority</span>
-          <span class="od-pkg-value">{{ packageInfo.priority }}</span>
+          <span class="od-pkg-value">
+            @if (packageInfo.priority) {
+              <span class="od-priority-badge">{{ packageInfo.priority }}</span>
+            } @else {
+              —
+            }
+          </span>
         </div>
         <div class="od-pkg-field"></div>
       </div>
@@ -111,6 +123,9 @@
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
           </svg>
           Sales Order &amp; Support Documents
+          @if (totalDocCount() > 0) {
+            <span class="od-tab__count">{{ totalDocCount() }}</span>
+          }
         </button>
         <button
           class="od-tab"
@@ -172,7 +187,7 @@
             @for (note of notes(); track note.salesOrderNoteId) {
               <tr>
                 <td><span class="od-notes-date">{{ note.createdDate | date:'MM/dd/yy hh:mm a' }}</span></td>
-                <td><span class="od-notes-user">{{ note.createdBy }}</span></td>
+                <td><span class="od-notes-user">{{ note.createdByName || note.createdBy }}</span></td>
                 <td>{{ note.notesDescription }}</td>
               </tr>
             }
@@ -252,8 +267,8 @@
                   </div>
                 </td>
                 <td><span class="od-type-badge" [attr.data-type]="doc.contentType?.toLowerCase()">{{ doc.contentType }}</span></td>
-                <td>{{ doc.createdDate }}</td>
-                <td>{{ doc.createdBy }}</td>
+                <td>{{ doc.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
+                <td>{{ doc.createdByName || doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
                 <td class="od-actions-cell">
                   <button class="od-icon-btn od-icon-btn--preview" pTooltip="Preview" tooltipPosition="top" (click)="previewDocument(doc)">
@@ -344,8 +359,8 @@
                   </div>
                 </td>
                 <td><span class="od-type-badge" [attr.data-type]="doc.contentType?.toLowerCase()">{{ doc.contentType }}</span></td>
-                <td>{{ doc.createdDate }}</td>
-                <td>{{ doc.createdBy }}</td>
+                <td>{{ doc.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
+                <td>{{ doc.createdByName || doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
                 <td class="od-actions-cell">
                   <button class="od-icon-btn od-icon-btn--preview" pTooltip="Preview" tooltipPosition="top" (click)="previewDocument(doc)">
@@ -405,22 +420,50 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of workflowHistory; track row.timestamp) {
+            @for (row of pagedHistory(); track $index) {
               <tr>
                 <td class="od-link">{{ row.activityName }}</td>
                 <td>{{ row.comments }}</td>
                 <td class="od-link">{{ row.userName }}</td>
-                <td>{{ row.timestamp }}</td>
-                <td><span class="od-event-badge">{{ row.eventType }}</span></td>
+                <td>{{ row.timestamp | date:'MM/dd/yy hh:mm a' }}</td>
+                <td><span class="od-event-badge" [attr.data-event]="row.eventType?.toLowerCase()">{{ row.eventType }}</span></td>
                 <td>
                   @if (row.orderStatus) {
-                    <span class="od-status-text">{{ row.orderStatus }}</span>
+                    <span class="od-status-badge" [attr.data-status]="row.orderStatus?.toLowerCase()">{{ row.orderStatus }}</span>
                   }
                 </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" style="text-align:center;padding:20px;color:#94a3b8;">No workflow history.</td>
               </tr>
             }
           </tbody>
         </table>
+
+        <!-- Pagination -->
+        @if (historyTotalPages() > 1) {
+          <div class="od-history-pagination">
+            <span class="od-history-pagination__info">
+              Page {{ historyPage() }} of {{ historyTotalPages() }}
+              ({{ workflowHistory().length }} records)
+            </span>
+            <div class="od-history-pagination__btns">
+              <button class="od-history-pagination__btn" [disabled]="historyPage() === 1" (click)="goToHistoryPage(1)">
+                <i class="pi pi-angle-double-left"></i>
+              </button>
+              <button class="od-history-pagination__btn" [disabled]="historyPage() === 1" (click)="goToHistoryPage(historyPage() - 1)">
+                <i class="pi pi-angle-left"></i>
+              </button>
+              <button class="od-history-pagination__btn" [disabled]="historyPage() === historyTotalPages()" (click)="goToHistoryPage(historyPage() + 1)">
+                <i class="pi pi-angle-right"></i>
+              </button>
+              <button class="od-history-pagination__btn" [disabled]="historyPage() === historyTotalPages()" (click)="goToHistoryPage(historyTotalPages())">
+                <i class="pi pi-angle-double-right"></i>
+              </button>
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Sales Order History -->
@@ -490,8 +533,8 @@
                   </div>
                 </td>
                 <td><span class="od-type-badge" [attr.data-type]="doc.contentType?.toLowerCase()">{{ doc.contentType }}</span></td>
-                <td>{{ doc.createdDate }}</td>
-                <td>{{ doc.createdBy }}</td>
+                <td>{{ doc.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
+                <td>{{ doc.createdByName || doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
                 <td class="od-actions-cell">
                   <button class="od-icon-btn od-icon-btn--preview" pTooltip="Preview" tooltipPosition="top" (click)="previewDocument(doc)">
@@ -589,7 +632,7 @@
                 <td class="vd-mono">{{ formatFileSize(ver.sizeBytes) }}</td>
                 <td class="vd-comment">{{ ver.comment || '—' }}</td>
                 <td class="vd-date">{{ ver.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
-                <td class="vd-author">{{ ver.createdBy }}</td>
+                <td class="vd-author">{{ ver.createdByName || ver.createdBy }}</td>
                 <td class="vd-actions-cell">
                   <button class="vd-action-btn" pTooltip="Preview this version" tooltipPosition="top" (click)="previewVersion(ver)">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -616,6 +659,15 @@
       </div>
     </ng-template>
   </p-dialog>
+
+  <!-- Annotation Dialog (read-only on this page) -->
+  <app-annotation-dialog
+    [(visible)]="showAnnotationDialog"
+    [title]="annotationDocName()"
+    [file]="annotationFile()"
+    [mode]="'view'"
+    [readOnly]="true"
+  />
 
   <!-- ═══ Footer ═══ -->
   <div class="od-footer">

@@ -125,6 +125,11 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
       border-color: #15803d;
     }
   }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 }
 
 // ── Workflow body ────────────────────────────────────────────────────────────
@@ -319,6 +324,26 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   .od-tab--active & {
     opacity: 1;
     color: #fff;
+  }
+}
+
+.od-tab__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  background: #ef4444;
+  color: #fff;
+
+  .od-tab--active & {
+    background: #fff;
+    color: ds.$brand;
   }
 }
 
@@ -601,16 +626,16 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   border-collapse: collapse;
 
   thead th {
-    font-size: 10px;
-    font-weight: t.$font-weight-bold;
-    color: ds.$text-muted;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1e293b;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 12px 20px;
-    border-bottom: 1px solid ds.$border;
+    letter-spacing: 0.06em;
+    padding: 14px 20px;
+    border-bottom: 2px solid #cbd5e1;
     text-align: left;
     white-space: nowrap;
-    background: #f8f9fa;
+    background: linear-gradient(180deg, #f1f5f9 0%, #e8ecf1 100%);
   }
 
   tbody td {
@@ -755,17 +780,37 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   &:hover { text-decoration: underline; }
 }
 
-.od-status-text {
-  color: #065f46;
+// ── Order Status badges (colored by data-status attribute) ──────────────────
+.od-status-badge {
   font-weight: t.$font-weight-semibold;
   font-size: t.$font-size-xs;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 2px 10px;
-  background: t.$color-success-bg;
+  padding: 3px 10px;
   border-radius: t.$radius-full;
-  border: 1px solid t.$color-success-border;
+  border: 1px solid;
+
+  // Order Initiated — slate
+  &[data-status="order initiated"] {
+    background: #f1f5f9; color: #475569; border-color: #cbd5e1;
+  }
+  // Order Acquired — blue
+  &[data-status="order acquired"] {
+    background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe;
+  }
+  // Order Unassigned — amber
+  &[data-status="order unassigned"] {
+    background: #fffbeb; color: #b45309; border-color: #fde68a;
+  }
+  // Order Routed — teal
+  &[data-status="order routed"] {
+    background: #f0fdfa; color: #0f766e; border-color: #99f6e4;
+  }
+  // Fallback
+  &:not([data-status]) {
+    background: #f9fafb; color: #6b7280; border-color: #e5e7eb;
+  }
 }
 
 .od-empty-row {
@@ -784,6 +829,54 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   white-space: nowrap;
 }
 
+// ── Workflow history pagination ──────────────────────────────────────────
+.od-history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid ds.$border;
+}
+
+.od-history-pagination__info {
+  font-size: 12px;
+  color: ds.$text-muted;
+  font-weight: t.$font-weight-medium;
+}
+
+.od-history-pagination__btns {
+  display: flex;
+  gap: 4px;
+}
+
+.od-history-pagination__btn {
+  @extend %btn-base;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 12px;
+  background: ds.$surface;
+  color: ds.$text;
+  border: 1px solid ds.$border;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover:not(:disabled) {
+    background: rgba(ds.$brand, 0.06);
+    border-color: ds.$brand;
+    color: ds.$brand;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+// ── Event Type badges (colored by data-event attribute) ─────────────────────
 .od-event-badge {
   display: inline-flex;
   align-items: center;
@@ -791,9 +884,32 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   font-weight: t.$font-weight-semibold;
   padding: 3px 10px;
   border-radius: t.$radius-full;
-  background: rgba(ds.$brand, 0.06);
-  color: ds.$brand;
-  border: 1px solid rgba(ds.$brand, 0.18);
+  border: 1px solid;
+
+  // Creation — slate/neutral
+  &[data-event="creation"] {
+    background: #f8fafc; color: #475569; border-color: #e2e8f0;
+  }
+  // Accuire — green
+  &[data-event="accuire"] {
+    background: #f0fdf4; color: #16a34a; border-color: #bbf7d0;
+  }
+  // Unassign — orange
+  &[data-event="unassign"] {
+    background: #fff7ed; color: #ea580c; border-color: #fed7aa;
+  }
+  // Routing — purple
+  &[data-event="routing"] {
+    background: #faf5ff; color: #7c3aed; border-color: #ddd6fe;
+  }
+  // Completed — navy
+  &[data-event="completed"] {
+    background: #eff6ff; color: #1e40af; border-color: #bfdbfe;
+  }
+  // Fallback
+  &:not([data-event]) {
+    background: rgba(ds.$brand, 0.06); color: ds.$brand; border-color: rgba(ds.$brand, 0.18);
+  }
 }
 
 .od-version-badge {
