@@ -22,8 +22,9 @@ export class AnnotationDialogComponent {
   readonly title   = input<string>('View Document');
   readonly fileUrl = input<string | null>(null);
   readonly file    = input<File | null>(null);
-  readonly mode    = input<'view' | 'upload'>('view');
-  readonly author  = input<string>('Demo User');
+  readonly mode     = input<'view' | 'upload'>('view');
+  readonly readOnly = input<boolean>(false);
+  readonly author   = input<string>('Demo User');
 
   readonly annotationsChange = output<ReadonlyArray<Annotation>>();
   readonly saveComplete      = output<void>();

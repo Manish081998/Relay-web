@@ -15,6 +15,7 @@ export interface SalesOrderDocumentDto {
   createdDate: string;
   modifiedBy: string | null;
   modifiedDate: string | null;
+  createdByName: string | null;
 }
 
 export interface SalesOrderDocumentVersionDto {
@@ -28,6 +29,7 @@ export interface SalesOrderDocumentVersionDto {
   sizeBytes: number;
   createdBy: string;
   createdDate: string;
+  createdByName: string | null;
 }
 
 export interface UploadDocumentResultDto {
