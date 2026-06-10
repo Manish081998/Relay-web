@@ -7,6 +7,7 @@ export interface SalesOrderNoteDto {
   createdDate: string;
   modifiedBy: string | null;
   modifiedDate: string | null;
+  createdByName: string | null;
 }
 
 export interface AddSalesOrderNoteRequest {

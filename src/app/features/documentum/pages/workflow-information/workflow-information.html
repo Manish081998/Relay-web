@@ -14,24 +14,31 @@
         <h2 class="od-card__heading">Workflow Information</h2>
       </div>
       <div class="od-card__bar-actions">
-        <button class="od-card__bar-btn" pTooltip="Acquire this task and assign it to yourself" tooltipPosition="bottom">
+        <button class="od-card__bar-btn" [pTooltip]="acquireBtnTooltip()" tooltipPosition="bottom"
+                [disabled]="isAcquired() || isProcessingAction()" (click)="onAcquireClick()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14"/>
           </svg>
           Acquire
         </button>
-        <button class="od-card__bar-btn od-card__bar-btn--warn" pTooltip="Unassign this task and return it to the queue" tooltipPosition="bottom">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 6L6 18M6 6l12 12"/>
-          </svg>
-          Unassign
-        </button>
-        <button class="od-card__bar-btn od-card__bar-btn--success" pTooltip="Mark this task as complete" tooltipPosition="bottom">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 6L9 17l-5-5"/>
-          </svg>
-          Complete
-        </button>
+        @if (showUnassignBtn()) {
+          <button class="od-card__bar-btn od-card__bar-btn--warn" pTooltip="Unassign this task and return it to the queue" tooltipPosition="bottom"
+                  [disabled]="isProcessingAction()" (click)="onUnassignClick()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+            Unassign
+          </button>
+        }
+        @if (showCompleteBtn()) {
+          <button class="od-card__bar-btn od-card__bar-btn--success" pTooltip="Mark this task as complete" tooltipPosition="bottom"
+                  [disabled]="!canComplete() || isProcessingAction()" (click)="onCompleteClick()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+            Complete
+          </button>
+        }
       </div>
     </div>
     <div class="od-card__body">
@@ -57,7 +64,7 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
             </svg>
-            {{ workflow.queueName }}
+            {{ workflowQueueName() }}
           </span>
         </div>
 
@@ -66,9 +73,9 @@
         <!-- State -->
         <div class="od-wf-cell">
           <span class="od-wf-cell__label">State</span>
-          <span class="od-wf-pill" [class.od-wf-pill--green]="workflow.state === 'Acquired'" [class.od-wf-pill--orange]="workflow.state === 'Dormant'">
+          <span class="od-wf-pill" [class.od-wf-pill--green]="isAcquired()" [class.od-wf-pill--orange]="!isAcquired()">
             <span class="od-state-dot"></span>
-            {{ workflow.state }}
+            {{ workflowStateName() }}
           </span>
         </div>
 
@@ -81,7 +88,7 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
-            {{ workflow.startedOn }}
+            {{ workflowStartedOn() | date:'MM/dd/yy hh:mm a' }}
           </span>
         </div>
 
@@ -112,6 +119,9 @@
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
           </svg>
           Order Documents
+          @if (totalDocCount() > 0) {
+            <span class="od-tab__count">{{ totalDocCount() }}</span>
+          }
         </button>
         <button
           class="od-tab"
@@ -169,7 +179,7 @@
             </div>
             <div class="od-pkg-field">
               <span class="od-pkg-label">Capture Date</span>
-              <span class="od-pkg-value">{{ o.createdDate || '—' }}</span>
+              <span class="od-pkg-value">{{ o.createdDate ? (o.createdDate | date:'MM/dd/yy hh:mm a') : '—' }}</span>
             </div>
 
             <div class="od-pkg-field">
@@ -188,7 +198,7 @@
             </div>
             <div class="od-pkg-field">
               <span class="od-pkg-label">Completion Date</span>
-              <span class="od-pkg-value">{{ o.completionDate || '—' }}</span>
+              <span class="od-pkg-value">{{ o.completionDate ? (o.completionDate | date:'MM/dd/yy hh:mm a') : '—' }}</span>
             </div>
 
             <div class="od-pkg-field">
@@ -284,7 +294,7 @@
                   <span class="od-notes-date">{{ note.createdDate | date:'MM/dd/yy hh:mm a' }}</span>
                 </td>
                 <td>
-                  <span class="od-notes-user">{{ note.createdBy }}</span>
+                  <span class="od-notes-user">{{ note.createdByName || note.createdBy }}</span>
                 </td>
                 <td>{{ note.notesDescription }}</td>
               </tr>
@@ -329,7 +339,7 @@
         <div class="od-section-header">
           <h3 class="od-section-title">Sales Order</h3>
           <div class="od-section-actions">
-            <button class="od-section-btn" pTooltip="Upload a new sales order document" tooltipPosition="bottom" (click)="openAnnotationForNewUpload(false)" [disabled]="isUploading()">
+            <button class="od-section-btn" [pTooltip]="canAnnotate() ? 'Upload a new sales order document' : 'Only the user who acquired this task can import documents'" tooltipPosition="bottom" (click)="openAnnotationForNewUpload(false)" [disabled]="!canAnnotate() || isUploading()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
               </svg>
@@ -399,8 +409,8 @@
                   </div>
                 </td>
                 <td><span class="od-type-badge" [attr.data-type]="doc.contentType?.toLowerCase()">{{ doc.contentType }}</span></td>
-                <td>{{ doc.createdDate }}</td>
-                <td>{{ doc.createdBy }}</td>
+                <td>{{ doc.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
+                <td>{{ doc.createdByName || doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
                 <td class="od-actions-cell">
                   <button class="od-icon-btn od-icon-btn--preview" pTooltip="Preview" tooltipPosition="top" (click)="previewDocument(doc)">
@@ -499,8 +509,8 @@
                   </div>
                 </td>
                 <td><span class="od-type-badge" [attr.data-type]="doc.contentType?.toLowerCase()">{{ doc.contentType }}</span></td>
-                <td>{{ doc.createdDate }}</td>
-                <td>{{ doc.createdBy }}</td>
+                <td>{{ doc.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
+                <td>{{ doc.createdByName || doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
                 <td class="od-actions-cell">
                   <button class="od-icon-btn od-icon-btn--preview" pTooltip="Preview" tooltipPosition="top" (click)="previewDocument(doc)">
@@ -532,6 +542,7 @@
       [title]="annotationDocName()"
       [file]="annotationFile()"
       [mode]="annotationMode()"
+      [readOnly]="!canAnnotate()"
       (saveBlob)="onSaveAsNewVersion($event)"
     />
 
@@ -550,7 +561,8 @@
               </svg>
               Email Log
             </button>
-            <button class="od-section-btn od-section-btn--secondary" pTooltip="Refresh workflow history" tooltipPosition="bottom">
+            <button class="od-section-btn od-section-btn--secondary" pTooltip="Refresh workflow history" tooltipPosition="bottom"
+                    (click)="refreshHistory()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
               </svg>
@@ -570,24 +582,52 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of workflowHistory; track row.timestamp) {
+            @for (row of pagedHistory(); track $index) {
               <tr>
                 <td class="od-link">{{ row.activityName }}</td>
                 <td>{{ row.comments }}</td>
                 <td class="od-link">{{ row.userName }}</td>
-                <td>{{ row.timestamp }}</td>
+                <td>{{ row.timestamp | date:'MM/dd/yy hh:mm a' }}</td>
                 <td>
-                  <span class="od-event-badge">{{ row.eventType }}</span>
+                  <span class="od-event-badge" [attr.data-event]="row.eventType?.toLowerCase()">{{ row.eventType }}</span>
                 </td>
                 <td>
                   @if (row.orderStatus) {
-                    <span class="od-status-text">{{ row.orderStatus }}</span>
+                    <span class="od-status-badge" [attr.data-status]="row.orderStatus?.toLowerCase()">{{ row.orderStatus }}</span>
                   }
                 </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" style="text-align:center;padding:20px;color:#94a3b8;">No workflow history.</td>
               </tr>
             }
           </tbody>
         </table>
+
+        <!-- Pagination -->
+        @if (historyTotalPages() > 1) {
+          <div class="od-history-pagination">
+            <span class="od-history-pagination__info">
+              Page {{ historyPage() }} of {{ historyTotalPages() }}
+              ({{ workflowHistory().length }} records)
+            </span>
+            <div class="od-history-pagination__btns">
+              <button class="od-history-pagination__btn" [disabled]="historyPage() === 1" (click)="goToHistoryPage(1)">
+                <i class="pi pi-angle-double-left"></i>
+              </button>
+              <button class="od-history-pagination__btn" [disabled]="historyPage() === 1" (click)="goToHistoryPage(historyPage() - 1)">
+                <i class="pi pi-angle-left"></i>
+              </button>
+              <button class="od-history-pagination__btn" [disabled]="historyPage() === historyTotalPages()" (click)="goToHistoryPage(historyPage() + 1)">
+                <i class="pi pi-angle-right"></i>
+              </button>
+              <button class="od-history-pagination__btn" [disabled]="historyPage() === historyTotalPages()" (click)="goToHistoryPage(historyTotalPages())">
+                <i class="pi pi-angle-double-right"></i>
+              </button>
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Sales Order History -->
@@ -658,7 +698,7 @@
                 </td>
                 <td><span class="od-type-badge" [attr.data-type]="doc.contentType?.toLowerCase()">{{ doc.contentType }}</span></td>
                 <td>{{ doc.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
-                <td>{{ doc.createdBy }}</td>
+                <td>{{ doc.createdByName || doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
                 <td class="od-actions-cell">
                   <button class="od-icon-btn od-icon-btn--preview" pTooltip="Preview" tooltipPosition="top" (click)="previewDocument(doc)">
@@ -760,7 +800,7 @@
                 <td class="vd-mono">{{ formatFileSize(ver.sizeBytes) }}</td>
                 <td class="vd-comment">{{ ver.comment || '—' }}</td>
                 <td class="vd-date">{{ ver.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
-                <td class="vd-author">{{ ver.createdBy }}</td>
+                <td class="vd-author">{{ ver.createdByName || ver.createdBy }}</td>
                 <td class="vd-actions-cell">
                   <button class="vd-action-btn" pTooltip="Preview this version" tooltipPosition="top" (click)="previewVersion(ver)">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -842,5 +882,16 @@
       </div>
     </p-dialog>
   }
+
+  <!-- ═══ Workflow Action Confirmation ═══ -->
+  <app-confirmation-dialog
+    [isOpen]="showConfirmDialog()"
+    [title]="confirmTitle()"
+    [description]="confirmDescription()"
+    [confirmLabel]="confirmLabel()"
+    [confirmVariant]="confirmVariant()"
+    (confirmed)="onConfirmDialogConfirmed()"
+    (cancelled)="onConfirmDialogCancelled()"
+  />
 
 </div>

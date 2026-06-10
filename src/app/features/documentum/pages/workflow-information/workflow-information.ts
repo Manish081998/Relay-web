@@ -8,28 +8,33 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, timeout } from 'rxjs';
 import { OrdersService } from '../../services/orders.service';
+import { WorkflowService } from '../../services/workflow.service';
 import { SalesOrderDocumentService } from '../../services/sales-order-document.service';
 import { SalesOrderNoteService } from '../../services/sales-order-note.service';
 import { DropdownOption, OrderItem } from '../../models/order.model';
+import { WorkflowState, WorkflowHistoryItem } from '../../models/workflow.model';
 import {
   SalesOrderDocumentDto,
   SalesOrderDocumentVersionDto,
 } from '../../models/document.model';
 import { SalesOrderNoteDto } from '../../models/note.model';
 import { AnnotationDialogComponent } from '../../components/annotation-dialog/annotation-dialog.component';
+import { ConfirmationDialogComponent } from '../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { WORKFLOW } from '../../constants/workflow.constants';
 import { Dialog } from 'primeng/dialog';
 import { Tooltip } from 'primeng/tooltip';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { AuthStore } from '../../../../core/auth/auth.store';
 import { invalidateCache } from '../../../../core/interceptors/cache.interceptor';
 
 @Component({
   selector: 'app-workflow-information',
   standalone: true,
-  imports: [CommonModule, FormsModule, AnnotationDialogComponent, Dialog, Tooltip],
+  imports: [CommonModule, FormsModule, AnnotationDialogComponent, ConfirmationDialogComponent, Dialog, Tooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './workflow-information.html',
   styleUrl: './workflow-information.scss',
-  providers: [SalesOrderDocumentService, SalesOrderNoteService],
+  providers: [SalesOrderDocumentService, SalesOrderNoteService, WorkflowService],
 })
 export class WorkflowInformation {
   private readonly router = inject(Router);
@@ -38,6 +43,8 @@ export class WorkflowInformation {
   private readonly docService = inject(SalesOrderDocumentService);
   private readonly noteService = inject(SalesOrderNoteService);
   private readonly notify = inject(NotificationService);
+  private readonly workflowService = inject(WorkflowService);
+  private readonly auth = inject(AuthStore);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly orderGuid = input<string>('');
@@ -52,28 +59,74 @@ export class WorkflowInformation {
   readonly order = signal<OrderItem | null>(null);
   readonly isLoadingOrder = signal(true);
 
+  // ── Workflow state (from API, replaces hardcoded workflow object) ─────────
+  readonly workflowState = signal<WorkflowState | null>(null);
+  readonly workflowHistory = signal<WorkflowHistoryItem[]>([]);
+  readonly isLoadingWorkflow = signal(true);
+  readonly historyPage = signal(1);
+  readonly historyPageSize = 5;
+  readonly historyTotalPages = computed(() =>
+    Math.max(1, Math.ceil(this.workflowHistory().length / this.historyPageSize)),
+  );
+  readonly pagedHistory = computed(() => {
+    const all = this.workflowHistory();
+    const start = (this.historyPage() - 1) * this.historyPageSize;
+    return all.slice(start, start + this.historyPageSize);
+  });
+
   // ── Route To Department dropdown ──────────────────────────────────────────
   readonly routeToDepartmentQueues = signal<DropdownOption[]>([]);
   readonly selectedRouteTo = signal<string>('');
 
-  readonly workflow = {
-    queueName: 'Release to Production',
-    state: 'Acquired',
-    startedOn: '12/22/25',
-  };
+  // ── Workflow action loading states ────────────────────────────────────────
+  readonly isProcessingAction = signal(false);
 
-  readonly salesOrders = [
-    { name: 'SS24-289_10-13-2024_12-18-50.pdf', createdOn: '10/13/24 09:48 pm', createdBy: 'asc_order_load' },
-  ];
+  // ── Confirmation dialog ──────────────────────────────────────────────────
+  readonly showConfirmDialog = signal(false);
+  readonly confirmTitle = signal('');
+  readonly confirmDescription = signal('');
+  readonly confirmLabel = signal('');
+  readonly confirmVariant = signal<'primary' | 'danger' | 'warning'>('primary');
+  private pendingAction: 'acquire' | 'unassign' | 'complete' | null = null;
 
-  readonly supportDocuments: { name: string; createdOn: string; createdBy: string }[] = [];
+  // ── Computed: button visibility & enable/disable ─────────────────────────
+  readonly currentUserGlobalId = computed(() => this.auth.currentUser()?.globalId?.toLowerCase() ?? '');
 
-  readonly workflowHistory = [
-    { activityName: 'Initiate', comments: 'Creation of Sales Order Package', userName: 'swaney.sales', timestamp: '10/13/24 09:02 am', eventType: 'Creation', orderStatus: 'Order Initiated' },
-    { activityName: 'Release to Production', comments: 'ccarfwja acquired task for final production release', userName: 'ccarfwja', timestamp: '12/22/25 06:42 pm', eventType: 'Acquire', orderStatus: '' },
-  ];
+  readonly isAcquired = computed(() => this.workflowState()?.isAcquired ?? false);
 
-  // salesOrderHistory — now uses salesOrderDocs() from API
+  readonly isAcquiredByMe = computed(() => {
+    const state = this.workflowState();
+    if (!state?.isAcquired || !state.acquiredBy) return false;
+    return state.acquiredBy.toLowerCase() === this.currentUserGlobalId();
+  });
+
+  // Dormant: show Acquire only
+  readonly showAcquireBtn = computed(() => !this.isAcquired());
+  // Acquired: show Unassign only to acquiring user
+  readonly showUnassignBtn = computed(() => this.isAcquiredByMe());
+  // Acquired: show Complete (enabled only when Route To selected)
+  readonly showCompleteBtn = computed(() => this.isAcquired());
+  readonly canComplete = computed(() => this.isAcquiredByMe() && !!this.selectedRouteTo());
+
+  // Only the acquiring user can annotate/import documents
+  readonly canAnnotate = computed(() => this.isAcquiredByMe());
+
+  // Derived workflow display values
+  readonly workflowQueueName = computed(() => this.workflowState()?.queueName ?? '');
+  readonly workflowStateName = computed(() => this.isAcquired() ? WORKFLOW.STATE_ACQUIRED : WORKFLOW.STATE_DORMANT);
+  readonly workflowStartedOn = computed(() => this.workflowState()?.startedOn ?? '');
+
+  readonly acquireBtnTooltip = computed(() => {
+    const state = this.workflowState();
+    if (state?.isAcquired) {
+      const name = state.acquiredByName ?? state.acquiredBy ?? WORKFLOW.FALLBACK_NAME;
+      const date = state.stageChangeDate
+        ? new Date(state.stageChangeDate).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
+        : '';
+      return `Acquired by ${name}${date ? ' on ' + date : ''}`;
+    }
+    return 'Acquire this task and assign it to yourself';
+  });
 
   readonly notes = signal<SalesOrderNoteDto[]>([]);
   readonly isLoadingNotes = signal(false);
@@ -86,6 +139,7 @@ export class WorkflowInformation {
   // ── Document Management ───────────────────────────────────────────────────
   readonly salesOrderDocs = signal<SalesOrderDocumentDto[]>([]);
   readonly supportDocs = signal<SalesOrderDocumentDto[]>([]);
+  readonly totalDocCount = computed(() => this.salesOrderDocs().length + this.supportDocs().length);
   readonly isUploading = signal(false);
   readonly uploadError = signal<string | null>(null);
 
@@ -119,7 +173,7 @@ export class WorkflowInformation {
     if (stateOrder) {
       this.order.set(stateOrder);
       this.isLoadingOrder.set(false);
-      this.loadRouteToDepartment(stateOrder.brand, stateOrder.queueName);
+      this.loadWorkflowData(stateOrder.orderSeq, stateOrder.brand);
       this.loadDocuments(stateOrder.orderSeq);
       this.loadNotes(stateOrder.orderSeq);
     } else {
@@ -131,7 +185,7 @@ export class WorkflowInformation {
             next: (order) => {
               this.order.set(order);
               this.isLoadingOrder.set(false);
-              this.loadRouteToDepartment(order.brand, order.queueName);
+              this.loadWorkflowData(order.orderSeq, order.brand);
               this.loadDocuments(order.orderSeq);
               this.loadNotes(order.orderSeq);
             },
@@ -145,29 +199,161 @@ export class WorkflowInformation {
     }
   }
 
-  private loadRouteToDepartment(brand: string | undefined, currentQueueName?: string): void {
-    if (brand) {
-      // Exclude current queue — check both the order's queueName and the hardcoded workflow queueName
-      const excludeNames = new Set(
-        [currentQueueName, this.workflow.queueName]
-          .filter(Boolean)
-          .map(n => n!.trim().toLowerCase()),
-      );
-      this.ordersService.getRouteToDepartment(brand)
-        .pipe(
-          map(queues => excludeNames.size > 0
-            ? queues.filter(q => !excludeNames.has(q.value.trim().toLowerCase()))
-            : queues),
-          timeout(15000),
-          catchError((err) => { console.error('loadRouteToDepartment error:', err); return of([]); }),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe(queues => this.routeToDepartmentQueues.set(queues));
+  // ── Workflow data loading ──────────────────────────────────────────────────
+
+  private loadWorkflowData(orderSeq: number, brand?: string): void {
+    this.isLoadingWorkflow.set(true);
+
+    // Load workflow state
+    this.workflowService.getState(orderSeq)
+      .pipe(
+        timeout(15000),
+        catchError((err) => { console.error('loadWorkflowState error:', err); return of(null); }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(state => {
+        this.workflowState.set(state);
+        this.isLoadingWorkflow.set(false);
+
+        // Load Route To dropdown using state's queue name for exclusion
+        if (brand) {
+          this.loadRouteToDepartment(brand, state?.queueName);
+        }
+      });
+
+    // Load workflow history
+    this.workflowService.getHistory(orderSeq)
+      .pipe(
+        timeout(15000),
+        catchError((err) => { console.error('loadWorkflowHistory error:', err); return of([] as WorkflowHistoryItem[]); }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(history => this.workflowHistory.set(history));
+  }
+
+  private loadRouteToDepartment(brand: string, currentQueueName?: string): void {
+    const excludeNames = new Set(
+      [currentQueueName]
+        .filter(Boolean)
+        .map(n => n!.trim().toLowerCase()),
+    );
+    this.ordersService.getRouteToDepartment(brand)
+      .pipe(
+        map(queues => excludeNames.size > 0
+          ? queues.filter(q => !excludeNames.has(q.label.trim().toLowerCase()))
+          : queues),
+        timeout(15000),
+        catchError((err) => { console.error('loadRouteToDepartment error:', err); return of([]); }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(queues => this.routeToDepartmentQueues.set(queues));
+  }
+
+  private reloadWorkflow(): void {
+    const seq = this.order()?.orderSeq;
+    const brand = this.order()?.brand;
+    if (seq) {
+      // Invalidate browser cache so we get fresh data after the action
+      invalidateCache();
+      this.loadWorkflowData(seq, brand);
     }
+  }
+
+  // ── Workflow actions ─────────────────────────────────────────────────────
+
+  onAcquireClick(): void {
+    this.pendingAction = 'acquire';
+    this.confirmTitle.set('Acquire Task');
+    this.confirmDescription.set('This task will be assigned to you. Continue?');
+    this.confirmLabel.set('Acquire');
+    this.confirmVariant.set('primary');
+    this.showConfirmDialog.set(true);
+  }
+
+  onUnassignClick(): void {
+    this.pendingAction = 'unassign';
+    this.confirmTitle.set('Unassign Task');
+    this.confirmDescription.set('This task will be returned to the queue. Are you sure?');
+    this.confirmLabel.set('Unassign');
+    this.confirmVariant.set('warning');
+    this.showConfirmDialog.set(true);
+  }
+
+  onCompleteClick(): void {
+    this.pendingAction = 'complete';
+    this.confirmTitle.set('Complete Task');
+    this.confirmDescription.set('Are you sure you want to complete and route this task?');
+    this.confirmLabel.set('Complete');
+    this.confirmVariant.set('primary');
+    this.showConfirmDialog.set(true);
+  }
+
+  onConfirmDialogConfirmed(): void {
+    const orderSeq = this.order()?.orderSeq;
+    const action = this.pendingAction;
+    if (!orderSeq || !action) return;
+
+    this.isProcessingAction.set(true);
+    this.showConfirmDialog.set(false);
+
+    const displayName = this.auth.currentUser()?.displayName ?? WORKFLOW.FALLBACK_USER;
+
+    const request$ =
+      action === 'acquire'  ? this.workflowService.acquire(orderSeq, displayName) :
+      action === 'unassign' ? this.workflowService.unassign(orderSeq, displayName) :
+      this.workflowService.complete(orderSeq, parseInt(this.selectedRouteTo(), 10), displayName);
+
+    request$.pipe(
+      timeout(15000),
+      catchError((err) => {
+        const body = err?.error;
+        const msg = typeof body === 'string' ? body : body?.message ?? err?.message ?? `Failed to ${action} task.`;
+        this.notify.error(msg, 'Error');
+        return of(null);
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe((result) => {
+      this.isProcessingAction.set(false);
+      this.pendingAction = null;
+
+      if (result) {
+        this.notify.success(result.message || `Task ${action}d successfully.`, 'Success');
+        this.selectedRouteTo.set('');
+        this.reloadWorkflow();
+      }
+    });
+  }
+
+  onConfirmDialogCancelled(): void {
+    this.showConfirmDialog.set(false);
+    this.pendingAction = null;
   }
 
   setTab(tab: 'info' | 'documents' | 'history'): void {
     this.activeTab.set(tab);
+  }
+
+  // ── Workflow history ─────────────────────────────────────────────────────
+
+  refreshHistory(): void {
+    const seq = this.order()?.orderSeq;
+    if (!seq) return;
+    this.workflowService.getHistory(seq)
+      .pipe(
+        timeout(15000),
+        catchError((err) => { console.error('refreshHistory error:', err); return of([] as WorkflowHistoryItem[]); }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(history => {
+        this.workflowHistory.set(history);
+        this.historyPage.set(1);
+        this.notify.success('Workflow history refreshed.', 'Refreshed');
+      });
+  }
+
+  goToHistoryPage(page: number): void {
+    if (page < 1 || page > this.historyTotalPages()) return;
+    this.historyPage.set(page);
   }
 
   // ── Notes methods ─────────────────────────────────────────────────────────
@@ -351,25 +537,35 @@ export class WorkflowInformation {
 
   /** Called when the user clicks Save in the annotation dialog */
   onSaveAsNewVersion(event: { blob: Blob; filename: string }): void {
-    debugger
+    if (!this.canAnnotate()) {
+      this.notify.warning('Only the user who acquired this task can save changes.', 'Not Allowed');
+      return;
+    }
     if (this.annotationDocId === null) {
       this.uploadFromAnnotationEditor(event);
       return;
     }
 
     // Always use the original document name so file is stored as v{N}_{originalName}
+    const docId = this.annotationDocId;
     const file = new File(
       [event.blob],
       this.annotationOriginalName,
       { type: this.annotationMimeType || event.blob.type },
     );
 
-    this.docService.createVersion(this.annotationDocId, file, 'Annotated version')
+    this.docService.createVersion(docId, file, 'Annotated version')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.showAnnotationDialog.set(false);
+          invalidateCache();
           this.loadDocuments();
+          // Refresh version list if version panel is open
+          if (this.showVersionPanel()) {
+            this.showVersions({ documentId: docId } as SalesOrderDocumentDto);
+          }
+          this.notify.success('New version saved successfully.', 'Version Created');
         },
         error: (err) => console.error('Failed to save new version:', err),
       });
