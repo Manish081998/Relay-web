@@ -2,16 +2,27 @@
   <header class="header" role="banner">
     <div class="header-left">
       <nav class="breadcrumb" aria-label="Breadcrumb">
-        @for (crumb of breadcrumbTrail(); track $index; let last = $last) {
-          @if (last) {
-            <span class="breadcrumb__current">{{ crumb }}</span>
-          } @else {
-            <span class="breadcrumb__root">{{ crumb }}</span>
-            <svg class="breadcrumb__sep" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        @for (crumb of breadcrumbTrail(); track $index; let first = $first; let last = $last) {
+          @if (!first) {
+            <svg class="breadcrumb__sep" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
                  aria-hidden="true">
               <path d="M9 5l7 7-7 7"/>
             </svg>
+          }
+          @if (last) {
+            <span class="breadcrumb__current">{{ crumb }}</span>
+          } @else if (first) {
+            <span class="breadcrumb__root">
+              <svg class="breadcrumb__home-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   aria-hidden="true">
+                <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+              </svg>
+              {{ crumb }}
+            </span>
+          } @else {
+            <span class="breadcrumb__root">{{ crumb }}</span>
           }
         }
       </nav>

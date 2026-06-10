@@ -107,7 +107,7 @@
           [class.od-tab--active]="activeTab() === 'documents'"
           (click)="setTab('documents')"
         >
-          <svg class="od-tab__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="od-tab__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
           </svg>
           Sales Order &amp; Support Documents
@@ -117,7 +117,7 @@
           [class.od-tab--active]="activeTab() === 'logs'"
           (click)="setTab('logs')"
         >
-          <svg class="od-tab__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="od-tab__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
           </svg>
           Workflow Logs
@@ -145,13 +145,13 @@
         <div class="od-section-header">
           <h2 class="od-section-title">Notes</h2>
           <div class="od-section-actions">
-            <button class="od-section-btn" (click)="openAddNoteDialog()">
+            <button class="od-section-btn" pTooltip="Add a new note" tooltipPosition="bottom" (click)="openAddNoteDialog()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
               Create Note
             </button>
-            <button class="od-section-btn od-section-btn--secondary">
+            <button class="od-section-btn od-section-btn--secondary" pTooltip="Send all notes via email" tooltipPosition="bottom">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
@@ -256,12 +256,12 @@
                 <td>{{ doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
                 <td class="od-actions-cell">
-                  <button class="od-icon-btn od-icon-btn--preview" title="Preview" (click)="previewDocument(doc)">
+                  <button class="od-icon-btn od-icon-btn--preview" pTooltip="Preview" tooltipPosition="top" (click)="previewDocument(doc)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                     </svg>
                   </button>
-                  <button class="od-icon-btn od-icon-btn--history" title="Version History" (click)="showVersions(doc)">
+                  <button class="od-icon-btn od-icon-btn--history" pTooltip="Version History" tooltipPosition="top" (click)="showVersions(doc)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                     </svg>
@@ -348,12 +348,12 @@
                 <td>{{ doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
                 <td class="od-actions-cell">
-                  <button class="od-icon-btn od-icon-btn--preview" title="Preview" (click)="previewDocument(doc)">
+                  <button class="od-icon-btn od-icon-btn--preview" pTooltip="Preview" tooltipPosition="top" (click)="previewDocument(doc)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                     </svg>
                   </button>
-                  <button class="od-icon-btn od-icon-btn--history" title="Version History" (click)="showVersions(doc)">
+                  <button class="od-icon-btn od-icon-btn--history" pTooltip="Version History" tooltipPosition="top" (click)="showVersions(doc)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                     </svg>
@@ -378,14 +378,14 @@
         <div class="od-section-header">
           <h3 class="od-section-title">Workflow History</h3>
           <div class="od-section-actions">
-            <button class="od-section-btn od-section-btn--secondary">
+            <button class="od-section-btn od-section-btn--secondary" pTooltip="Send workflow history via email" tooltipPosition="bottom">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
               Email Log
             </button>
-            <button class="od-section-btn od-section-btn--secondary">
+            <button class="od-section-btn od-section-btn--secondary" pTooltip="Refresh workflow history" tooltipPosition="bottom">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
               </svg>
@@ -494,12 +494,12 @@
                 <td>{{ doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
                 <td class="od-actions-cell">
-                  <button class="od-icon-btn od-icon-btn--preview" title="Preview" (click)="previewDocument(doc)">
+                  <button class="od-icon-btn od-icon-btn--preview" pTooltip="Preview" tooltipPosition="top" (click)="previewDocument(doc)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                     </svg>
                   </button>
-                  <button class="od-icon-btn od-icon-btn--history" title="Version History" (click)="showVersions(doc)">
+                  <button class="od-icon-btn od-icon-btn--history" pTooltip="Version History" tooltipPosition="top" (click)="showVersions(doc)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                     </svg>
@@ -591,7 +591,7 @@
                 <td class="vd-date">{{ ver.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
                 <td class="vd-author">{{ ver.createdBy }}</td>
                 <td class="vd-actions-cell">
-                  <button class="vd-action-btn" title="Preview this version" (click)="previewVersion(ver)">
+                  <button class="vd-action-btn" pTooltip="Preview this version" tooltipPosition="top" (click)="previewVersion(ver)">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                     </svg>
@@ -619,7 +619,7 @@
 
   <!-- ═══ Footer ═══ -->
   <div class="od-footer">
-    <button class="od-btn od-btn--back" (click)="goBack()">
+    <button class="od-btn od-btn--back" pTooltip="Go back to search results" tooltipPosition="top" (click)="goBack()">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
       </svg>

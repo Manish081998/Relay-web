@@ -43,11 +43,23 @@ export interface GetOrderByGuidResponse {
   errors:  string[];
 }
 
+export interface PlantCode {
+  code:        string;
+  description: string;
+}
+
+export interface ShipTerm {
+  code:        string;
+  description: string;
+}
+
 export interface OrderByGuidData {
   orderGuid:    string;
   repPoNumber:  string;
   brand:        string;
   fileName:     string;
+  plantCodes:   PlantCode[];
+  shipTerms:    ShipTerm[];
   trackType:    string;
   info: {
     repPoNo:   string;
@@ -93,9 +105,13 @@ export interface OrderByGuidData {
   };
   shipping: {
     method: {
-      shipVia:   string;
-      noPartial: string;
-      shipTerms: string;
+      shipVia:              string;
+      noPartial:            string;
+      shipTerms:            string;
+      callBeforeDelivery:   string;
+      terms:                string;
+      markOrder:            string;
+      shippingInstructions: string;
     };
     charges: {
       madeInUsa:              boolean;
@@ -112,10 +128,36 @@ export interface OrderByGuidData {
   pricingTotals:    Record<string, string>;
   quantityInfo:     Record<string, string>;
   specialInfo:      Record<string, string>;
+  specialItems:     Record<string, string>;
   statusText:       string;
   marshalFileLabel: string;
   isFastTrack:      boolean;
   isLocked:         boolean;
+}
+
+export interface OrderUpdateSectionRequest {
+  section: string;
+  fields:  Record<string, string>;
+}
+
+export interface SubmitOrderResponse {
+  success: boolean;
+  data:    boolean;
+  message: string;
+  errors:  string[];
+}
+
+export interface PlantCodeUpdateDto {
+  lineNumber:      string;
+  newPlantCode:    string;
+  isSecondaryPlant: boolean;
+}
+
+export interface UpdatePlantCodeResponse {
+  success: boolean;
+  data:    boolean;
+  message: string;
+  errors:  string[];
 }
 
 export interface EdgeOrderSearchParams {

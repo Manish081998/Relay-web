@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { API_ENDPOINTS } from '../../../core/constants/api-endpoints.constants';
-import { EdgeOrderSearchParams, EdgeOrdersPagedResponse, GetOrderByGuidResponse } from '../models/edge-orders.model';
+import { EdgeOrderSearchParams, EdgeOrdersPagedResponse, GetOrderByGuidResponse, OrderUpdateSectionRequest, PlantCodeUpdateDto, SubmitOrderResponse, UpdatePlantCodeResponse } from '../models/edge-orders.model';
 
 @Injectable()
 export class EdgeOrdersService {
@@ -23,10 +23,44 @@ export class EdgeOrdersService {
     );
   }
 
-  getOrderByGuid(orderGuid: string, repPo: string): Observable<GetOrderByGuidResponse> {
+  getOrderByGuid(orderGuid: string | undefined, repPo: string, userId: string): Observable<GetOrderByGuidResponse> {
+    const params: Record<string, string> = { RepPo: repPo, UserId: userId };
+    if (orderGuid) params['OrderGuid'] = orderGuid;
     return this.api.get<GetOrderByGuidResponse>(
       API_ENDPOINTS.INTRANET.GET_ORDER_BY_GUID,
-      { params: { OrderGuid: orderGuid, RepPo: repPo } },
+      { params, headers: { 'X-Silent-Errors': '400', 'X-Skip-Cache': 'true' } },
+    );
+  }
+
+  updateSection(
+    orderGuid: string,
+    sectionName: string,
+    globalId: string,
+    fileName: string,
+    po: string,
+    brand: string,
+    req: OrderUpdateSectionRequest,
+  ): Observable<void> {
+    return this.api.put<void>(
+      API_ENDPOINTS.INTRANET.UPDATE_ORDER_SECTION,
+      req,
+      { params: { orderGuid, sectionName, globalId, fileName, po, brand } },
+    );
+  }
+
+  updatePlantCode(orderGuid: string, po: string, userId: string, dto: PlantCodeUpdateDto): Observable<UpdatePlantCodeResponse> {
+    return this.api.put<UpdatePlantCodeResponse>(
+      API_ENDPOINTS.INTRANET.UPDATE_PLANT_CODE,
+      dto,
+      { params: { orderGuid, po, userId } },
+    );
+  }
+
+  submitOrder(orderGuid: string, po: string, brand: string, userId: string): Observable<SubmitOrderResponse> {
+    return this.api.post<SubmitOrderResponse>(
+      `${API_ENDPOINTS.INTRANET.SUBMIT_ORDER}/${orderGuid}/submit`,
+      {},
+      { params: { po, brand, userId } },
     );
   }
 }

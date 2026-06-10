@@ -2,7 +2,15 @@
 
   <!-- ── Page Header ─────────────────────────────────────────────────────────── -->
   <div class="page-header">
-    <h1 class="page-title">Edit Order</h1>
+    <div class="page-header-row">
+      <h1 class="page-title">Edit Order</h1>
+      @if (isFastTrack()) {
+        <div class="fasttrack-inline">
+          <span class="fasttrack-badge">FASTTRACK</span>
+          <span class="fasttrack-subtitle">{{ marshalFileLabel() }}</span>
+        </div>
+      }
+    </div>
   </div>
 
   <!-- ── Line Items ────────────────────────────────────────────────────────── -->
@@ -17,6 +25,7 @@
             <tr>
               <th>Line</th>
               <th>Plant Code</th>
+              <th>Alt Plant</th>
               <th>Quantity</th>
               <th>Model</th>
               <th>Comment</th>
@@ -24,7 +33,6 @@
               <th>Multiplier</th>
               <th>Individual Price</th>
               <th>Total Cost</th>
-              <th>Secondary Plant Code</th>
               <th>Group Id</th>
               <th>Made In USA</th>
             </tr>
@@ -39,16 +47,20 @@
               <tr>
                 <td>{{ item.line }}</td>
                 <td>{{ item.plantCode }}</td>
-                <td class="li-num">{{ item.quantity }}</td>
+                <td>
+                  <button type="button" class="plant-code-btn" (click)="openPlantCodePopup(item)">
+                    {{ item.secondaryPlantCode || '—' }}
+                  </button>
+                </td>                
+                <td>{{ item.quantity }}</td>
                 <td>{{ item.model }}</td>
                 <td class="li-trunc" [title]="item.comment ?? ''">{{ item.comment }}</td>
                 <td>{{ item.tag }}</td>
                 <td class="li-trunc" [title]="item.multiplier">{{ item.multiplier }}</td>
-                <td class="li-num">{{ item.individualPrice }}</td>
-                <td class="li-num">{{ item.totalCost }}</td>
-                <td>{{ item.secondaryPlantCode }}</td>
-                <td class="li-num">{{ item.groupId }}</td>
-                <td class="li-center">{{ item.madeInUsa ? 'Yes' : 'No' }}</td>
+                <td>{{ item.individualPrice }}</td>
+                <td>{{ item.totalCost }}</td>
+                <td>{{ item.groupId }}</td>
+                <td>{{ item.madeInUsa ? 'Yes' : 'No' }}</td>
               </tr>
             }
           </tbody>
@@ -58,17 +70,25 @@
   </div>
 
   <!-- ── Address Card ───────────────────────────────────────────────────────── -->
-  <div class="card">
+  <div class="card" [class.card--edited]="isEdited('soldTo') || isEdited('shipTo')">
     <div class="card-header">
       <span class="card-title">Address</span>
+      @if (isEdited('soldTo') || isEdited('shipTo')) {
+        <span class="edited-badge">Edited</span>
+      }
     </div>
 
     <div class="card-body">
       <div class="address-sides">
 
         <!-- Sold To -->
-        <div class="address-section" formGroupName="soldTo">
-          <h3 class="address-label">Sold To</h3>
+        <div class="address-section" [class.address-section--edited]="isEdited('soldTo')" formGroupName="soldTo">
+          <h3 class="address-label">
+            Sold To
+            @if (isEdited('soldTo')) {
+              <span class="edited-badge">Edited</span>
+            }
+          </h3>
           <div class="address-col">
             <div class="field-row">
               <label class="field-label">Name 1</label>
@@ -118,8 +138,13 @@
         <div class="side-divider"></div>
 
         <!-- Ship To -->
-        <div class="address-section" formGroupName="shipTo">
-          <h3 class="address-label">Ship To</h3>
+        <div class="address-section" [class.address-section--edited]="isEdited('shipTo')" formGroupName="shipTo">
+          <h3 class="address-label">
+            Ship To
+            @if (isEdited('shipTo')) {
+              <span class="edited-badge">Edited</span>
+            }
+          </h3>
           <div class="address-col">
             <div class="field-row">
               <label class="field-label">Name 1</label>
@@ -174,9 +199,12 @@
   <div class="bottom-row">
 
     <!-- Brand / Account Info -->
-    <div class="card" formGroupName="brandAccount">
+    <div class="card" [class.card--edited]="isEdited('brandAccount')" formGroupName="brandAccount">
       <div class="card-header">
         <span class="card-title">Brand / Account Info</span>
+        @if (isEdited('brandAccount')) {
+          <span class="edited-badge">Edited</span>
+        }
       </div>
       <div class="card-body">
         <div class="address-col">
@@ -197,9 +225,12 @@
     </div>
 
     <!-- Marketing Program -->
-    <div class="card" formGroupName="marketingProgram">
+    <div class="card" [class.card--edited]="isEdited('marketingProgram')" formGroupName="marketingProgram">
       <div class="card-header">
         <span class="card-title">Marketing Program</span>
+        @if (isEdited('marketingProgram')) {
+          <span class="edited-badge">Edited</span>
+        }
       </div>
       <div class="card-body">
         <div class="address-col">
@@ -213,7 +244,8 @@
           </div>
           <div class="field-row">
             <label class="field-label">Secure SDA</label>
-            <p-checkbox formControlName="secureSda" [binary]="true" inputId="secureSda" />
+            <input type="checkbox" id="secureSda" class="sda-check"
+              [formControl]="form.controls.marketingProgram.controls.secureSda" />
           </div>
         </div>
       </div>
@@ -222,9 +254,12 @@
   </div>
 
   <!-- ── Order Info Card ──────────────────────────────────────────────────────── -->
-  <div class="card" formGroupName="orderInfo">
+  <div class="card" [class.card--edited]="isEdited('orderInfo')" formGroupName="orderInfo">
     <div class="card-header">
       <span class="card-title">Order Info</span>
+      @if (isEdited('orderInfo')) {
+        <span class="edited-badge">Edited</span>
+      }
     </div>
     <div class="card-body">
       <div class="order-info-grid">
@@ -261,13 +296,16 @@
   </div>
 
   <!-- ── Shipping Card ────────────────────────────────────────────────────────── -->
-  <div class="card" formGroupName="shipping">
+  <div class="card" [class.card--edited]="isEdited('shippingMethod') || isEdited('shippingCharges')">
     <div class="card-header">
       <span class="card-title">Shipping</span>
+      @if (isEdited('shippingMethod') || isEdited('shippingCharges')) {
+        <span class="edited-badge">Edited</span>
+      }
     </div>
     <div class="card-body">
       <div class="subsection-label subsection-label--first">Shipping Method</div>
-      <div class="address-col">
+      <div class="address-col" formGroupName="shippingMethod">
         <div class="field-row">
           <label class="field-label">Ship Via</label>
           <input pInputText class="field-input" formControlName="shipVia" autocomplete="off" />
@@ -297,10 +335,13 @@
           <div class="field-input-wrap">
             <p-select
               formControlName="shipTerms"
-              [options]="shipTermsOptions"
+              [options]="shipTermsOptions()"
+              optionLabel="label"
+              optionValue="value"
               styleClass="field-select"
               panelStyleClass="edit-order-select-panel"
               appendTo="body"
+              placeholder="Select ship terms…"
             />
             <span class="field-helper">Leave Ship Terms blank for standard shipping.</span>
           </div>
@@ -310,7 +351,7 @@
       <div class="shipping-subsection-divider"></div>
 
       <div class="subsection-label">Shipping Charges</div>
-      <div class="address-col">
+      <div class="address-col" formGroupName="shippingCharges">
         <div class="field-row shipping-full">
           <label class="field-label">Comments To Factory</label>
           <input pInputText class="field-input" formControlName="commentsToFactory" autocomplete="off" />
@@ -327,9 +368,12 @@
   <div class="bottom-row">
 
     <!-- Quantity Info -->
-    <div class="card" formGroupName="quantityInfo">
+    <div class="card" [class.card--edited]="isEdited('quantityInfo')" formGroupName="quantityInfo">
       <div class="card-header">
         <span class="card-title">Quantity Info</span>
+        @if (isEdited('quantityInfo')) {
+          <span class="edited-badge">Edited</span>
+        }
       </div>
       <div class="card-body">
         <div class="address-col">
@@ -370,9 +414,12 @@
     </div>
 
     <!-- Pricing Totals -->
-    <div class="card" formGroupName="pricingTotals">
+    <div class="card" [class.card--edited]="isEdited('pricingTotals')" formGroupName="pricingTotals">
       <div class="card-header">
         <span class="card-title">Pricing Totals</span>
+        @if (isEdited('pricingTotals')) {
+          <span class="edited-badge">Edited</span>
+        }
       </div>
       <div class="card-body">
         <div class="address-col">
@@ -414,9 +461,12 @@
   <div class="bottom-row">
 
     <!-- Special Info -->
-    <div class="card" formGroupName="specialInfo">
+    <div class="card" [class.card--edited]="isEdited('specialInfo')" formGroupName="specialInfo">
       <div class="card-header">
         <span class="card-title">Special Info</span>
+        @if (isEdited('specialInfo')) {
+          <span class="edited-badge">Edited</span>
+        }
       </div>
       <div class="card-body">
         <div class="address-col">
@@ -433,9 +483,12 @@
     </div>
 
     <!-- Special Items -->
-    <div class="card" formGroupName="specialItems">
+    <div class="card" [class.card--edited]="isEdited('specialItems')" formGroupName="specialItems">
       <div class="card-header">
         <span class="card-title">Special Items</span>
+        @if (isEdited('specialItems')) {
+          <span class="edited-badge">Edited</span>
+        }
       </div>
       <div class="card-body">
         <div class="address-col">
@@ -467,8 +520,41 @@
 
   <!-- ── Page Actions ───────────────────────────────────────────────────────── -->
   <div class="page-actions">
-    <button type="button" class="btn-cancel">Cancel Changes</button>
-    <button type="button" class="btn-submit">Submit All Changes</button>
+    <button type="button" class="btn-cancel" (click)="cancelChanges()">Cancel Changes</button>
+    <button type="button" class="btn-submit" [disabled]="!hasEdits() || isSubmitting()" (click)="submitChanges()">
+      {{ isSubmitting() ? 'Saving…' : 'Save All Changes' }}
+    </button>
   </div>
 
 </div>
+
+<!-- ── Plant Code Popup ──────────────────────────────────────────────────────── -->
+<p-dialog
+  [visible]="plantCodePopupVisible()"
+  (visibleChange)="plantCodePopupVisible.set($event)"
+  [modal]="true"
+  [closable]="false"
+  [draggable]="false"
+  [resizable]="false"
+  header="Select Plant Code"
+  [style]="{ width: '340px' }"
+  styleClass="pc-modal"
+>
+  <div class="pc-dialog-body">
+    <label class="pc-label">Select PlantCode</label>
+    <p-select
+      [options]="plantCodeOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [formControl]="plantCodeControl"
+      styleClass="field-select"
+      panelStyleClass="edit-order-select-panel"
+      appendTo="body"
+      placeholder="Select plant code…"
+    />
+  </div>
+  <div class="pc-dialog-footer">
+    <button type="button" class="btn-cancel" (click)="closePlantCodePopup()">Cancel</button>
+    <button type="button" class="btn-submit" (click)="savePlantCode()">Save</button>
+  </div>
+</p-dialog>

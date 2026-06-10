@@ -5,6 +5,7 @@ export interface NavChild {
   label: string;
   route: string;
   icon: string;
+  color?: string;
 }
 
 export interface NavGroup {
@@ -34,7 +35,8 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: NAV_ICONS.intranet,
     roles: [Role.SuperAdmin, Role.Admin, Role.User],
     children: [
-      { label: 'Edge Orders Search', route: '/intranet/Edge-Orders-Search', icon: NAV_ICONS.users },
+      { label: 'Edge Orders Search', route: '/intranet/Edge-Orders-Search', icon: NAV_ICONS.users, color: '#60a5fa' },
+      { label: 'EDI', route: '/intranet/edi', icon: NAV_ICONS.selections, color: '#a78bfa' },
     ],
   },
   {
@@ -42,8 +44,8 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: NAV_ICONS.documentum,
     roles: [Role.SuperAdmin, Role.Admin, Role.User],
     children: [
-      { label: 'Search', route: '/documentum/search', icon: NAV_ICONS.search },
-      { label: 'Queue Search', route: '/documentum/queue-search', icon: NAV_ICONS.queue },
+      { label: 'Search', route: '/documentum/search', icon: NAV_ICONS.search, color: '#34d399' },
+      { label: 'Queue Search', route: '/documentum/queue-search', icon: NAV_ICONS.queue, color: '#fbbf24' },
     ],
   },
   {
@@ -51,9 +53,9 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: NAV_ICONS.settings,
     roles: 'all',
     children: [
-      { label: 'Manage Queue', route: '/admin/manage-queue', icon: NAV_ICONS.manageQueue },
-      { label: 'Manage Users', route: '/admin/manage-users', icon: NAV_ICONS.manageUsers },
-      { label: 'Brand - Queue Mapping', route: '/admin/brand-queue-mapping', icon: NAV_ICONS.brandQueueMapping },
+      { label: 'Manage Queue', route: '/admin/manage-queue', icon: NAV_ICONS.manageQueue, color: '#f97316' },
+      { label: 'Manage Users', route: '/admin/manage-users', icon: NAV_ICONS.manageUsers, color: '#a78bfa' },
+      { label: 'Brand - Queue Mapping', route: '/admin/brand-queue-mapping', icon: NAV_ICONS.brandQueueMapping, color: '#f472b6' },
     ],
   },
 ];
