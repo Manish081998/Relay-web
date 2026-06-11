@@ -273,21 +273,22 @@
           </div>
         </div>
 
-        <div class="od-chat">
-          <div class="od-chat__messages" #chatMessages>
+        <div class="od-comments">
+          <div class="od-comments__list" #chatMessages>
             @for (note of notes(); track note.salesOrderNoteId) {
-              <div class="od-msg" [class.od-msg--mine]="isMyNote(note.createdBy)">
-                <div class="od-msg__avatar od-msg__avatar--c{{ getNoteColorIndex(note.createdBy) }}">
+              <div class="od-comment">
+                <div class="od-comment__avatar od-comment__avatar--c{{ getNoteColorIndex(note.createdBy) }}">
                   {{ (note.createdByName || note.createdBy || '?').charAt(0).toUpperCase() }}
                 </div>
-                <div class="od-msg__wrapper">
-                  <div class="od-msg__meta">
-                    @if (!isMyNote(note.createdBy)) {
-                      <span class="od-msg__name">{{ note.createdByName || note.createdBy }}</span>
+                <div class="od-comment__body">
+                  <div class="od-comment__header">
+                    <span class="od-comment__author">{{ note.createdByName || note.createdBy }}</span>
+                    @if (isMyNote(note.createdBy)) {
+                      <span class="od-comment__you">You</span>
                     }
-                    <span class="od-msg__time">{{ note.createdDate | date:'MMM dd, yyyy hh:mm a' }}</span>
+                    <span class="od-comment__time">{{ note.createdDate | date:'MMM dd, yyyy · hh:mm a' }}</span>
                   </div>
-                  <div class="od-msg__bubble">{{ note.notesDescription }}</div>
+                  <div class="od-comment__text">{{ note.notesDescription }}</div>
                 </div>
               </div>
             } @empty {
@@ -296,34 +297,34 @@
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
                 <span class="od-empty-state__text">No notes yet</span>
-                <span class="od-empty-state__sub">Type a message below to start the conversation</span>
+                <span class="od-empty-state__sub">Add a note below to start the conversation</span>
               </div>
             }
           </div>
 
-          <!-- Chat input bar -->
-          <div class="od-chat__input">
+          <div class="od-comments__compose">
             <textarea
-              class="od-chat__field"
+              class="od-comments__field"
               rows="1"
-              placeholder="Type a message..."
+              placeholder="Add a note..."
               [ngModel]="newNoteText()"
               (ngModelChange)="newNoteText.set($event)"
               (keydown.enter)="$event.preventDefault(); saveNote()"
             ></textarea>
             <button
-              class="od-chat__send"
+              class="od-comments__send"
               [disabled]="!newNoteText().trim() || isSavingNote()"
               (click)="saveNote()"
-              pTooltip="Send"
+              pTooltip="Post note"
               tooltipPosition="top"
             >
               @if (isSavingNote()) {
-                <span class="od-chat__spinner"></span>
+                <span class="od-comments__spinner"></span>
               } @else {
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
                 </svg>
+                Post
               }
             </button>
           </div>
