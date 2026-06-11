@@ -153,7 +153,7 @@
     @if (activeTab() === 'info') {
 
       <!-- Package Information -->
-      <div class="od-section">
+      <div class="od-section od-section--info">
         <div class="od-section-header">
           <h2 class="od-section-title">Sales Order Package Information</h2>
           <div class="od-section-actions">
@@ -259,7 +259,7 @@
       </div>
 
       <!-- Sales Order Notes -->
-      <div class="od-section">
+      <div class="od-section od-section--notes">
         <div class="od-section-header">
           <h2 class="od-section-title">Sales Order Notes</h2>
           <div class="od-section-actions">
@@ -303,14 +303,14 @@
 
           <!-- Chat input bar -->
           <div class="od-chat__input">
-            <input
+            <textarea
               class="od-chat__field"
-              type="text"
+              rows="1"
               placeholder="Type a message..."
               [ngModel]="newNoteText()"
               (ngModelChange)="newNoteText.set($event)"
-              (keydown.enter)="saveNote()"
-            />
+              (keydown.enter)="$event.preventDefault(); saveNote()"
+            ></textarea>
             <button
               class="od-chat__send"
               [disabled]="!newNoteText().trim() || isSavingNote()"
@@ -357,7 +357,7 @@
       }
 
       <!-- Sales Order Documents -->
-      <div class="od-section">
+      <div class="od-section od-section--docs">
         <div class="od-section-header">
           <h3 class="od-section-title">Sales Order</h3>
           <div class="od-section-actions">
@@ -479,7 +479,7 @@
       </div>
 
       <!-- Support Documents -->
-      <div class="od-section">
+      <div class="od-section od-section--support">
         <div class="od-section-header">
           <h3 class="od-section-title">Support Documents</h3>
           <div class="od-section-actions">
@@ -616,7 +616,7 @@
     @if (activeTab() === 'history') {
 
       <!-- Workflow History -->
-      <div class="od-section">
+      <div class="od-section od-section--history">
         <div class="od-section-header">
           <h3 class="od-section-title">Workflow History</h3>
           <div class="od-section-actions">
@@ -697,7 +697,7 @@
       </div>
 
       <!-- Sales Order History -->
-      <div class="od-section">
+      <div class="od-section od-section--order-history">
         <div class="od-section-header">
           <h3 class="od-section-title">Sales Order History</h3>
         </div>
