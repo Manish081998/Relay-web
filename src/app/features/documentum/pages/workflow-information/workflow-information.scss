@@ -23,7 +23,7 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   margin-bottom: 0;
   border-radius: t.$radius-lg;
   overflow: visible;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -33,7 +33,7 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   display: flex;
   flex-direction: column;
   border-radius: t.$radius-lg;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
   overflow: visible;
 }
 
@@ -136,8 +136,8 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
 // ── Workflow body ────────────────────────────────────────────────────────────
 .od-card__body {
   padding: 12px 20px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #f4f7fb 0%, #f8fafc 100%);
+  border: 1px solid rgba(ds.$border, 0.30);
   border-top: none;
   border-radius: 0 0 t.$radius-lg t.$radius-lg;
 }
@@ -355,12 +355,13 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
 .od-tab-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   padding: 16px 20px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #ffffff 0%, #fafbfd 100%);
+  border: 1px solid rgba(ds.$border, 0.30);
   border-top: 2px solid ds.$brand;
   border-radius: 0 0 t.$radius-lg t.$radius-lg;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
   position: relative;
   min-height: 120px;
 }
@@ -368,14 +369,28 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
 // Overlay uses global .app-loading-overlay from styles.scss
 
 // ═════════════════════════════════════════════════════════════════════════════
-// SECTION — Clean enterprise card
+// SECTION — Light header with accent bar
 // ═════════════════════════════════════════════════════════════════════════════
 .od-section {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1px solid rgba(ds.$border, 0.30);
+  border-radius: t.$radius-lg;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  background: ds.$surface;
+  transition: box-shadow 0.2s ease;
+  border-left: 3.5px solid transparent;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  // ── Section color variants (unified brand tones) ───────────────────────
+  &--info    { border-left-color: ds.$brand; }
+  &--notes   { border-left-color: ds.$brand-dark; }
+  &--docs    { border-left-color: ds.$brand; }
+  &--support { border-left-color: ds.$brand-dark; }
+  &--history { border-left-color: ds.$brand; }
+  &--order-history { border-left-color: ds.$brand-dark; }
 }
 
 .od-section-header {
@@ -383,8 +398,8 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
+  border-bottom: 1px solid rgba(ds.$border, 0.30);
 }
 
 .od-section-title {
@@ -392,21 +407,22 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   align-items: center;
   gap: 0;
   margin: 0;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #334155;
+  font-size: 12px;
+  font-weight: t.$font-weight-bold;
+  color: #1e293b;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 
   &::before {
     content: '';
     display: inline-block;
-    width: 3px;
-    height: 16px;
-    background: ds.$brand;
+    width: 3.5px;
+    height: 18px;
+    background: linear-gradient(180deg, ds.$brand 0%, ds.$brand-dark 100%);
     border-radius: 2px;
     margin-right: 10px;
     flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(ds.$brand, 0.25);
   }
 }
 
@@ -419,41 +435,44 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   @extend %btn-base;
   font-size: 11px;
   padding: 5px 12px;
-  gap: 5px;
-  background: ds.$brand;
+  gap: 4px;
+  background: linear-gradient(135deg, ds.$brand 0%, ds.$brand-dark 100%);
   color: #fff;
   border: 1px solid ds.$brand;
   font-weight: t.$font-weight-semibold;
   letter-spacing: 0.02em;
+  box-shadow: 0 1px 3px rgba(ds.$brand, 0.2);
   transition: all 0.15s ease;
 
   &:hover {
-    background: ds.$brand-dark;
+    background: linear-gradient(135deg, ds.$brand-dark 0%, darken(ds.$brand-dark, 4%) 100%);
     border-color: ds.$brand-dark;
+    box-shadow: 0 2px 6px rgba(ds.$brand, 0.3);
   }
 
   &--secondary {
     background: #fff;
-    color: #475569;
-    border-color: #d1d5db;
+    color: ds.$brand;
+    border-color: rgba(ds.$brand, 0.35);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 
     &:hover {
-      background: #f8fafc;
-      border-color: #94a3b8;
-      color: #1e293b;
+      background: rgba(ds.$brand, 0.06);
+      border-color: ds.$brand;
+      box-shadow: 0 1px 4px rgba(ds.$brand, 0.15);
     }
   }
 
   &:disabled {
-    opacity: 0.45;
+    opacity: 0.5;
     cursor: not-allowed;
-    background: #e2e8f0;
-    color: #94a3b8;
-    border-color: #e2e8f0;
+    background: ds.$border;
+    color: ds.$text-muted;
+    border-color: ds.$border;
     &:hover {
-      color: #94a3b8;
-      border-color: #e2e8f0;
-      background: #e2e8f0;
+      color: ds.$text-muted;
+      border-color: ds.$border;
+      background: ds.$border;
     }
   }
 }
@@ -471,32 +490,32 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   display: flex;
   align-items: baseline;
   gap: 12px;
-  padding: 9px 20px;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(ds.$border, 0.2);
 
   // alternating row bands (every group of 3 = one visual row)
   &:nth-child(6n+4), &:nth-child(6n+5), &:nth-child(6n+6) {
-    background: #f8fafc;
+    background: rgba(ds.$brand, 0.018);
   }
 
   &:nth-last-child(-n+3) { border-bottom: none; }
-  &:not(:nth-child(3n)) { border-right: 1px solid #f1f5f9; }
+  &:not(:nth-child(3n)) { border-right: 1px solid rgba(ds.$border, 0.15); }
 }
 
 .od-pkg-label {
-  font-size: 10.5px;
+  font-size: 11px;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   font-weight: 600;
   min-width: 140px;
   flex-shrink: 0;
 }
 
 .od-pkg-value {
-  font-size: 13px;
-  color: #1e293b;
-  font-weight: 600;
+  font-size: t.$font-size-sm;
+  color: ds.$text;
+  font-weight: t.$font-weight-semibold;
 
   &--mono {
     font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
@@ -630,31 +649,31 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
   border-collapse: collapse;
 
   thead th {
-    font-size: 10.5px;
-    font-weight: 600;
-    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    padding: 8px 16px;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 9px 16px;
+    border-bottom: 2px solid rgba(ds.$brand, 0.12);
     text-align: left;
     white-space: nowrap;
-    background: #f8fafc;
+    background: linear-gradient(180deg, #f1f5f9 0%, #e8ecf1 100%);
   }
 
   tbody td {
-    font-size: 13px;
-    color: #334155;
+    font-size: t.$font-size-sm;
+    color: ds.$text;
     padding: 9px 16px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid rgba(ds.$border, 0.18);
     vertical-align: middle;
   }
 
   tbody tr {
-    transition: background 0.12s ease;
-    &:nth-child(even) { background: #fafbfc; }
+    transition: background 0.15s ease;
+    &:nth-child(even) { background: rgba(0, 0, 0, 0.015); }
     &:last-child td { border-bottom: none; }
-    &:hover { background: #f1f5f9; }
+    &:hover { background: rgba(ds.$brand, 0.045); }
   }
 }
 
@@ -826,186 +845,206 @@ $amber-bdr:   rgba(245, 158, 11, 0.30);
 
 // ── Empty field values ──────────────────────────────────────────────────────
 .od-pkg-value--empty {
-  color: #94a3b8;
-  font-weight: 400;
-  font-style: normal;
-  font-size: 12.5px;
+  color: ds.$text-faint;
+  font-weight: t.$font-weight-normal;
+  font-style: italic;
+  font-size: 12px;
   letter-spacing: 0;
-
-  &::before {
-    content: '\2014\00a0'; // em-dash + space
-    color: #cbd5e1;
-  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// COMMENTS — Enterprise single-column activity feed
+// CHAT — Bubble-style conversation (Teams / iMessage inspired)
 // ═════════════════════════════════════════════════════════════════════════════
 
+// ── Avatar accent palette ───────────────────────────────────────────────────
 $avatar-palette: (
-  0: #4f6bed, 1: #0e8a5f, 2: #c2680a, 3: #7c3aed, 4: #c4366b, 5: #0c82a5,
+  0: #5b6abf,   // Indigo
+  1: #16a34a,   // Green
+  2: #e67c22,   // Orange
+  3: #8b5cf6,   // Purple
+  4: #e74c6f,   // Rose
+  5: #0ea5c8,   // Cyan
 );
 
-.od-comments {
+.od-chat {
   display: flex;
   flex-direction: column;
 }
 
-.od-comments__list {
+.od-chat__messages {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  max-height: 420px;
+  gap: 6px;
+  padding: 8px 16px 6px;
+  max-height: 380px;
   overflow-y: auto;
-  padding: 4px 0;
 
-  &::-webkit-scrollbar { width: 4px; }
+  // Thin modern scrollbar
+  &::-webkit-scrollbar { width: 5px; }
   &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+    &:hover { background: #94a3b8; }
+  }
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
 
-// ── Single comment row ──────────────────────────────────────────────────────
-.od-comment {
+// ═══ Message row ════════════════════════════════════════════════════════════
+.od-msg {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px 20px;
-  border-bottom: 1px solid #f1f5f9;
-  transition: background 0.12s ease;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 85%;
 
-  &:last-child { border-bottom: none; }
-  &:hover { background: #f8fafc; }
+  // ── My messages → right aligned ───────────────────────────────────────────
+  &--mine {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+
+    .od-msg__wrapper { align-items: flex-end; }
+    .od-msg__meta { flex-direction: row-reverse; }
+
+    .od-msg__bubble {
+      background: linear-gradient(135deg, ds.$brand 0%, ds.$brand-dark 100%);
+      color: #fff;
+      border-radius: 14px 14px 4px 14px;
+    }
+
+  }
+
 }
 
-.od-comment__avatar {
-  width: 32px;
-  height: 32px;
+// ── Avatar ──────────────────────────────────────────────────────────────────
+.od-msg__avatar {
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   color: #fff;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 1px;
 
   @each $i, $color in $avatar-palette {
     &--c#{$i} { background: $color; }
   }
 }
 
-.od-comment__body {
-  flex: 1;
+// ── Wrapper (name + bubble + time stack) ────────────────────────────────────
+.od-msg__wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   min-width: 0;
 }
 
-.od-comment__header {
+// ── Meta line: Name + Date on one row ───────────────────────────────────────
+.od-msg__meta {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 3px;
-  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 2px;
 }
 
-.od-comment__author {
-  font-size: 13px;
-  font-weight: 600;
+.od-msg__name {
+  font-size: 12px;
+  font-weight: 700;
   color: #1e293b;
-  line-height: 1.2;
+  line-height: 1;
 }
 
-.od-comment__you {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: ds.$brand;
-  background: rgba(ds.$brand, 0.08);
-  padding: 1px 6px;
-  border-radius: 3px;
-  line-height: 1.6;
-}
-
-.od-comment__time {
-  font-size: 11.5px;
+.od-msg__time {
+  font-size: 10.5px;
   color: #94a3b8;
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+  line-height: 1;
   white-space: nowrap;
-  margin-left: auto;
 }
 
-.od-comment__text {
-  font-size: 13px;
-  line-height: 1.55;
-  color: #475569;
+.od-msg__bubble {
+  background: #f0f2f5;
+  color: #1e293b;
+  font-size: 12.5px;
+  line-height: 1.5;
+  padding: 8px 14px;
+  border-radius: 14px 14px 14px 4px;
   word-break: break-word;
   white-space: pre-wrap;
 }
 
-// ── Compose bar ─────────────────────────────────────────────────────────────
-.od-comments__compose {
+
+// ═══ Chat input bar ═════════════════════════════════════════════════════════
+.od-chat__input {
   display: flex;
   align-items: flex-end;
   gap: 10px;
-  padding: 12px 20px;
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
+  padding: 10px 16px 12px;
+  border-top: 1px solid #e2e5ea;
+  background: linear-gradient(180deg, #f0f4fa 0%, #fafbfc 100%);
 }
 
-.od-comments__field {
+.od-chat__field {
   flex: 1;
-  min-height: 36px;
+  min-height: 38px;
   max-height: 100px;
   font-size: 13px;
   font-family: t.$font-sans;
-  color: #1e293b;
+  color: ds.$text;
   background: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 7px 12px;
+  border: 1.5px solid #d0d5dd;
+  border-radius: 18px;
+  padding: 8px 18px;
   outline: none;
   resize: none;
-  line-height: 1.45;
+  line-height: 1.4;
   overflow-y: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
-  &::placeholder { color: #94a3b8; }
+  &::placeholder { color: #94a3b8; font-weight: 500; }
   &:focus {
     border-color: ds.$brand;
-    box-shadow: 0 0 0 2px rgba(ds.$brand, 0.1);
+    box-shadow: 0 0 0 3px rgba(ds.$brand, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06);
   }
 }
 
-.od-comments__send {
+.od-chat__send {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 6px;
-  border: 1px solid ds.$brand;
-  background: ds.$brand;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, ds.$brand 0%, ds.$brand-dark 100%);
   color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  font-family: t.$font-sans;
   cursor: pointer;
+  box-shadow: 0 2px 6px rgba(ds.$brand, 0.3);
+  transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
   flex-shrink: 0;
-  transition: background 0.15s ease;
 
-  &:hover:not(:disabled) { background: ds.$brand-dark; border-color: ds.$brand-dark; }
-  &:disabled { opacity: 0.45; cursor: not-allowed; }
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, ds.$brand-dark 0%, darken(ds.$brand-dark, 6%) 100%);
+    transform: scale(1.08);
+    box-shadow: 0 3px 10px rgba(ds.$brand, 0.4);
+  }
+  &:disabled {
+    background: #d5d9e0;
+    color: #fff;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
 }
 
-.od-comments__spinner {
+.od-chat__spinner {
   display: inline-block;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fff;
   border-radius: 50%;
@@ -1023,9 +1062,11 @@ $avatar-palette: (
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 28px 16px;
+  gap: 6px;
+  padding: 24px 16px;
   text-align: center;
+  background: linear-gradient(180deg, transparent 0%, rgba(ds.$brand, 0.015) 100%);
+  border-radius: 8px;
 }
 
 .od-empty-state__icon {
@@ -1059,9 +1100,9 @@ $avatar-palette: (
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
-  border-top: 1px solid #f1f5f9;
-  background: #fafbfc;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(ds.$border, 0.25);
+  background: linear-gradient(180deg, #fafbfc 0%, #f5f7fa 100%);
 }
 
 .od-history-pagination__info {
@@ -1077,29 +1118,32 @@ $avatar-palette: (
 
 .od-history-pagination__btn {
   @extend %btn-base;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   padding: 0;
   font-size: 12px;
   background: #fff;
-  color: #475569;
-  border: 1px solid #d1d5db;
-  border-radius: 5px;
+  color: ds.$text;
+  border: 1px solid ds.$border;
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   transition: all 0.15s ease;
 
   &:hover:not(:disabled) {
-    background: #f1f5f9;
-    border-color: #94a3b8;
-    color: #1e293b;
+    background: rgba(ds.$brand, 0.06);
+    border-color: ds.$brand;
+    color: ds.$brand;
+    box-shadow: 0 1px 4px rgba(ds.$brand, 0.15);
   }
 
   &:disabled {
-    opacity: 0.3;
+    opacity: 0.35;
     cursor: not-allowed;
     pointer-events: none;
+    box-shadow: none;
   }
 }
 
