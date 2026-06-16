@@ -87,31 +87,31 @@ export const NAV_GROUPS: NavGroup[] = [
       },
     ],
   },
-  {
-    label: 'Planner Dashboard',
-    icon: NAV_ICONS.plannerDashboard,
-    roles: [Role.SuperAdmin, Role.Admin],
-    children: [
-      {
-        label: 'Orders',
-        route: '/planner/orders',
-        icon: NAV_ICONS.plannerorders,
-        color: '#f97316',
-      },
-      {
-        label: 'Plant Capacity',
-        route: '/planner/plant-capacity',
-        icon: NAV_ICONS.plantCapacity,
-        color: '#34d399',
-      },
-      {
-        label: 'Released Orders',
-        route: '/planner/released-orders',
-        icon: NAV_ICONS.releasedOrders,
-        color: '#a78bfa',
-      },
-    ],
-  },
+  // {
+  //   label: 'Planner Dashboard',
+  //   icon: NAV_ICONS.plannerDashboard,
+  //   roles: [Role.SuperAdmin, Role.Admin],
+  //   children: [
+  //     {
+  //       label: 'Orders',
+  //       route: '/planner/orders',
+  //       icon: NAV_ICONS.plannerorders,
+  //       color: '#f97316',
+  //     },
+  //     {
+  //       label: 'Plant Capacity',
+  //       route: '/planner/plant-capacity',
+  //       icon: NAV_ICONS.plantCapacity,
+  //       color: '#34d399',
+  //     },
+  //     {
+  //       label: 'Released Orders',
+  //       route: '/planner/released-orders',
+  //       icon: NAV_ICONS.releasedOrders,
+  //       color: '#a78bfa',
+  //     },
+  //   ],
+  // },
 ];
 
 export const ADMIN_NAV: NavStandaloneItem[] = [];
