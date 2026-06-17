@@ -51,21 +51,6 @@ export class Search {
   readonly currentPage = signal(1);
   readonly pageSize    = signal(20);
 
-  // ── Row selection ──────────────────────────────────────────────────────────
-  readonly selectedRows = signal<Set<string>>(new Set());
-
-  readonly selectedCount = computed(() => this.selectedRows().size);
-
-  readonly isAllSelected = computed(() => {
-    const items = this.orders();
-    return items.length > 0 && this.selectedRows().size === items.length;
-  });
-
-  readonly isIndeterminate = computed(() => {
-    const size = this.selectedRows().size;
-    return size > 0 && size < this.orders().length;
-  });
-
   // ── Column filters (server-side) ──────────────────────────────────────────
   readonly colFilters = signal<Record<string, string>>({});
 
@@ -101,7 +86,6 @@ export class Search {
           this.totalCount.set(res.totalCount ?? 0);
           this.loading.set(false);
           this.searched.set(true);
-          this.selectedRows.set(new Set());
           // Re-apply active sort to new data
           if (this.sortField()) {
             this.applySortLocally();
@@ -163,7 +147,6 @@ export class Search {
     this.currentPage.set(1);
     this.lastRequest = null;
     this.selectedQueueName.set('');
-    this.selectedRows.set(new Set());
     this.colFilters.set({});
     this.sortField.set('');
     this.sortDirection.set('');
@@ -180,38 +163,6 @@ export class Search {
       ['/documentum/order-detail', order.orderGuid],
       { queryParams: { orderSeq: order.orderSeq, po: order.repPO } },
     );
-  }
-
-  // ── Selection helpers ─────────────────────────────────────────────────────
-  toggleSelectAll(): void {
-    const items = this.orders();
-    if (this.isAllSelected()) {
-      this.selectedRows.set(new Set());
-    } else {
-      this.selectedRows.set(new Set(items.map(o => o.orderGuid)));
-    }
-  }
-
-  toggleRow(guid: string): void {
-    const current = new Set(this.selectedRows());
-    if (current.has(guid)) {
-      current.delete(guid);
-    } else {
-      current.add(guid);
-    }
-    this.selectedRows.set(current);
-  }
-
-  selectRow(guid: string): void {
-    if (this.selectedRows().has(guid)) {
-      this.selectedRows.set(new Set());
-    } else {
-      this.selectedRows.set(new Set([guid]));
-    }
-  }
-
-  isRowSelected(guid: string): boolean {
-    return this.selectedRows().has(guid);
   }
 
   // ── Sort helpers ──────────────────────────────────────────────────────────
@@ -321,14 +272,12 @@ export class Search {
       delete current[field];
     }
     this.colFilters.set(current);
-    this.selectedRows.set(new Set());
     // Trigger debounced server-side search
     this.filterSearch$.next();
   }
 
   clearAllFilters(): void {
     this.colFilters.set({});
-    this.selectedRows.set(new Set());
     if (this.lastRequest) {
       this.currentPage.set(1);
       this.search$.next({ ...this.lastRequest, pageNumber: 1 });

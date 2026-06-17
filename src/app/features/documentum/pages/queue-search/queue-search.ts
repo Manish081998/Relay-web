@@ -9,7 +9,11 @@ import { Router } from '@angular/router';
 import { Subject, debounceTime, switchMap } from 'rxjs';
 import { OrderSearchPanelComponent } from '../../../../shared/components/order-search-panel/order-search-panel.component';
 import { OrdersService } from '../../services/orders.service';
+import { WorkflowService } from '../../services/workflow.service';
 import { DropdownOption, OrderItem, OrderSearchRequest } from '../../models/order.model';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { AuthStore } from '../../../../core/auth/auth.store';
+import { invalidateCache } from '../../../../core/interceptors/cache.interceptor';
 
 @Component({
   selector: 'app-queue-search',
@@ -18,11 +22,15 @@ import { DropdownOption, OrderItem, OrderSearchRequest } from '../../models/orde
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './queue-search.html',
   styleUrl: './queue-search.scss',
+  providers: [WorkflowService],
 })
 export class QueueSearch {
-  private readonly ordersService = inject(OrdersService);
-  private readonly destroyRef    = inject(DestroyRef);
-  private readonly router        = inject(Router);
+  private readonly ordersService   = inject(OrdersService);
+  private readonly workflowService = inject(WorkflowService);
+  private readonly notify          = inject(NotificationService);
+  private readonly auth            = inject(AuthStore);
+  private readonly destroyRef      = inject(DestroyRef);
+  private readonly router          = inject(Router);
 
   private readonly search$ = new Subject<OrderSearchRequest>();
   private readonly filterSearch$ = new Subject<void>();
@@ -53,6 +61,31 @@ export class QueueSearch {
   readonly isIndeterminate = computed(() => {
     const size = this.selectedRows().size;
     return size > 0 && size < this.orders().length;
+  });
+
+  // ── Acquire state ──────────────────────────────────────────────────────────
+  readonly isAcquiring = signal(false);
+  readonly acquireResultMessage = signal('');
+  readonly acquireResultType = signal<'success' | 'warning' | 'error'>('success');
+
+  readonly acquireDisabled = computed(() =>
+    this.selectedCount() === 0 || this.isAcquiring() || this.loading(),
+  );
+
+  readonly acquireValidationMessage = computed(() => {
+    const selected = this.selectedRows();
+    if (selected.size === 0) return '';
+    const items = this.orders().filter(o => selected.has(o.orderGuid));
+    const alreadyAcquired = items.filter(o => o.isAcquired).length;
+    const noQueue = items.filter(o => o.currentQueueId == null).length;
+    const parts: string[] = [];
+    if (alreadyAcquired > 0)
+      parts.push(`${alreadyAcquired} queue item(s) in the selection are already acquired`);
+    if (noQueue > 0)
+      parts.push(`${noQueue} queue item(s) in the selection are not assigned to any queue`);
+    return parts.length > 0
+      ? parts.join('. ') + '. Please check the queue status then select only items in the dormant status.'
+      : '';
   });
 
   // ── Column filters (server-side) ──────────────────────────────────────────
@@ -122,6 +155,7 @@ export class QueueSearch {
     this.pageSize.set(request.pageSize);
     // Clear column filters on new search from panel
     this.colFilters.set({});
+    this.acquireResultMessage.set('');
     this.search$.next(this.lastRequest);
   }
 
@@ -165,7 +199,52 @@ export class QueueSearch {
   }
 
   onAcquire(): void {
-    // TODO: implement acquire selected queue items
+    const selected = this.selectedRows();
+    if (selected.size === 0) return;
+
+    const items = this.orders().filter(o => selected.has(o.orderGuid));
+    const orderSeqs = items.map(o => o.orderSeq);
+    const displayName = this.auth.currentUser()?.displayName ?? 'system';
+
+    this.isAcquiring.set(true);
+    this.workflowService.bulkAcquire(orderSeqs, displayName)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.isAcquiring.set(false);
+          const parts: string[] = [];
+          if (result.acquiredCount > 0)
+            parts.push(`${result.acquiredCount} acquired successfully`);
+          if (result.alreadyAcquiredCount > 0)
+            parts.push(`${result.alreadyAcquiredCount} already acquired`);
+          if (result.noQueueCount > 0)
+            parts.push(`${result.noQueueCount} not assigned to any queue`);
+          if (result.errorCount > 0)
+            parts.push(`${result.errorCount} failed`);
+
+          const message = parts.join('. ') + '.';
+          this.acquireResultMessage.set(message);
+          if (result.acquiredCount > 0) {
+            this.acquireResultType.set('success');
+            this.notify.success(message, 'Acquire Complete');
+          } else {
+            this.acquireResultType.set('warning');
+            this.notify.warning(message, 'No Items Acquired');
+          }
+
+          this.selectedRows.set(new Set());
+          if (this.lastRequest) {
+            invalidateCache();
+            this.search$.next(this.buildFilteredRequest());
+          }
+        },
+        error: () => {
+          this.isAcquiring.set(false);
+          this.acquireResultMessage.set('Failed to acquire items. Please try again.');
+          this.acquireResultType.set('error');
+          this.notify.error('Failed to acquire items. Please try again.', 'Error');
+        },
+      });
   }
 
   openOrder(order: OrderItem): void {
