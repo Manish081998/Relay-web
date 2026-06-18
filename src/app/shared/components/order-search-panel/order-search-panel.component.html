@@ -21,7 +21,7 @@
       </div>
       <div class="field">
         <label for="brand">Brand</label>
-        <p-select id="brand" formControlName="brand" [options]="brands()" optionLabel="label" optionValue="value" placeholder="Select" [showClear]="true" appendTo="body" panelStyleClass="order-search-select-panel" styleClass="w-full" (onChange)="onBrandChange()" />
+        <p-select id="brand" formControlName="brand" [options]="brands()" optionLabel="label" optionValue="value" placeholder="Select" [showClear]="!brandDisabled()" [disabled]="brandDisabled()" appendTo="body" panelStyleClass="order-search-select-panel" styleClass="w-full" (onChange)="onBrandChange()" />
       </div>
 
       <!-- Row 2 -->

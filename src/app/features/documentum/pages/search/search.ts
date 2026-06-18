@@ -10,6 +10,8 @@ import { Subject, debounceTime, switchMap } from 'rxjs';
 import { OrderSearchPanelComponent } from '../../../../shared/components/order-search-panel/order-search-panel.component';
 import { OrdersService } from '../../services/orders.service';
 import { DropdownOption, OrderItem, OrderSearchRequest } from '../../models/order.model';
+import { AuthStore } from '../../../../core/auth/auth.store';
+import { Role } from '../../../../models/role.enum';
 
 
 export type SearchCriteria = Partial<{
@@ -32,6 +34,7 @@ export type SearchCriteria = Partial<{
 })
 export class Search {
   private readonly ordersService = inject(OrdersService);
+  private readonly auth          = inject(AuthStore);
   private readonly destroyRef    = inject(DestroyRef);
   private readonly router        = inject(Router);
 
@@ -50,6 +53,9 @@ export class Search {
   readonly selectedQueueName = signal('');
   readonly currentPage = signal(1);
   readonly pageSize    = signal(20);
+
+  readonly userBrand = computed(() => this.auth.currentUser()?.brandName ?? '');
+  readonly brandDisabled = computed(() => !this.auth.hasAnyRole([Role.Admin, Role.SuperAdmin]));
 
   // ── Column filters (server-side) ──────────────────────────────────────────
   readonly colFilters = signal<Record<string, string>>({});

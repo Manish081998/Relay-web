@@ -6,11 +6,12 @@
     [regions]="regions()"
     [brands]="brands()"
     [queueNames]="queueNames()"
-    [showAcquireButton]="true"
+    [showAcquireButton]="isAdmin()"
     [acquireDisabled]="acquireDisabled()"
     [acquireMessage]="acquireValidationMessage()"
     [isAcquiring]="isAcquiring()"
-    [defaultBrand]="'Krueger'"
+    [defaultBrand]="userBrand()"
+    [brandDisabled]="brandDisabled()"
     (brandChanged)="onBrandChanged($event)"
     (search)="onSearch($event)"
     (cleared)="onCleared()"
@@ -75,15 +76,7 @@
       <table class="qs-tbl" [class.resizable]="!loading()">
         <thead>
           <tr>
-            <th class="col-chk" style="width:36px;min-width:36px">
-              <label class="chk-wrap">
-                <input type="checkbox"
-                       [checked]="isAllSelected()"
-                       [indeterminate]="isIndeterminate()"
-                       (change)="toggleSelectAll()" />
-                <span class="chk-box"><i class="pi pi-check"></i></span>
-              </label>
-            </th>
+            <th class="col-chk" style="width:36px;min-width:36px"></th>
             <th class="sortable" [class.sort-active]="sortField() === 'repPO'" style="width:120px;min-width:60px" (click)="onSort('repPO')" #thRepPO>
               Purchase Order
               <span class="sort-icon">

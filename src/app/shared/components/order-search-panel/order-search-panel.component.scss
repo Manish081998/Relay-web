@@ -121,13 +121,21 @@ $divider:     rgba(t.$color-border, 0.4);
     box-shadow: none;
     transition: border-color t.$transition-base, background t.$transition-base, box-shadow t.$transition-base;
  
-    &:hover { border-color: $border-str; background: $surface; }
- 
-    &.p-focus {
+    &:hover:not(.p-disabled) { border-color: $border-str; background: $surface; }
+
+    &.p-focus:not(.p-disabled) {
       border-color: $primary;
       background: $surface;
       box-shadow: 0 0 0 2px $primary-glow;
       outline: none;
+    }
+
+    &.p-disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: $surface-alt;
+      border-color: $border;
+      pointer-events: none;
     }
  
     .p-select-label {
@@ -160,8 +168,8 @@ $divider:     rgba(t.$color-border, 0.4);
     }
   }
 
-  // Brand dropdown always highlighted when a value is selected
-  #brand.p-select:has(.p-select-label:not(.p-placeholder)) {
+  // Brand dropdown always highlighted when a value is selected (but not when disabled)
+  #brand.p-select:not(.p-disabled):has(.p-select-label:not(.p-placeholder)) {
     border-color: $primary;
     background: rgba($primary, 0.04);
     box-shadow: 0 0 0 2px $primary-glow;

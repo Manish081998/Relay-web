@@ -25,6 +25,7 @@ export class OrderSearchPanelComponent {
   readonly acquireDisabled = input(false);
   readonly acquireMessage = input('');
   readonly isAcquiring = input(false);
+  readonly brandDisabled = input(false);
 
   readonly productTypes = input<DropdownOption[]>([]);
   readonly regions = input<DropdownOption[]>([]);

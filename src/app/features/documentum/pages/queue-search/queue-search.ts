@@ -13,6 +13,7 @@ import { WorkflowService } from '../../services/workflow.service';
 import { DropdownOption, OrderItem, OrderSearchRequest } from '../../models/order.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { AuthStore } from '../../../../core/auth/auth.store';
+import { Role } from '../../../../models/role.enum';
 import { invalidateCache } from '../../../../core/interceptors/cache.interceptor';
 
 @Component({
@@ -94,6 +95,10 @@ export class QueueSearch {
   // ── Column sorting ────────────────────────────────────────────────────────
   readonly sortField     = signal<string>('');
   readonly sortDirection = signal<'asc' | 'desc' | ''>('');
+
+  readonly isAdmin = computed(() => this.auth.hasAnyRole([Role.Admin, Role.SuperAdmin]));
+  readonly userBrand = computed(() => this.auth.currentUser()?.brandName ?? '');
+  readonly brandDisabled = computed(() => !this.isAdmin());
 
   readonly skeletonRows = Array.from({ length: 20 });
 
