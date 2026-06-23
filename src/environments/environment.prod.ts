@@ -3,7 +3,7 @@ export const environment = {
   appVersionDate: '05-02-2026',
   production: true,
   uat: false,
-  apiBaseUrl: 'https://api.projectrelay.adticorp.com',
+  apiBaseUrl: 'http://10.46.144.107/ProjectRelay_API',
   serverModeText: '',
   appName: 'Project Relay',
 };
