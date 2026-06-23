@@ -58,7 +58,7 @@ ng serve -o
 | :--- | :--- | :--- |
 | Development | `npm run build:development` | `dist/relay-web/` |
 | UAT | `npm run build:uat` | `dist/relay-web/` |
-| Production | `npm run build:prod` | `dist/relay-web/` |
+| Production | `ng build --configuration production --base-href /ProjectRelay_WEB/` | `dist/relay-web/` |
 
 <details>
 <summary><strong>What does each build include?</strong></summary>

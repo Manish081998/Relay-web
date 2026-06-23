@@ -221,7 +221,7 @@
                     </div>
                   </div>
                 </td>
-                <td><span class="od-type-badge" [attr.data-type]="doc.contentType?.toLowerCase()">{{ doc.contentType }}</span></td>
+                <td><span class="od-type-badge" [attr.data-type]="doc.contentType.toLowerCase()">{{ doc.contentType }}</span></td>
                 <td>{{ doc.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
                 <td>{{ doc.createdByName || doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
@@ -335,7 +335,7 @@
                     </div>
                   </div>
                 </td>
-                <td><span class="od-type-badge" [attr.data-type]="doc.contentType?.toLowerCase()">{{ doc.contentType }}</span></td>
+                <td><span class="od-type-badge" [attr.data-type]="doc.contentType.toLowerCase()">{{ doc.contentType }}</span></td>
                 <td>{{ doc.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
                 <td>{{ doc.createdByName || doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
@@ -497,10 +497,10 @@
                 <td>{{ row.comments }}</td>
                 <td class="od-link">{{ row.userName }}</td>
                 <td>{{ row.timestamp | date:'MM/dd/yy hh:mm a' }}</td>
-                <td><span class="od-event-badge" [attr.data-event]="row.eventType?.toLowerCase()">{{ row.eventType }}</span></td>
+                <td><span class="od-event-badge" [attr.data-event]="row.eventType.toLowerCase()">{{ row.eventType }}</span></td>
                 <td>
                   @if (row.orderStatus) {
-                    <span class="od-status-badge" [attr.data-status]="row.orderStatus?.toLowerCase()">{{ row.orderStatus }}</span>
+                    <span class="od-status-badge" [attr.data-status]="row.orderStatus.toLowerCase()">{{ row.orderStatus }}</span>
                   }
                 </td>
               </tr>
@@ -603,7 +603,7 @@
                     </div>
                   </div>
                 </td>
-                <td><span class="od-type-badge" [attr.data-type]="doc.contentType?.toLowerCase()">{{ doc.contentType }}</span></td>
+                <td><span class="od-type-badge" [attr.data-type]="doc.contentType.toLowerCase()">{{ doc.contentType }}</span></td>
                 <td>{{ doc.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
                 <td>{{ doc.createdByName || doc.createdBy }}</td>
                 <td><span class="od-version-badge">v{{ doc.currentVersion }}</span></td>
@@ -707,7 +707,7 @@
                     }
                   </div>
                 </td>
-                <td class="vd-type-cell"><span class="od-type-badge" [attr.data-type]="ver.contentType?.toLowerCase()">{{ ver.contentType }}</span></td>
+                <td class="vd-type-cell"><span class="od-type-badge" [attr.data-type]="ver.contentType.toLowerCase()">{{ ver.contentType }}</span></td>
                 <td class="vd-mono">{{ formatFileSize(ver.sizeBytes) }}</td>
                 <td class="vd-comment">{{ ver.comment || '—' }}</td>
                 <td class="vd-date">{{ ver.createdDate | date:'MM/dd/yy hh:mm a' }}</td>
