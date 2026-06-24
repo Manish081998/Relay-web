@@ -33,7 +33,8 @@
       "Bash(npm run *)",
       "PowerShell(head *)",
       "Bash(Select-Object FullName, Attributes)",
-      "mcp__code-review-graph__query_graph_tool"
+      "mcp__code-review-graph__query_graph_tool",
+      "Bash(findstr \"build\")"
     ]
   },
   "enableAllProjectMcpServers": true,
