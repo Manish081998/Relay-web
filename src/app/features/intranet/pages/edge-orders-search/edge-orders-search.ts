@@ -9,6 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { InputTextModule } from 'primeng/inputtext';
@@ -33,6 +34,7 @@ export class EdgeOrdersSearch implements OnInit {
   private readonly notify    = inject(NotificationService);
   private readonly fb        = inject(FormBuilder);
   private readonly router    = inject(Router);
+  private readonly location  = inject(Location);
   private readonly authStore = inject(AuthStore);
 
   readonly orders = signal<EdgeOrderDto[]>([]);
@@ -233,8 +235,10 @@ export class EdgeOrdersSearch implements OnInit {
       title: row.releaseName || row.releaseNumber || 'XML Document',
     });
     window.open(
-      this.router.serializeUrl(
-        this.router.createUrlTree(['/intranet/xml-viewer'], { queryParams: { key } }),
+      this.location.prepareExternalUrl(
+        this.router.serializeUrl(
+          this.router.createUrlTree(['/intranet/xml-viewer'], { queryParams: { key } }),
+        ),
       ),
       '_blank',
     );
@@ -247,8 +251,10 @@ export class EdgeOrdersSearch implements OnInit {
       releaseNumber: row.releaseNumber,
     });
     window.open(
-      this.router.serializeUrl(
-        this.router.createUrlTree(['/print/order-transmittal'], { queryParams: { key } }),
+      this.location.prepareExternalUrl(
+        this.router.serializeUrl(
+          this.router.createUrlTree(['/print/order-transmittal'], { queryParams: { key } }),
+        ),
       ),
       '_blank',
     );
