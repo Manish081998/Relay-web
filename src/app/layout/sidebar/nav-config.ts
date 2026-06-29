@@ -40,16 +40,16 @@ export const NAV_GROUPS: NavGroup[] = [
     roles: [Role.SuperAdmin, Role.Admin, Role.User],
     children: [
       {
-        label: 'Edge Orders Search',
+        label: 'Release Order To MacPac',
         route: '/intranet/Edge-Orders-Search',
         icon: NAV_ICONS.users,
         color: '#60a5fa',
       },
-      { label: 'EDI', route: '/intranet/edi', icon: NAV_ICONS.selections, color: '#a78bfa', requiredRoles: [Role.SuperAdmin, Role.Admin], requiredQueues: ['EDI Order Entry','Order Entry'] },
+      { label: 'Check EDI Status', route: '/intranet/edi', icon: NAV_ICONS.selections, color: '#a78bfa', requiredRoles: [Role.SuperAdmin, Role.Admin], requiredQueues: ['EDI Order Entry','Order Entry'] },
     ],
   },
   {
-    label: 'Documentum',
+    label: 'Order Processing',
     icon: NAV_ICONS.documentum,
     color: '#34d399',
     roles: [Role.SuperAdmin, Role.Admin, Role.User],
