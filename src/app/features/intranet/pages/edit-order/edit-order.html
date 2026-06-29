@@ -521,7 +521,7 @@
   <div class="page-actions">
     <button type="button" class="btn-cancel" (click)="cancelChanges()">Cancel Changes</button>
     <button type="button" class="btn-submit" [disabled]="!hasEdits() || isSubmitting()" (click)="submitChanges()">
-      {{ isSubmitting() ? 'Saving…' : 'Save All Changes' }}
+      {{ isSubmitting() ? 'Saving…' : 'Save and Submit to MacPac' }}
     </button>
   </div>
 
