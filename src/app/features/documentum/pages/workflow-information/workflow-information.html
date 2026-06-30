@@ -251,7 +251,10 @@
                 }
               </span>
             </div>
-            <div class="od-pkg-field"></div>
+            <!-- <div class="od-pkg-field">
+              <span class="od-pkg-label">Order Created Date</span>
+              <span class="od-pkg-value" [class.od-pkg-value--empty]="!o.createdDate">{{ o.createdDate ? (o.createdDate | date:'MM/dd/yy hh:mm a') : 'Pending' }}</span>
+            </div> -->
           </div>
         } @else {
           <div class="od-pkg-loading">Order not found.</div>

@@ -568,7 +568,7 @@ export class WorkflowInformation {
     this.isUploading.set(true);
     this.uploadError.set(null);
 
-    this.docService.upload(o.orderSeq, file, isSupportDoc, o.repPO, o.brand)
+    this.docService.upload(o.orderSeq, file, isSupportDoc, o.repPO, o.brand, o.createdDate)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -579,39 +579,35 @@ export class WorkflowInformation {
         error: (err) => {
           console.error('Upload error:', err);
           this.isUploading.set(false);
-          const body = err?.error;
-          const msg = typeof body === 'string' ? body
-            : body?.message ?? body?.title ?? err?.message ?? 'Upload failed.';
-          this.uploadError.set(msg);
+          this.uploadError.set(this.extractErrorMessage(err, 'Upload failed.'));
         },
       });
 
     input.value = '';
   }
 
+  private extractErrorMessage(err: any, fallback: string): string {
+    const body = err?.error;
+    return typeof body === 'string' ? body
+      : body?.message ?? body?.title ?? err?.message ?? fallback;
+  }
+
   // ── Preview / Annotation ──────────────────────────────────────────────────
 
   previewDocument(doc: SalesOrderDocumentDto): void {
-    this.annotationDocId = doc.documentId;
-    this.annotationOriginalName = doc.documentName;
-    this.annotationMimeType = doc.mimeType;
-    this.annotationIsSupportDoc.set(false);
-    this.annotationReadOnly.set(true);
-    this.docService.getVersions(doc.documentId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(versions => {
-        if (versions.length > 0) {
-          this.openBlobPreview(versions[0].documentPath, doc.documentName, doc.mimeType);
-        }
-      });
+    this.openDocument(doc, false, true);
   }
 
   editDocument(doc: SalesOrderDocumentDto, isSupportDoc: boolean): void {
+    this.openDocument(doc, isSupportDoc, false);
+  }
+
+  private openDocument(doc: SalesOrderDocumentDto, isSupportDoc: boolean, readOnly: boolean): void {
     this.annotationDocId = doc.documentId;
     this.annotationOriginalName = doc.documentName;
     this.annotationMimeType = doc.mimeType;
     this.annotationIsSupportDoc.set(isSupportDoc);
-    this.annotationReadOnly.set(false);
+    this.annotationReadOnly.set(readOnly);
     this.docService.getVersions(doc.documentId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(versions => {
@@ -622,20 +618,19 @@ export class WorkflowInformation {
   }
 
   previewVersion(version: SalesOrderDocumentVersionDto): void {
-    this.annotationDocId = version.documentId;
-    this.annotationOriginalName = version.documentPath.split('/').pop() ?? 'document';
-    this.annotationMimeType = version.mimeType;
-    this.annotationIsSupportDoc.set(false);
-    this.annotationReadOnly.set(true);
-    this.openBlobPreview(version.documentPath, `Version ${version.versionNumber}`, version.mimeType);
+    this.openVersionPreview(version, false, true);
   }
 
   editVersion(version: SalesOrderDocumentVersionDto, isSupportDoc: boolean): void {
+    this.openVersionPreview(version, isSupportDoc, false);
+  }
+
+  private openVersionPreview(version: SalesOrderDocumentVersionDto, isSupportDoc: boolean, readOnly: boolean): void {
     this.annotationDocId = version.documentId;
     this.annotationOriginalName = version.documentPath.split('/').pop() ?? 'document';
     this.annotationMimeType = version.mimeType;
     this.annotationIsSupportDoc.set(isSupportDoc);
-    this.annotationReadOnly.set(false);
+    this.annotationReadOnly.set(readOnly);
     this.openBlobPreview(version.documentPath, `Version ${version.versionNumber}`, version.mimeType);
   }
 
@@ -710,7 +705,7 @@ export class WorkflowInformation {
     this.isUploading.set(true);
     this.uploadError.set(null);
 
-    this.docService.upload(o.orderSeq, file, isSupportDoc, o.repPO, o.brand)
+    this.docService.upload(o.orderSeq, file, isSupportDoc, o.repPO, o.brand, o.createdDate)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -722,10 +717,7 @@ export class WorkflowInformation {
         error: (err) => {
           console.error('Upload error:', err);
           this.isUploading.set(false);
-          const body = err?.error;
-          const msg = typeof body === 'string' ? body
-            : body?.message ?? body?.title ?? err?.message ?? 'Upload failed.';
-          this.uploadError.set(msg);
+          this.uploadError.set(this.extractErrorMessage(err, 'Upload failed.'));
         },
       });
   }
