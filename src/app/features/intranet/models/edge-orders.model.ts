@@ -1,3 +1,8 @@
+export interface CountryDto {
+  code: string;
+  name: string;
+}
+
 export interface EdgeOrderDto {
   releaseNumber:    string;
   releaseName:      string;

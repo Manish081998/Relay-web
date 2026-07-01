@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Injector, afterNextRender, computed, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { concat } from 'rxjs';
-import { switchMap, toArray } from 'rxjs/operators';
+import { concat, of } from 'rxjs';
+import { catchError, switchMap, toArray } from 'rxjs/operators';
 import { InputTextModule } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { Dialog } from 'primeng/dialog';
@@ -13,7 +13,7 @@ import { AuthStore } from '../../../../core/auth/auth.store';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { NOTIFICATION_MESSAGES as NM } from '../../../../core/constants/notification-messages';
 import { EdgeOrdersService } from '../../services/edge-orders.service';
-import { LineItem, LineItemFamily, OrderByGuidData, PlantCode, PlantCodeUpdateDto, ShipTerm } from '../../models/edge-orders.model';
+import { CountryDto, LineItem, LineItemFamily, OrderByGuidData, PlantCode, PlantCodeUpdateDto, ShipTerm } from '../../models/edge-orders.model';
 import { getConfigByFamilyTag, HeaderCell, OrderTypeConfig } from '../../models/order-config.model';
 
 @Component({
@@ -30,6 +30,7 @@ export class EditOrder implements OnInit {
   private readonly router          = inject(Router);
   private readonly cdr             = inject(ChangeDetectorRef);
   private readonly destroyRef      = inject(DestroyRef);
+  private readonly injector        = inject(Injector);
   private readonly authStore       = inject(AuthStore);
   private readonly edgeOrdersSvc   = inject(EdgeOrdersService);
   private readonly notify          = inject(NotificationService);
@@ -300,16 +301,7 @@ export class EditOrder implements OnInit {
     );
   }
 
-  readonly countries = [
-    'UNITED STATES OF AMERICA',
-    'CANADA',
-    'MEXICO',
-    'UNITED KINGDOM',
-    'AUSTRALIA',
-    'GERMANY',
-    'FRANCE',
-    'JAPAN',
-  ];
+  readonly countries = signal<CountryDto[]>([]);
 
   readonly form = this.fb.nonNullable.group({
     orderInfo: this.fb.nonNullable.group({
@@ -330,7 +322,7 @@ export class EditOrder implements OnInit {
       state:     '',
       zip:       '',
       attention: '',
-      country:   'UNITED STATES OF AMERICA',
+      country:   '',
     }),
     shipTo: this.fb.nonNullable.group({
       name1:     '',
@@ -341,7 +333,7 @@ export class EditOrder implements OnInit {
       state:     '',
       zip:       '',
       attention: '',
-      country:   'UNITED STATES OF AMERICA',
+      country:   '',
     }),
     brandAccount: this.fb.nonNullable.group({
       repAccountNo: '',
@@ -414,12 +406,24 @@ export class EditOrder implements OnInit {
     if (!raw) return;
     const data = JSON.parse(raw) as OrderByGuidData;
     this._orderData = data;
-    this.patchFromApiResponse(data);
-    this.form.get('orderInfo.jobGuid')!.disable({ emitEvent: false });
-    this.form.get('quantityInfo.lineCount')!.disable({ emitEvent: false });
-    this.form.get('quantityInfo.jobInitiatedDate')!.disable({ emitEvent: false });
-    this.trackSectionChanges();
-    this.cdr.markForCheck();
+
+    this.edgeOrdersSvc.getCountries(data.brand ?? '')
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(() => of([] as CountryDto[])),
+      )
+      .subscribe(items => {
+        this.countries.set(items);
+        this.patchFromApiResponse(data);
+        this.form.get('orderInfo.jobGuid')!.disable({ emitEvent: false });
+        this.form.get('quantityInfo.lineCount')!.disable({ emitEvent: false });
+        this.form.get('quantityInfo.jobInitiatedDate')!.disable({ emitEvent: false });
+        this.cdr.markForCheck();
+        // Defer tracking until after PrimeNG has processed the new options.
+        // Without this, PrimeNG fires onChange when options arrive ([] → [...]),
+        // which falsely marks sections as edited before the user touches anything.
+        afterNextRender(() => this.trackSectionChanges(), { injector: this.injector });
+      });
   }
 
   private trackSectionChanges(): void {
@@ -436,6 +440,27 @@ export class EditOrder implements OnInit {
           this._editedSections.update(s => new Set([...s, key]));
         });
     }
+  }
+
+  private resolveCountryCode(value: string): string {
+    if (!value) return '';
+    const list = this.countries();
+    const v = value.trim().toLowerCase();
+
+    // 1. Exact code match (e.g. 'US')
+    const byCode = list.find(c => c.code.toLowerCase() === v);
+    if (byCode) return byCode.code;
+
+    // 2. Exact name match, case-insensitive (e.g. 'united states of america')
+    const byName = list.find(c => c.name.toLowerCase() === v);
+    if (byName) return byName.code;
+
+    // 3. Partial match: name contains stored value OR stored value contains name
+    //    handles truncated names like 'UNITED STATES' matching 'United States of America'
+    const byPartial = list.find(
+      c => c.name.toLowerCase().includes(v) || v.includes(c.name.toLowerCase()),
+    );
+    return byPartial?.code ?? '';
   }
 
   private patchFromApiResponse(data: OrderByGuidData): void {
@@ -474,7 +499,7 @@ export class EditOrder implements OnInit {
         city:    soldTo?.city     ?? '',
         state:   soldTo?.state    ?? '',
         zip:     soldTo?.zip      ?? '',
-        country: soldTo?.country  || 'UNITED STATES OF AMERICA',
+        country: this.resolveCountryCode(soldTo?.country ?? ''),
       },
       shipTo: {
         name1:   shipTo?.name     ?? '',
@@ -483,7 +508,7 @@ export class EditOrder implements OnInit {
         city:    shipTo?.city     ?? '',
         state:   shipTo?.state    ?? '',
         zip:     shipTo?.zip      ?? '',
-        country: shipTo?.country  || 'UNITED STATES OF AMERICA',
+        country: this.resolveCountryCode(shipTo?.country ?? ''),
       },
       brandAccount: {
         repAccountNo: account?.repAccountNo ?? '',
