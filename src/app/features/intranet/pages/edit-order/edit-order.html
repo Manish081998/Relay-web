@@ -125,10 +125,13 @@
               <label class="field-label">Country</label>
               <p-select
                 formControlName="country"
-                [options]="countries"
+                [options]="countries()"
+                optionLabel="name"
+                optionValue="code"
                 styleClass="field-select"
                 panelStyleClass="edit-order-select-panel"
                 appendTo="body"
+                placeholder="Select country…"
               />
             </div>
           </div>
@@ -181,10 +184,13 @@
               <label class="field-label">Country</label>
               <p-select
                 formControlName="country"
-                [options]="countries"
+                [options]="countries()"
+                optionLabel="name"
+                optionValue="code"
                 styleClass="field-select"
                 panelStyleClass="edit-order-select-panel"
                 appendTo="body"
+                placeholder="Select country…"
               />
             </div>
           </div>
