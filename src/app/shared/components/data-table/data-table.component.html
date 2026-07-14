@@ -1,0 +1,24 @@
+<div class="table-wrapper">
+  <table class="data-table">
+    <thead>
+      <tr>
+        @for (col of columns(); track col.key) {
+          <th class="data-table__th">{{ col.header }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row[trackBy()]) {
+        <tr class="data-table__row" (click)="onRowClick(row)">
+          @for (col of columns(); track col.key) {
+            <td class="data-table__td">{{ cellValue(row, col.key) }}</td>
+          }
+        </tr>
+      } @empty {
+        <tr>
+          <td [attr.colspan]="columns().length" class="data-table__empty">No records found.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

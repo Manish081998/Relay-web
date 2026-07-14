@@ -1,0 +1,252 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TableModule } from 'primeng/table';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { Select } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { TooltipModule } from 'primeng/tooltip';
+import { firstValueFrom } from 'rxjs';
+
+import { NotificationService } from 'src/app/core/services/notification.service';
+import { BrandDto, DocumentumUserDto } from '../../documentum/models/documentum-user.model';
+import { invalidateCache } from 'src/app/core/interceptors/cache.interceptor';
+import { NOTIFICATION_MESSAGES as NM } from 'src/app/core/constants/notification-messages';
+import { ManageUserService } from '../services/manage-user-service';
+import { AdUserDto } from '../models/ad-user.model';
+import { BrandQueueMappingDto, QueueUserMappingDto, RoleDto } from '../models/brand-mapping.model';
+import { InitialsPipe } from 'src/app/shared/pipes/initials.pipe';
+import { AuthStore } from 'src/app/core/auth/auth.store';
+
+function parseQueueIds(raw: string | null): number[] {
+  if (!raw) return [];
+  return raw.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+}
+
+@Component({
+  selector: 'app-manage-users',
+  standalone: true,
+  imports: [
+    FormsModule,
+    InputTextModule,
+    Select,
+    MultiSelectModule,
+    TooltipModule,
+    TableModule,
+    InitialsPipe,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './manage-users.html',
+  styleUrl: './manage-users.scss',
+})
+export class ManageUsers implements OnInit {
+  private readonly usersService = inject(ManageUserService);
+  private readonly notify = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly authStore = inject(AuthStore);
+
+  readonly users = signal<DocumentumUserDto[]>([]);
+  readonly brands = signal<BrandDto[]>([]);
+  readonly queues = signal<BrandQueueMappingDto[]>([]);
+  readonly userQueueMappings = signal<QueueUserMappingDto[]>([]);
+  readonly roles = signal<RoleDto[]>([]);
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly globalIdValue = signal('');
+  readonly searchedUser = signal<AdUserDto | null>(null);
+  readonly searching = signal(false);
+  readonly saveAttempted = signal(false);
+  readonly editingRow = signal<QueueUserMappingDto | null>(null);
+  readonly isEditMode = computed(() => this.editingRow() !== null);
+
+  private readonly _brandOverride = signal<number | null>(null);
+  private readonly _queueOverride = signal<number[]>([]);
+  private readonly _roleOverride = signal<number | null>(null);
+
+  readonly selectedBrandId = computed<number | null>(() => this._brandOverride());
+  readonly selectedQueueIds = computed<number[]>(() => this._queueOverride());
+  readonly selectedRoleId = computed<number | null>(() => this._roleOverride());
+
+  readonly filteredQueues = computed<BrandQueueMappingDto[]>(() => {
+    const brandId = this.selectedBrandId();
+    if (!brandId) return [];
+    return this.queues().filter(q => q.brandId === brandId);
+  });
+
+  readonly canSave = computed(
+    () =>
+      this.selectedBrandId() !== null &&
+      this.selectedQueueIds().length > 0 &&
+      this.selectedRoleId() !== null,
+  );
+
+  ngOnInit(): void {
+    this.loadBrandAndQueuesAndMapping();
+  }
+
+  onGlobalIdChange(value: string): void {
+    this.globalIdValue.set(value);
+    this.searchedUser.set(null);
+    this.saveAttempted.set(false);
+    this.editingRow.set(null);
+  }
+
+  async onSearch(): Promise<void> {
+    this.searchedUser.set(null);
+    this.saveAttempted.set(false);
+    this._brandOverride.set(null);
+    this._queueOverride.set([]);
+    this._roleOverride.set(null);
+    this.searching.set(true);
+    try {
+      const res = await firstValueFrom(this.usersService.GetUserByGlobalId(this.globalIdValue()));
+      this.searchedUser.set(res);
+    } catch (err) {
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        this.notify.warning(
+          `No Active Directory account was found for Global ID "${this.globalIdValue()}". Please verify the ID and try again.`,
+          'User Not Found',
+        );
+      } else {
+        this.notify.error(NM.INTRANET.USER.LOAD_FAILED, 'Intranet');
+      }
+    } finally {
+      this.searching.set(false);
+    }
+  }
+
+  onSaveUser(): void {
+    this.saveAttempted.set(true);
+    if (!this.canSave()) return;
+    const user = this.searchedUser();
+    if (!user) return;
+
+    this.saving.set(true);
+
+    const queueId = this.selectedQueueIds();
+
+    if (this.isEditMode()) {
+      this.usersService
+        .updateUser({
+          globalId: this.globalIdValue(),
+          brandId: this.selectedBrandId()!,
+          queueId,
+          roleId: this.selectedRoleId()!,
+          updatedBy: this.authStore.currentUser()?.globalId ?? '',
+        })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.notify.success(NM.INTRANET.USER.UPDATE_SUCCESS, 'Intranet');
+            this.resetForm();
+          },
+          error: () => {
+            this.saving.set(false);
+            this.notify.error(NM.INTRANET.USER.UPDATE_FAILED, 'Intranet');
+          },
+        });
+    } else {
+      this.usersService
+        .createUser({
+          globalId: this.globalIdValue(),
+          firstName: user.firstName,
+          lastName: user.lastName,
+          emailId: user.emailId,
+          brandId: this.selectedBrandId(),
+          queueId,
+          roleId: this.selectedRoleId(),
+          createdBy: this.authStore.currentUser()?.globalId ?? '',
+        })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.notify.success(NM.INTRANET.USER.CREATE_SUCCESS, 'Intranet');
+            this.resetForm();
+          },
+          error: () => {
+            this.saving.set(false);
+            this.notify.error(NM.INTRANET.USER.CREATE_FAILED, 'Intranet');
+          },
+        });
+    }
+  }
+
+  onEditRow(row: QueueUserMappingDto): void {
+    const [firstName = '', ...rest] = (row.fullName ?? '').split(' ');
+    const role = this.roles().find(r => r.roleName === row.roleName);
+    const queueIds = parseQueueIds(row.queueId);
+
+    this.globalIdValue.set(row.globalId ?? '');
+    this.searchedUser.set({ firstName, lastName: rest.join(' '), emailId: row.emailId ?? '' });
+    this._brandOverride.set(row.brandId ?? null);
+    this._queueOverride.set(queueIds);
+    this._roleOverride.set(role?.roleMasterId ?? null);
+    this.editingRow.set(row);
+    this.saveAttempted.set(false);
+  }
+
+  onDeleteRow(row: QueueUserMappingDto): void {
+    if (!row.globalId) return;
+    this.usersService
+      .deleteUser(row.globalId, this.authStore.currentUser()?.globalId ?? '')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.notify.success(NM.INTRANET.USER.DELETE_SUCCESS, 'Intranet');
+          if (this.editingRow()?.globalId === row.globalId) this.resetForm();
+          else { invalidateCache(); this.loadBrandAndQueuesAndMapping(); }
+        },
+        error: () => this.notify.error(NM.INTRANET.USER.DELETE_FAILED, 'Intranet'),
+      });
+  }
+
+  private resetForm(): void {
+    this.saving.set(false);
+    this.searchedUser.set(null);
+    this.globalIdValue.set('');
+    this.saveAttempted.set(false);
+    this._brandOverride.set(null);
+    this._queueOverride.set([]);
+    this._roleOverride.set(null);
+    this.editingRow.set(null);
+    invalidateCache();
+    this.loadBrandAndQueuesAndMapping();
+  }
+
+  onBrandChange(id: number | null): void {
+    this._brandOverride.set(id ?? null);
+    this._queueOverride.set([]);
+  }
+
+  onQueueChange(ids: number[]): void {
+    this._queueOverride.set(ids ?? []);
+  }
+
+  onRoleChange(id: number | null): void {
+    this._roleOverride.set(id ?? null);
+  }
+
+  private async loadBrandAndQueuesAndMapping(): Promise<void> {
+    try {
+      const data = await firstValueFrom(this.usersService.GetBrandAndQueuesAndMapping());
+      this.brands.set(data.brands ?? []);
+      this.queues.set(data.brandQueueMappings ?? []);
+      this.userQueueMappings.set(data.userQueueMappings ?? []);
+      debugger
+      JSON.stringify('this.userQueueMappings=='+this.userQueueMappings);
+      this.roles.set(data.roles ?? []);
+    } catch {
+      this.notify.error(NM.GENERAL.LOADING_FAILED, 'Intranet');
+    }
+  }
+
+}

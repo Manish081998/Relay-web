@@ -1,0 +1,415 @@
+<div class="ot-wrapper">
+
+  <!-- Toolbar (hidden on print) -->
+  <div class="ot-toolbar no-print">
+    <button class="ot-btn" (click)="goBack()">&#8592; Back</button>
+    <span class="ot-toolbar-title">Order Transmittal{{ releaseNumber() ? ' — ' + releaseNumber() : '' }}</span>
+
+    <!-- Search bar -->
+    <div class="ot-search-wrap">
+      <div class="ot-search-input-wrap">
+        <svg class="ot-search-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="6.5" cy="6.5" r="4.2"/>
+          <path d="M11 11l3 3"/>
+        </svg>
+        <input
+          class="ot-search-input"
+          type="text"
+          placeholder="Search…"
+          autocomplete="off"
+          spellcheck="false"
+          [value]="searchQuery()"
+          (input)="onSearch($any($event.target).value)"
+          (keydown)="onSearchKeydown($event)"
+        />
+      </div>
+      @if (searchQuery()) {
+        <span class="ot-match-count">
+          @if (currentMatchIndex() >= 0) {
+            <span class="ot-match-num">{{ currentMatchIndex() + 1 }}</span> / {{ markTotal() }}
+          } @else {
+            ↵ navigate
+          }
+        </span>
+        <button type="button" class="ot-nav-btn" title="Previous (Shift+Enter)" (click)="navigateToMatch(-1)">
+          <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 5l4-4 4 4"/>
+          </svg>
+        </button>
+        <button type="button" class="ot-nav-btn" title="Next (Enter)" (click)="navigateToMatch(1)">
+          <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 1l4 4 4-4"/>
+          </svg>
+        </button>
+        <button type="button" class="ot-search-clear" (click)="onSearch('')">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M2 2l8 8M10 2l-8 8"/>
+          </svg>
+        </button>
+      }
+    </div>
+
+    <button class="ot-btn" (click)="print()">&#128438; Print</button>
+  </div>
+
+  @if (parseError()) {
+    <div class="ot-error no-print">{{ parseError() }}</div>
+  }
+
+  @if (order(); as o) {
+    <div class="ot-document">
+
+      <!-- ═══════════════════════════════════════════════════════
+           PAGE 1 — Order Header
+           ═══════════════════════════════════════════════════════ -->
+      <div class="ot-page">
+
+        <!-- Title row -->
+        <div class="ot-doc-header">
+          <div class="ot-doc-header-left">Order Transmittal</div>
+          <div class="ot-doc-header-right">Order No.</div>
+        </div>
+
+        <!-- Rep info | Total amount | Program -->
+        <div class="ot-band">
+          <div class="ot-band-col">
+            <div class="ot-label">Rep Acct No:</div>
+            <div class="ot-value-lg" [innerHTML]="hl(o.repAccountNo)"></div>
+            <div class="ot-field-row" style="margin-top:10px"><span class="ot-label">Rep Phone:</span><span class="ot-value" [innerHTML]="hl(o.repPhone)"></span></div>
+            <div class="ot-field-row"><span class="ot-label">Rep Fax:</span><span class="ot-value" [innerHTML]="hl(o.repFax)"></span></div>
+          </div>
+          <div class="ot-band-col ot-band-col--center">
+            <div class="ot-value-lg" [innerHTML]="hl(o.totalNetWoFrt)"></div>
+            <div class="ot-label" style="margin-top:4px">Total Net w/o Frt.</div>
+          </div>
+          <div class="ot-band-col ot-band-col--center">
+            <div class="ot-value-lg" [innerHTML]="hl(o.program)"></div>
+            <div class="ot-label" style="margin-top:4px">Mktg. Program: <span [innerHTML]="hl(o.programCode)"></span></div>
+          </div>
+        </div>
+
+        <!-- Sold To / Ship To -->
+        <div class="ot-address-row">
+          <div class="ot-address-box">
+            <div class="ot-section-title">Sold To:</div>
+            <div class="ot-field-row"><span class="ot-label">Name:</span><span class="ot-value" [innerHTML]="hl(o.soldToName)"></span></div>
+            <div class="ot-field-row"><span class="ot-label">Address:</span><span class="ot-value" [innerHTML]="hl(o.soldToAddress)"></span></div>
+            <div class="ot-field-row">
+              <span class="ot-label">City:</span>
+              <span class="ot-value"><span [innerHTML]="hl(o.soldToCity)"></span>&nbsp;&nbsp;<span [innerHTML]="hl(o.soldToState)"></span>&nbsp;&nbsp;<span [innerHTML]="hl(o.soldToZip)"></span></span>
+            </div>
+          </div>
+          <div class="ot-address-box">
+            <div class="ot-section-title">Ship To:</div>
+            <div class="ot-field-row"><span class="ot-label">Name:</span><span class="ot-value ot-bold" [innerHTML]="hl(o.shipToName)"></span></div>
+            @if (o.shipToCareOf) {
+              <div class="ot-field-row"><span class="ot-label">Care of:</span><span class="ot-value" [innerHTML]="hl(o.shipToCareOf)"></span></div>
+            }
+            <div class="ot-field-row"><span class="ot-label">Address:</span><span class="ot-value" [innerHTML]="hl(o.shipToAddress)"></span></div>
+            @if (o.shipToAddress2) {
+              <div class="ot-field-row ot-field-row--offset"><span class="ot-value" [innerHTML]="hl(o.shipToAddress2)"></span></div>
+            }
+            <div class="ot-field-row">
+              <span class="ot-label">City:</span>
+              <span class="ot-value ot-bold"><span [innerHTML]="hl(o.shipToCity)"></span>&nbsp;&nbsp;<span [innerHTML]="hl(o.shipToState)"></span>&nbsp;&nbsp;<span [innerHTML]="hl(o.shipToZip)"></span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PO / Job / Cust / Sales | FMA / Special / X-Lines / Comm -->
+        <div class="ot-details-band">
+          <div class="ot-details-left">
+            <div class="ot-field-row"><span class="ot-label">Rep P.O. No:</span><span class="ot-value ot-bold" [innerHTML]="hl(o.repPONo)"></span></div>
+            <div class="ot-field-row"><span class="ot-label">Job Name:</span><span class="ot-value" [innerHTML]="hl(o.jobName)"></span></div>
+            <div class="ot-field-row">
+              <span class="ot-label">Cust Acct No:</span><span class="ot-value" [innerHTML]="hl(o.custAccountNo)"></span>
+              <span class="ot-label ot-inline-gap">Cust P.O.:</span><span class="ot-value" [innerHTML]="hl(o.custPO)"></span>
+            </div>
+            <div class="ot-field-row"><span class="ot-label">Salesperson:</span><span class="ot-value" [innerHTML]="hl(o.salesperson)"></span></div>
+          </div>
+          <div class="ot-details-right">
+            <div class="ot-field-row">
+              <span class="ot-label">FMA:</span><span class="ot-value" [innerHTML]="hl(o.fma)"></span>
+              <span class="ot-label ot-inline-gap">Special Items:</span><span class="ot-value ot-bold" [innerHTML]="hl(o.specialItems)"></span>
+            </div>
+            <div class="ot-field-row"><span class="ot-label">X-Lines:</span><span class="ot-value" [innerHTML]="hl(o.xLines)"></span></div>
+            <div class="ot-field-row"><span class="ot-label">Comm - Lines:</span><span class="ot-value" [innerHTML]="hl(o.commLines)"></span></div>
+          </div>
+        </div>
+
+        <!-- Shipping instructions | Release comments -->
+        <div class="ot-shipping-row">
+          <div class="ot-shipping-box">
+            <div class="ot-field-row"><span class="ot-label">Mark Order:</span><span class="ot-value ot-bold" [innerHTML]="hl(o.markOrder)"></span></div>
+            <div class="ot-field-row"><span class="ot-label">Call Before:</span><span class="ot-value ot-bold" [innerHTML]="hl(o.callBefore)"></span></div>
+            @if (o.shippingInstructions) {
+              <div class="ot-field-row"><span class="ot-label">Shipping Instructions:</span><span class="ot-value" [innerHTML]="hl(o.shippingInstructions)"></span></div>
+            }
+            <div class="ot-field-row"><span class="ot-label">Terms:</span><span class="ot-value ot-bold" [innerHTML]="hl(o.terms)"></span></div>
+            @if (o.noPartial) {
+              <div class="ot-field-row"><span class="ot-value" [innerHTML]="hl(o.noPartial)"></span></div>
+            }
+            <div class="ot-field-row"><span class="ot-label">Ship Via:</span><span class="ot-value" [innerHTML]="hl(o.shipVia)"></span></div>
+            @if (o.freightQuoteNumber) {
+              <div class="ot-field-row"><span class="ot-label">Freight Quote Number:</span><span class="ot-value" [innerHTML]="hl(o.freightQuoteNumber)"></span></div>
+            }
+          </div>
+          <div class="ot-release-box">
+            <div class="ot-release-title">Release Comments:</div>
+            <div class="ot-value" [innerHTML]="hl(o.releaseComments)"></div>
+          </div>
+        </div>
+
+        <!-- Metadata footer row -->
+        <div class="ot-meta-row">
+          <div class="ot-meta-col">
+            <div class="ot-field-row"><span class="ot-label">Model Count:</span><span class="ot-value" [innerHTML]="hl(o.modelCount)"></span></div>
+            <div class="ot-field-row"><span class="ot-label">Line Count:</span><span class="ot-value" [innerHTML]="hl(o.lineCount)"></span></div>
+            <div class="ot-field-row"><span class="ot-label">Ctrl Qty:</span><span class="ot-value" [innerHTML]="hl(o.ctrlQty)"></span></div>
+          </div>
+          <div class="ot-meta-col">
+            <div class="ot-field-row"><span class="ot-label">Job Number:</span><span class="ot-value" [innerHTML]="hl(o.jobNumber)"></span></div>
+            <div class="ot-field-row"><span class="ot-label">EDGE:</span><span class="ot-value" [innerHTML]="hl(o.edgeVersion)"></span></div>
+          </div>
+          <div class="ot-meta-col">
+            <div class="ot-field-row"><span class="ot-label">Job Created:</span><span class="ot-value" [innerHTML]="hl(o.jobCreated)"></span></div>
+            <div class="ot-field-row"><span class="ot-label">E Mail:</span><span class="ot-value" [innerHTML]="hl(o.email)"></span></div>
+          </div>
+        </div>
+
+        <div class="ot-page-footer">
+          <span>http://intranet.airsysco.com/EdgeOrders/Viewedge.asp?orderGUID={{ o.jobGuid }}</span>
+          <span class="ot-page-num">Page 1 &nbsp;&nbsp; {{ printDate() }}</span>
+        </div>
+
+      </div><!-- /page 1 -->
+
+      <!-- ═══════════════════════════════════════════════════════
+           PAGE 2+ — Line Items (one section per product type)
+           ═══════════════════════════════════════════════════════ -->
+      <div class="ot-page ot-page-break">
+        <div class="ot-items-section">
+          <div class="ot-list-models-heading">List Models</div>
+          @for (section of o.sections; track $index) {
+            @let cfg = cfgFor(section.xmlType);
+            @if (o.sections.length > 1) {
+              <div class="ot-section-label">{{ cfg.label }}</div>
+            }
+            <!-- ── Block layout (Generic / PEN) ──────────────────────────── -->
+            @if (cfg.renderMode === 'block') {
+              @for (item of section.lineItems; track item['line']; let i = $index) {
+                <div class="ot-generic-block">
+                  <div class="ot-generic-model-header">Model : <span [innerHTML]="hl(item['model'])"></span></div>
+                  <div class="ot-generic-options-grid">
+                    @for (opt of (section.lineItemOptions?.[i] ?? []); track $index) {
+                      <div class="ot-generic-kv-cell">
+                        <span class="ot-generic-kv-name" [innerHTML]="hl(opt.name)"></span>
+                        @if (opt.value) {
+                          <span class="ot-generic-kv-value" [innerHTML]="hl(opt.value)"></span>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <table class="ot-generic-pricing-table" cellpadding="3" cellspacing="0">
+                    <colgroup>
+                      @for (col of cfg.columns; track col.key) {
+                        <col [style.width]="col.widthPct + '%'">
+                      }
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        @for (col of cfg.columns; track col.key) {
+                          <th>{{ col.label }}</th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        @for (col of cfg.columns; track col.key) {
+                          <td [class]="'ot-td-' + col.align" [innerHTML]="hl(item[col.key])"></td>
+                        }
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="ot-generic-tag-row">
+                    Tag: <span [innerHTML]="hl(item['tag'])"></span>&nbsp;&nbsp;&nbsp;Comments: <span [innerHTML]="hl(item['multiplier'])"></span>
+                    @if (item['comment']) { &nbsp;&nbsp;<span [innerHTML]="hl(item['comment'])"></span> }
+                  </div>
+                </div>
+              }
+            <!-- ── KRU block layout (complex fan coil units) ──────────────── -->
+            } @else if (cfg.renderMode === 'kru-block') {
+              @for (item of section.lineItems; track item['line']; let i = $index) {
+                <div class="ot-kru-block">
+                  <div class="ot-kru-block-header">
+                    Line:&nbsp;<span [innerHTML]="hl(item['line'])"></span>&nbsp;&nbsp;
+                    Qty:&nbsp;<span [innerHTML]="hl(item['qty'])"></span>&nbsp;&nbsp;
+                    Model:&nbsp;<span [innerHTML]="hl(item['model'])"></span>
+                  </div>
+                  <div class="ot-kru-block-fields">
+                    @for (bf of cfg.blockFields!; track bf.xmlTag) {
+                      @if ((section.lineItemBlockFields?.[i] ?? {})[bf.xmlTag]) {
+                        <div class="ot-kru-kv-cell">
+                          <span class="ot-kru-kv-name" [innerHTML]="hl(bf.label)"></span>
+                          <span class="ot-kru-kv-value" [innerHTML]="hl((section.lineItemBlockFields![i])[bf.xmlTag])"></span>
+                        </div>
+                      }
+                    }
+                  </div>
+                  <table class="ot-generic-pricing-table" cellpadding="3" cellspacing="0">
+                    <colgroup>
+                      @for (col of cfg.columns; track col.key) {
+                        <col [style.width]="col.widthPct + '%'">
+                      }
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        @for (col of cfg.columns; track col.key) {
+                          <th>{{ col.label }}</th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        @for (col of cfg.columns; track col.key) {
+                          <td [class]="'ot-td-' + col.align" [innerHTML]="hl(item[col.key])"></td>
+                        }
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="ot-kru-block-tag-row">
+                    Tag:&nbsp;<span [innerHTML]="hl(item['tag'])"></span>&nbsp;&nbsp;&nbsp;Comments:&nbsp;<span [innerHTML]="hl(item['multiplier'])"></span>
+                    @if (item['comment']) { &nbsp;&nbsp;<span [innerHTML]="hl(item['comment'])"></span> }
+                  </div>
+                </div>
+              }
+
+            <!-- ── Table layout (all TTS / TNB types) ────────────────────── -->
+            } @else {
+              <table class="ot-items-table" cellpadding="3" cellspacing="0">
+                <colgroup>
+                  @for (col of cfg.columns; track col.key) {
+                    <col [style.width]="col.widthPct + '%'">
+                  }
+                </colgroup>
+
+                <thead>
+                  @for (row of cfg.headerRows; track $index) {
+                    <tr>
+                      @for (cell of row; track $index) {
+                        <th
+                          [attr.rowspan]="cell.rowspan && cell.rowspan > 1 ? cell.rowspan : null"
+                          [attr.colspan]="cell.colspan && cell.colspan > 1 ? cell.colspan : null">
+                          {{ cell.label }}
+                        </th>
+                      }
+                    </tr>
+                  }
+                </thead>
+
+                <tbody>
+                  @for (item of section.lineItems; track item['line']) {
+                    <tr>
+                      @for (col of cfg.columns; track col.key) {
+                        <td [class]="'ot-td-' + col.align" [innerHTML]="hl(item[col.key])"></td>
+                      }
+                    </tr>
+                    <tr class="ot-tag-row">
+                      <td [attr.colspan]="cfg.columns.length">
+                        Tag: <span [innerHTML]="hl(item['tag'])"></span>&nbsp;&nbsp;&nbsp;Comments: <span [innerHTML]="hl(item['multiplier'])"></span>
+                        @if (item['comment']) { &nbsp;&nbsp;<span [innerHTML]="hl(item['comment'])"></span> }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+
+          }<!-- /sections loop -->
+
+          <table class="ot-totals-table" cellpadding="3" cellspacing="0">
+            <tr>
+              <td><strong>TOTALS:</strong></td>
+              <td>Price: <span [innerHTML]="hl(o.baseOrderCost)"></span></td>
+              <td>Set-up Charges: <span [innerHTML]="hl(o.setupCharge)"></span></td>
+              <td>Min. Order Charge:</td>
+              <td>Frt &amp; Surchg: <span [innerHTML]="hl(o.freight)"></span></td>
+              <td>Total Order Cost: <span [innerHTML]="hl(o.totalOrderCost)"></span></td>
+            </tr>
+            <tr>
+              <td colspan="3">TOTAL List Price : <span [innerHTML]="hl(o.totalListPrice)"></span></td>
+              <td colspan="3"></td>
+            </tr>
+          </table>
+
+        </div>
+
+        <div class="ot-page-footer">
+          <span>http://intranet.airsysco.com/EdgeOrders/Viewedge.asp?orderGUID={{ o.jobGuid }}</span>
+          <span class="ot-page-num">Page 2 &nbsp;&nbsp; {{ printDate() }}</span>
+        </div>
+
+      </div><!-- /page 2 -->
+
+      <!-- ═══════════════════════════════════════════════════════
+           SDA Details (all brands — shown only when SDA data present)
+           ═══════════════════════════════════════════════════════ -->
+      @if (o.sdaItems.length) {
+        <div class="ot-page ot-page-break">
+          <div class="ot-list-models-heading">Details of SDA</div>
+
+          @if (o.sdaBrandName) {
+            <div class="ot-sda-meta">
+              <span [innerHTML]="hl(o.sdaBrandName)"></span>
+              @if (o.sdaExpireDate) {
+                &nbsp;&mdash;&nbsp;Expires: <span [innerHTML]="hl(o.sdaExpireDate)"></span>
+              }
+            </div>
+          }
+          @if (o.sdaVersion) {
+            <div class="ot-sda-meta" [innerHTML]="hl(o.sdaVersion)"></div>
+          }
+          @if (o.sdaPaNotes) {
+            <div class="ot-sda-meta">PA Notes: <span [innerHTML]="hl(o.sdaPaNotes)"></span></div>
+          }
+
+          <table class="ot-items-table" cellpadding="3" cellspacing="0">
+            <thead>
+              <tr>
+                <th>User Name</th>
+                <th>SDA Number</th>
+                <th>Category</th>
+                <th>Product</th>
+                <th>Disc. Group</th>
+                <th>Qty</th>
+                <th>Total List</th>
+                <th>Appr. Multiplier</th>
+                <th>App. Net</th>
+                <th>Released</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (sda of o.sdaItems; track $index) {
+                <tr>
+                  <td [innerHTML]="hl(sda.userName)"></td>
+                  <td [innerHTML]="hl(sda.sdaNumber)"></td>
+                  <td [innerHTML]="hl(sda.category)"></td>
+                  <td [innerHTML]="hl(sda.productName)"></td>
+                  <td [innerHTML]="hl(sda.discountGroup)"></td>
+                  <td class="ot-td-right" [innerHTML]="hl(sda.productQty)"></td>
+                  <td class="ot-td-right" [innerHTML]="hl(sda.listPrice)"></td>
+                  <td class="ot-td-right" [innerHTML]="hl(sda.reqMultiplier)"></td>
+                  <td class="ot-td-right" [innerHTML]="hl(sda.appNet)"></td>
+                  <td [innerHTML]="hl(sda.isReleased)"></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+        </div><!-- /sda page -->
+      }
+
+    </div><!-- /document -->
+  }
+
+</div>

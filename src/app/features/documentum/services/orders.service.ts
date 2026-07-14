@@ -1,0 +1,89 @@
+import { inject, Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
+import { DropdownOption, OrderItem } from '../models/order.model';
+import { ApiService } from '../../../core/services/api.service';
+import { ENVIRONMENT } from '../../../core/tokens/environment.token';
+import { OrderSearchRequest, OrderSearchResponse } from '../models/order.model';
+
+@Injectable()
+export class OrdersService {
+  private readonly api = inject(ApiService);
+  private readonly env = inject(ENVIRONMENT);
+
+  search(request: OrderSearchRequest): Observable<OrderSearchResponse> {
+    const params: Record<string, string | number | boolean> = {
+      pageNumber: request.pageNumber,
+      pageSize:   request.pageSize,
+    };
+    if (request.salesOrderNumber) params['salesOrderNumber'] = request.salesOrderNumber;
+    if (request.repPO)            params['repPO']            = request.repPO;
+    if (request.accountNumber)    params['accountNumber']    = request.accountNumber;
+    if (request.productType)      params['productType']      = request.productType;
+    if (request.region)           params['region']           = request.region;
+    if (request.priority)         params['priority']         = request.priority;
+    if (request.brand)            params['brand']            = request.brand;
+    if (request.captureDateFrom)  params['captureDateFrom']  = request.captureDateFrom;
+    if (request.captureDateTo)    params['captureDateTo']    = request.captureDateTo;
+    if (request.jobName)          params['jobName']          = request.jobName;
+    if (request.queueName)        params['queueName']        = request.queueName;
+    if (request.packageOwner)     params['packageOwner']     = request.packageOwner;
+    if (request.repName)          params['repName']          = request.repName;
+    if (request.sortField)        params['sortField']        = request.sortField;
+    if (request.sortDirection)    params['sortDirection']    = request.sortDirection;
+
+    return this.api.get<OrderSearchResponse>(
+      `${this.env.apiBaseUrl}/api/documentum/orders/search`,
+      { params },
+    );
+  }
+
+  getByOrderSeq(orderSeq: number): Observable<OrderItem> {
+    return this.api.get<OrderItem>(
+      `${this.env.apiBaseUrl}/api/documentum/orders/${orderSeq}`,
+    );
+  }
+
+  getBrands(): Observable<DropdownOption[]> {
+    return this.api.get<string[]>(
+      `${this.env.apiBaseUrl}/api/documentum/orders/brands`,
+    ).pipe(
+      map(brands => brands.map(b => ({ label: b, value: b }))),
+    );
+  }
+
+  getQueuesByBrand(brandName: string): Observable<DropdownOption[]> {
+    return this.api.get<string[]>(
+      `${this.env.apiBaseUrl}/api/documentum/orders/queues`,
+      { params: { brandName } },
+    ).pipe(
+      map(queues => queues.map(q => ({ label: q, value: q }))),
+    );
+  }
+
+  getRouteToDepartment(brandName: string): Observable<DropdownOption[]> {
+    return this.api.get<{ queueId: number; queueName: string }[]>(
+      `${this.env.apiBaseUrl}/api/documentum/orders/route-to-department`,
+      { params: { brandName } },
+    ).pipe(
+      map(queues => queues.map(q => ({ label: q.queueName, value: q.queueId.toString() }))),
+    );
+  }
+
+  getRegionsByBrand(brandName: string): Observable<DropdownOption[]> {
+    return this.api.get<{ regionId: number; regionName: string }[]>(
+      `${this.env.apiBaseUrl}/api/documentum/orders/regions`,
+      { params: { brandName } },
+    ).pipe(
+      map(regions => regions.map(r => ({ label: r.regionName, value: r.regionName }))),
+    );
+  }
+
+  getProductTypes(brandName: string): Observable<DropdownOption[]> {
+    return this.api.get<{ productTypeId: number; productTypeName: string }[]>(
+      `${this.env.apiBaseUrl}/api/documentum/orders/product-types`,
+      { params: { brandName } },
+    ).pipe(
+      map(types => types.map(t => ({ label: t.productTypeName, value: t.productTypeName }))),
+    );
+  }
+}

@@ -1,0 +1,14 @@
+// ── Global loading overlay ────────────────────────────────────────────────────
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(7, 7, 15, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .app-loader__title { color: #fff; }
+  .app-loader__sub   { color: rgba(255, 255, 255, 0.6); }
+}

@@ -1,0 +1,156 @@
+// ── Backdrop ─────────────────────────────────────────────────────────────────
+// Blurs and darkens the page content behind the modal.
+::ng-deep .annot-modal-mask {
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  background: rgba(8, 14, 44, 0.62) !important;
+}
+
+// ── Dialog shell ─────────────────────────────────────────────────────────────
+::ng-deep .annot-modal {
+
+  .p-dialog {
+    background: linear-gradient(
+      160deg,
+      rgba(10, 16, 42, 0.97) 0%,
+      rgba(5, 10, 30, 0.98) 100%
+    ) !important;
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-radius: 20px !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    box-shadow:
+      0 0 0 1px rgba(139, 92, 246, 0.18),
+      0 40px 120px rgba(0, 0, 0, 0.65),
+      0 16px 48px rgba(10, 74, 122, 0.32),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    overflow: hidden;
+  }
+
+  // ── Header ──────────────────────────────────────────────────────────────
+  .p-dialog-header {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    padding: 22px 28px 16px !important;
+    position: relative;
+
+    // Purple → indigo gradient accent line at the very top edge
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(139, 92, 246, 0.95) 20%,
+        rgba(99, 102, 241, 1) 50%,
+        rgba(10, 74, 122, 0.85) 80%,
+        transparent 100%
+      );
+    }
+  }
+
+  .p-dialog-title {
+    // color: #f1f5f9 !important;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    text-shadow: 0 1px 12px rgba(139, 92, 246, 0.25);
+  }
+
+  // X close button
+  .p-dialog-close-button,
+  .p-dialog-header-close {
+    // color: rgba(255, 255, 255, 0.38) !important;
+    border-radius: 8px !important;
+    width: 32px !important;
+    height: 32px !important;
+    transition: color 0.15s ease, background 0.15s ease !important;
+
+    .p-dialog-close-icon,
+    .pi {
+      font-size: 13px !important;
+    }
+
+    &:hover {
+      color: #292828 !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
+
+  // ── Content (viewer lives here) ──────────────────────────────────────────
+  .p-dialog-content {
+    background: transparent !important;
+  }
+
+  // ── Footer ──────────────────────────────────────────────────────────────
+  .p-dialog-footer {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    padding: 14px 28px !important;
+  }
+
+  // Footer row layout
+  .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  // Close / ghost button — adapted for dark glass surface
+  .modal-footer .p-button.p-button-text {
+    color: rgba(255, 255, 255, 0.55) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    padding: 8px 18px !important;
+    transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease !important;
+
+    &:hover {
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.07) !important;
+      border-color: rgba(255, 255, 255, 0.22) !important;
+    }
+  }
+
+  // ── Read-only mode: hide annotation toolbar + save button ──────────────
+  &--readonly {
+    // Hide the entire annotation toolbar (Select, Highlight, Draw, Save, etc.)
+    .av-toolbar {
+      display: none !important;
+    }
+    // Also hide any inline save/annotation controls from the viewer
+    .annot-toolbar {
+      display: none !important;
+    }
+  }
+
+  // Premium gradient button — re-declared here because the footer
+  // is teleported outside the page component's style scope.
+  .modal-footer .premium-btn.p-button {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+    border: none !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    padding: 8px 20px !important;
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.45) !important;
+    transition: box-shadow 0.2s ease, transform 0.2s ease !important;
+
+    &:hover {
+      box-shadow: 0 8px 28px rgba(139, 92, 246, 0.6) !important;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}

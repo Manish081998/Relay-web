@@ -1,0 +1,576 @@
+<div class="eo-page" [formGroup]="form">
+
+  <!-- ── Page Header ─────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-row">
+      <h1 class="page-title">Edit Order</h1>
+      @if (isFastTrack()) {
+        <div class="fasttrack-inline">
+          <span class="fasttrack-badge">FASTTRACK</span>
+          <span class="fasttrack-subtitle">{{ marshalFileLabel() }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Line Items ────────────────────────────────────────────────────────── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Line Items</span>
+    </div>
+    <div class="card-body li-card-body">
+
+      @if (lineItemFamilies().length === 0) {
+        <div class="li-empty">No line items.</div>
+      } @else {
+        @let cfg  = cfgFor(lineItemFamilies()[0].familyTag);
+        @let rows = headersFor(cfg);
+        <div class="li-table-wrap">
+          <table class="li-table">
+            <thead>
+              @for (row of rows; track $index; let rowIdx = $index) {
+                <tr>
+                  @if (rowIdx === 0) {
+                    <th [attr.rowspan]="rows.length > 1 ? rows.length : null">Plant Code</th>
+                    <th [attr.rowspan]="rows.length > 1 ? rows.length : null">Alt Plant</th>
+                  }
+                  @for (cell of row; track $index) {
+                    <th
+                      [attr.rowspan]="cell.rowspan ?? null"
+                      [attr.colspan]="cell.colspan ?? null"
+                    >{{ cell.label }}</th>
+                  }
+                </tr>
+              }
+            </thead>
+            <tbody>
+              @for (family of lineItemFamilies(); track family.familyTag) {
+                @for (item of family.items; track item.line) {
+                  @let rec = toRecord(item, cfg);
+                  <tr>
+                    <td>{{ item.plantCode }}</td>
+                    <td>
+                      <button type="button" class="plant-code-btn" (click)="openPlantCodePopup(item)">
+                        {{ item.secondaryPlantCode || '—' }}
+                      </button>
+                    </td>
+                    @for (col of cfg.columns; track col.key) {
+                      <td [class]="'li-td-' + col.align">{{ rec[col.key] }}</td>
+                    }
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+    </div>
+  </div>
+
+  <!-- ── Address Card ───────────────────────────────────────────────────────── -->
+  <div class="card" [class.card--edited]="isEdited('soldTo') || isEdited('shipTo')">
+    <div class="card-header">
+      <span class="card-title">Address</span>
+      @if (isEdited('soldTo') || isEdited('shipTo')) {
+        <span class="edited-badge">Edited</span>
+      }
+    </div>
+
+    <div class="card-body">
+      <div class="address-sides">
+
+        <!-- Sold To -->
+        <div class="address-section" [class.address-section--edited]="isEdited('soldTo')" formGroupName="soldTo">
+          <h3 class="address-label">
+            Sold To
+            @if (isEdited('soldTo')) {
+              <span class="edited-badge">Edited</span>
+            }
+          </h3>
+          <div class="address-col">
+            <div class="field-row">
+              <label class="field-label">Name 1</label>
+              <input pInputText class="field-input" formControlName="name1" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Street 1</label>
+              <input pInputText class="field-input" formControlName="street1" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Street 2</label>
+              <input pInputText class="field-input" formControlName="street2" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">careof</label>
+              <input pInputText class="field-input" formControlName="careof" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">City</label>
+              <input pInputText class="field-input" formControlName="city" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">State</label>
+              <input pInputText class="field-input" formControlName="state" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Zip</label>
+              <input pInputText class="field-input" formControlName="zip" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Attention</label>
+              <input pInputText class="field-input" formControlName="attention" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Country</label>
+              <p-select
+                formControlName="country"
+                [options]="countries()"
+                optionLabel="name"
+                optionValue="code"
+                styleClass="field-select"
+                panelStyleClass="edit-order-select-panel"
+                appendTo="body"
+                placeholder="Select country…"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="side-divider"></div>
+
+        <!-- Ship To -->
+        <div class="address-section" [class.address-section--edited]="isEdited('shipTo')" formGroupName="shipTo">
+          <h3 class="address-label">
+            Ship To
+            @if (isEdited('shipTo')) {
+              <span class="edited-badge">Edited</span>
+            }
+          </h3>
+          <div class="address-col">
+            <div class="field-row">
+              <label class="field-label">Name 1</label>
+              <input pInputText class="field-input" formControlName="name1" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Street 1</label>
+              <input pInputText class="field-input" formControlName="street1" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Street 2</label>
+              <input pInputText class="field-input" formControlName="street2" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">careof</label>
+              <input pInputText class="field-input" formControlName="careof" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">City</label>
+              <input pInputText class="field-input" formControlName="city" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">State</label>
+              <input pInputText class="field-input" formControlName="state" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Zip</label>
+              <input pInputText class="field-input" formControlName="zip" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Attention</label>
+              <input pInputText class="field-input" formControlName="attention" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <label class="field-label">Country</label>
+              <p-select
+                formControlName="country"
+                [options]="countries()"
+                optionLabel="name"
+                optionValue="code"
+                styleClass="field-select"
+                panelStyleClass="edit-order-select-panel"
+                appendTo="body"
+                placeholder="Select country…"
+              />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Bottom Row: Brand Info + Marketing Program ─────────────────────────── -->
+  <div class="bottom-row">
+
+    <!-- Brand / Account Info -->
+    <div class="card" [class.card--edited]="isEdited('brandAccount')" formGroupName="brandAccount">
+      <div class="card-header">
+        <span class="card-title">Brand / Account Info</span>
+        @if (isEdited('brandAccount')) {
+          <span class="edited-badge">Edited</span>
+        }
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">Rep Account No</label>
+            <input pInputText class="field-input" formControlName="repAccountNo" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Phone</label>
+            <input pInputText class="field-input" formControlName="phone" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Fax</label>
+            <input pInputText class="field-input" formControlName="fax" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marketing Program -->
+    <div class="card" [class.card--edited]="isEdited('marketingProgram')" formGroupName="marketingProgram">
+      <div class="card-header">
+        <span class="card-title">Marketing Program</span>
+        @if (isEdited('marketingProgram')) {
+          <span class="edited-badge">Edited</span>
+        }
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">Program Code</label>
+            <input pInputText class="field-input" formControlName="programCode" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Program</label>
+            <input pInputText class="field-input" formControlName="program" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Secure SDA</label>
+            <input type="checkbox" id="secureSda" class="sda-check"
+              [formControl]="form.controls.marketingProgram.controls.secureSda" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Order Info Card ──────────────────────────────────────────────────────── -->
+  <div class="card" [class.card--edited]="isEdited('orderInfo')" formGroupName="orderInfo">
+    <div class="card-header">
+      <span class="card-title">Order Info</span>
+      @if (isEdited('orderInfo')) {
+        <span class="edited-badge">Edited</span>
+      }
+    </div>
+    <div class="card-body">
+      <div class="order-info-grid">
+        <div class="field-row">
+          <label class="field-label">Order Date</label>
+          <input pInputText class="field-input" formControlName="orderDate" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Rep P O No</label>
+          <input pInputText class="field-input" formControlName="repPoNo" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Customer P O No</label>
+          <input pInputText class="field-input" formControlName="customerPoNo" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Cust Account No</label>
+          <input pInputText class="field-input" formControlName="custAccountNo" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Job Name</label>
+          <input pInputText class="field-input" formControlName="jobName" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Sales Person</label>
+          <input pInputText class="field-input" formControlName="salesPerson" autocomplete="off" />
+        </div>
+        <div class="field-row order-info-full">
+          <label class="field-label">Job Guid</label>
+          <input pInputText class="field-input" formControlName="jobGuid" autocomplete="off" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Shipping Card ────────────────────────────────────────────────────────── -->
+  <div class="card" [class.card--edited]="isEdited('shippingMethod') || isEdited('shippingCharges')">
+    <div class="card-header">
+      <span class="card-title">Shipping</span>
+      @if (isEdited('shippingMethod') || isEdited('shippingCharges')) {
+        <span class="edited-badge">Edited</span>
+      }
+    </div>
+    <div class="card-body">
+      <div class="subsection-label subsection-label--first">Shipping Method</div>
+      <div class="address-col" formGroupName="shippingMethod">
+        <div class="field-row">
+          <label class="field-label">Ship Via</label>
+          <input pInputText class="field-input" formControlName="shipVia" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Call Before Delivery</label>
+          <input pInputText class="field-input" formControlName="callBeforeDelivery" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Terms</label>
+          <input pInputText class="field-input" formControlName="terms" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Mark Order</label>
+          <input pInputText class="field-input" formControlName="markOrder" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">No Partial</label>
+          <input pInputText class="field-input" formControlName="noPartial" autocomplete="off" />
+        </div>
+        <div class="field-row">
+          <label class="field-label">Shipping Instructions</label>
+          <input pInputText class="field-input" formControlName="shippingInstructions" autocomplete="off" />
+        </div>
+        <div class="field-row shipping-terms-row">
+          <label class="field-label">Ship Terms</label>
+          <div class="field-input-wrap">
+            <p-select
+              formControlName="shipTerms"
+              [options]="shipTermsOptions()"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="field-select"
+              panelStyleClass="edit-order-select-panel"
+              appendTo="body"
+              placeholder="Select ship terms…"
+            />
+            <span class="field-helper">Leave Ship Terms blank for standard shipping.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shipping-subsection-divider"></div>
+
+      <div class="subsection-label">Shipping Charges</div>
+      <div class="address-col" formGroupName="shippingCharges">
+        <div class="field-row shipping-full">
+          <label class="field-label">Comments To Factory</label>
+          <input pInputText class="field-input" formControlName="commentsToFactory" autocomplete="off" />
+        </div>
+        <div class="field-row shipping-full">
+          <label class="field-label">Customer Service Request</label>
+          <input pInputText class="field-input" formControlName="customerServiceRequest" autocomplete="off" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Quantity Info + Pricing Totals ───────────────────────────────────────── -->
+  <div class="bottom-row">
+
+    <!-- Quantity Info -->
+    <div class="card" [class.card--edited]="isEdited('quantityInfo')" formGroupName="quantityInfo">
+      <div class="card-header">
+        <span class="card-title">Quantity Info</span>
+        @if (isEdited('quantityInfo')) {
+          <span class="edited-badge">Edited</span>
+        }
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">Job Number</label>
+            <input pInputText class="field-input" formControlName="jobNumber" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Model Count</label>
+            <input pInputText class="field-input" formControlName="modelCount" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Version Number</label>
+            <input pInputText class="field-input" formControlName="versionNumber" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Product Version</label>
+            <input pInputText class="field-input" formControlName="productVersion" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Line Count</label>
+            <input pInputText class="field-input" formControlName="lineCount" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">brandlogo</label>
+            <input pInputText class="field-input" formControlName="brandlogo" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Job Initiated Date</label>
+            <input pInputText class="field-input" formControlName="jobInitiatedDate" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">email</label>
+            <input pInputText class="field-input" formControlName="email" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing Totals -->
+    <div class="card" [class.card--edited]="isEdited('pricingTotals')" formGroupName="pricingTotals">
+      <div class="card-header">
+        <span class="card-title">Pricing Totals</span>
+        @if (isEdited('pricingTotals')) {
+          <span class="edited-badge">Edited</span>
+        }
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">Base Order Cost</label>
+            <input pInputText class="field-input" formControlName="baseOrderCost" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Setup Charge</label>
+            <input pInputText class="field-input" formControlName="setupCharge" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Freight</label>
+            <input pInputText class="field-input" formControlName="freight" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Total Order Cost</label>
+            <input pInputText class="field-input" formControlName="totalOrderCost" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Total List Price</label>
+            <input pInputText class="field-input" formControlName="totalListPrice" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Net Minus Freight</label>
+            <input pInputText class="field-input" formControlName="netMinusFreight" autocomplete="off" />
+          </div>
+          <div class="field-row pricing-full">
+            <label class="field-label">Freight Quote Number</label>
+            <input pInputText class="field-input" formControlName="freightQuoteNumber" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Special Info + Special Items ─────────────────────────────────────────── -->
+  <div class="bottom-row">
+
+    <!-- Special Info -->
+    <div class="card" [class.card--edited]="isEdited('specialInfo')" formGroupName="specialInfo">
+      <div class="card-header">
+        <span class="card-title">Special Info</span>
+        @if (isEdited('specialInfo')) {
+          <span class="edited-badge">Edited</span>
+        }
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">S D A No</label>
+            <input pInputText class="field-input" formControlName="sdaNo" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">F M A</label>
+            <input pInputText class="field-input" formControlName="fma" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Special Items -->
+    <div class="card" [class.card--edited]="isEdited('specialItems')" formGroupName="specialItems">
+      <div class="card-header">
+        <span class="card-title">Special Items</span>
+        @if (isEdited('specialItems')) {
+          <span class="edited-badge">Edited</span>
+        }
+      </div>
+      <div class="card-body">
+        <div class="address-col">
+          <div class="field-row">
+            <label class="field-label">Is Special</label>
+            <input pInputText class="field-input" formControlName="isSpecial" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">X Lines</label>
+            <input pInputText class="field-input" formControlName="xLines" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Comm Lines</label>
+            <input pInputText class="field-input" formControlName="commLines" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">Ctrl Qty</label>
+            <input pInputText class="field-input" formControlName="ctrlQty" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label class="field-label">F M A Lines</label>
+            <input pInputText class="field-input" formControlName="fmaLines" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Page Actions ───────────────────────────────────────────────────────── -->
+  <div class="page-actions">
+    <button type="button" class="btn-cancel" (click)="cancelChanges()">Cancel Changes</button>
+    <button type="button" class="btn-submit" [disabled]="!hasEdits() || isSubmitting()" (click)="submitChanges()">
+      {{ isSubmitting() ? 'Saving…' : 'Save and Submit to MacPac' }}
+    </button>
+  </div>
+
+</div>
+
+<!-- ── Submit Confirmation ───────────────────────────────────────────────────── -->
+<app-confirmation-dialog
+  [isOpen]="showSubmitConfirm()"
+  title="Submit Order"
+  description="Do you want to submit this order to MacPac?"
+  confirmLabel="Submit"
+  confirmVariant="primary"
+  (confirmed)="onSubmitConfirmed()"
+  (cancelled)="showSubmitConfirm.set(false)"
+/>
+
+<!-- ── Plant Code Popup ──────────────────────────────────────────────────────── -->
+<p-dialog
+  [visible]="plantCodePopupVisible()"
+  (visibleChange)="plantCodePopupVisible.set($event)"
+  [modal]="true"
+  [closable]="false"
+  [draggable]="false"
+  [resizable]="false"
+  header="Select Plant Code"
+  [style]="{ width: '340px' }"
+  styleClass="pc-modal"
+>
+  <div class="pc-dialog-body">
+    <label class="pc-label">Select PlantCode</label>
+    <p-select
+      [options]="plantCodeOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [formControl]="plantCodeControl"
+      styleClass="field-select"
+      panelStyleClass="edit-order-select-panel"
+      appendTo="body"
+      placeholder="Select plant code…"
+    />
+  </div>
+  <div class="pc-dialog-footer">
+    <button type="button" class="btn-cancel" (click)="closePlantCodePopup()">Cancel</button>
+    <button type="button" class="btn-submit" (click)="savePlantCode()">Save</button>
+  </div>
+</p-dialog>

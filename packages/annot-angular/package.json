@@ -1,0 +1,38 @@
+{
+  "name": "@adticorp/annot-angular",
+  "version": "1.0.0",
+  "description": "Angular components and services for the annotation library",
+  "license": "UNLICENSED",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "ng-packagr -p ng-package.json",
+    "build:watch": "ng-packagr -p ng-package.json --watch"
+  },
+  "peerDependencies": {
+    "@adticorp/annot-core": "*",
+    "@adticorp/annot-renderer": "*",
+    "@angular/common": ">=17.0.0",
+    "@angular/core": ">=17.0.0",
+    "@angular/forms": ">=17.0.0",
+    "pdf-lib": ">=1.17.0"
+  },
+  "devDependencies": {
+    "@adticorp/annot-core": "*",
+    "@adticorp/annot-renderer": "*",
+    "@angular/common": "^17.0.0",
+    "@angular/compiler": "^17.0.0",
+    "@angular/compiler-cli": "^17.0.0",
+    "@angular/core": "^17.0.0",
+    "@angular/forms": "^17.0.0",
+    "ng-packagr": "^17.0.0",
+    "pdf-lib": "^1.17.1",
+    "typescript": "^5.4.0"
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "access": "public"
+  }
+}

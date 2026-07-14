@@ -1,0 +1,104 @@
+<div class="header-wrapper">
+  <header class="header" role="banner">
+    <div class="header-left">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        @for (crumb of breadcrumbTrail(); track $index; let first = $first; let last = $last) {
+          @if (!first) {
+            <svg class="breadcrumb__sep" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                 aria-hidden="true">
+              <path d="M9 5l7 7-7 7"/>
+            </svg>
+          }
+          @if (last) {
+            <span class="breadcrumb__current">{{ crumb }}</span>
+          } @else if (first) {
+            <span class="breadcrumb__root">
+              <svg class="breadcrumb__home-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   aria-hidden="true">
+                <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+              </svg>
+              {{ crumb }}
+            </span>
+          } @else {
+            <span class="breadcrumb__root">{{ crumb }}</span>
+          }
+        }
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <!-- User identity pill with account dropdown -->
+      @if (user(); as u) {
+        <div class="user-menu"
+             [class.is-open]="dropdownOpen()"
+             role="navigation"
+             aria-label="User account"
+             (mouseenter)="dropdownOpen.set(true)"
+             (mouseleave)="dropdownOpen.set(false)">
+          <button class="user-pill" tabindex="0" role="button" aria-haspopup="true" aria-label="Account menu" type="button">
+            <div class="user-avatar">{{ u.displayName | initials }}</div>
+            <div class="user-info">
+              <span class="user-name">{{ u.displayName }}</span>
+              <span class="user-role">{{ u.roles[0] }}</span>
+            </div>
+            <svg class="user-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          <div class="user-dropdown" role="menu">
+            <div class="user-dropdown__header">
+              <div class="user-dropdown__avatar">{{ u.displayName | initials }}</div>
+              <div class="user-dropdown__meta">
+                <span class="user-dropdown__name">{{ u.displayName }}</span>
+                <span class="user-dropdown__email">{{ u.email }}</span>
+                <span class="user-dropdown__role-badge">{{ u.roles[0] }}</span>
+                @if (u.brandName) {
+                  <span class="user-dropdown__brand">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
+                      <line x1="7" y1="7" x2="7.01" y2="7"/>
+                    </svg>
+                    {{ u.brandName }}
+                  </span>
+                }
+              </div>
+            </div>
+            <div class="user-dropdown__sep" role="separator"></div>
+            <a class="user-dropdown__item" routerLink="/profile" role="menuitem"
+               (click)="dropdownOpen.set(false)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              My Profile
+            </a>
+            <div class="user-dropdown__sep" role="separator"></div>
+            <button class="user-dropdown__signout" role="menuitem"
+                    (click)="onSignOutClick()" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              Sign Out
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </header>
+</div>
+
+<app-confirmation-dialog
+  [isOpen]="signOutModalOpen()"
+  title="Sign Out"
+  description="Are you sure you want to sign out?"
+  confirmLabel="Sign Out"
+  confirmVariant="danger"
+  (confirmed)="onSignOutConfirm()"
+  (cancelled)="signOutModalOpen.set(false)"
+/>

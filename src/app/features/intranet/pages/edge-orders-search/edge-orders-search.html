@@ -1,0 +1,336 @@
+<div class="eo-page">
+
+  <!-- ── Search Panel ──────────────────────────────────────────────────────── -->
+  <div class="panel">
+    <div class="panel-header">
+      <i class="pi pi-sliders-h"></i>
+      <span>Search Criteria</span>
+    </div>
+
+    <form class="form" [formGroup]="form" (ngSubmit)="onSearch()">
+      <div class="grid">
+
+        <div class="field">
+          <label for="emailAddress">E-Mail Address</label>
+          <input id="emailAddress" pInputText type="text" formControlName="emailAddress" autocomplete="off" placeholder="user@example.com" />
+        </div>
+
+        <div class="field">
+          <label for="pcUserName">PC UserName</label>
+          <input id="pcUserName" pInputText type="text" formControlName="pcUserName" autocomplete="off" placeholder="Username" />
+        </div>
+
+        <div class="field">
+          <label for="release">Release</label>
+          <input id="release" pInputText type="text" formControlName="release" autocomplete="off" placeholder="Release number" />
+        </div>
+
+        <div class="field">
+          <label for="repPo">Rep PO</label>
+          <input id="repPo" pInputText type="text" formControlName="repPo" autocomplete="off" placeholder="PO number" />
+        </div>
+
+        <div class="field">
+          <label for="dateTime">Recorded Date</label>
+          <p-datepicker
+            inputId="dateTime"
+            formControlName="dateTime"
+            dateFormat="mm/dd/yy"
+            placeholder="MM/DD/YYYY"
+            appendTo="body"
+            inputStyleClass="w-full"
+          />
+        </div>
+
+        <div class="field">
+          <label for="releaseName">Release Name</label>
+          <input id="releaseName" pInputText type="text" formControlName="releaseName" autocomplete="off" placeholder="Release name" />
+        </div>
+
+      </div>
+
+      <div class="actions">
+        <div class="records-field">
+          <label for="noRecords">Records</label>
+          <input id="noRecords" pInputText type="text" inputmode="numeric" formControlName="noRecords" autocomplete="off" placeholder="50" />
+        </div>
+        <button type="button" class="btn-clear" (click)="onClear()">
+          <i class="pi pi-refresh"></i> Clear
+        </button>
+        <button type="submit" class="btn-search">
+          <i class="pi pi-search"></i> Search
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ── Record Summary ────────────────────────────────────────────────────── -->
+  @if (searched() && !loading()) {
+    <div class="eo-toolbar">
+      <div class="eo-summary">
+        Total Records: <strong>{{ totalCount() }}</strong>
+        @if (hasActiveSort) {
+          <span class="filter-badge">
+            <i class="pi pi-sort-alt"></i> Sorted
+          </span>
+        }
+      </div>
+      <div class="eo-toolbar-actions">
+        @if (hasActiveSort) {
+          <button class="btn-clear-filters" (click)="clearSort()">
+            <i class="pi pi-sort-alt-slash"></i> Clear Sort
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── Results Grid ───────────────────────────────────────────────────────── -->
+  <div class="eo-grid-wrap">
+
+    <div class="eo-tbl-scroll">
+      <table class="eo-tbl" [class.resizable]="!loading()">
+        <thead>
+          <tr>
+            @if (showEdiColumn()) {
+              <th class="col-edit" style="width:44px;min-width:44px"></th>
+            }
+            <th class="sortable" [class.sort-active]="sortField() === 'releaseNumber'" style="width:100px;min-width:60px" (click)="onSort('releaseNumber')" #thRelease>
+              Release
+              <span class="sort-icon">
+                @if (sortField() === 'releaseNumber') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thRelease)"></span>
+            </th>
+            <th class="sortable" [class.sort-active]="sortField() === 'releaseName'" style="width:180px;min-width:80px" (click)="onSort('releaseName')" #thReleaseName>
+              Release Name
+              <span class="sort-icon">
+                @if (sortField() === 'releaseName') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thReleaseName)"></span>
+            </th>
+            <th class="sortable" [class.sort-active]="sortField() === 'accountNumber'" style="width:100px;min-width:60px" (click)="onSort('accountNumber')" #thAcct>
+              Account #
+              <span class="sort-icon">
+                @if (sortField() === 'accountNumber') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thAcct)"></span>
+            </th>
+            <th class="sortable" [class.sort-active]="sortField() === 'name'" style="width:160px;min-width:80px" (click)="onSort('name')" #thName>
+              PC User Name
+              <span class="sort-icon">
+                @if (sortField() === 'name') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thName)"></span>
+            </th>
+            <th class="sortable" [class.sort-active]="sortField() === 'repPO'" style="width:100px;min-width:60px" (click)="onSort('repPO')" #thRepPO>
+              Rep PO
+              <span class="sort-icon">
+                @if (sortField() === 'repPO') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thRepPO)"></span>
+            </th>
+            <th class="sortable col-r" [class.sort-active]="sortField() === 'lineItems'" style="width:70px;min-width:50px" (click)="onSort('lineItems')" #thLine>
+              Line Items
+              <span class="sort-icon">
+                @if (sortField() === 'lineItems') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thLine)"></span>
+            </th>
+            <th class="sortable col-r" [class.sort-active]="sortField() === 'totalNet'" style="width:90px;min-width:60px" (click)="onSort('totalNet')" #thNet>
+              Total Net
+              <span class="sort-icon">
+                @if (sortField() === 'totalNet') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thNet)"></span>
+            </th>
+            <th class="sortable" [class.sort-active]="sortField() === 'emailId'" style="width:180px;min-width:100px" (click)="onSort('emailId')" #thEmail>
+              Email
+              <span class="sort-icon">
+                @if (sortField() === 'emailId') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thEmail)"></span>
+            </th>
+            <th class="sortable" [class.sort-active]="sortField() === 'marketingProgram'" style="width:110px;min-width:70px" (click)="onSort('marketingProgram')" #thMktg>
+              Mktg Program
+              <span class="sort-icon">
+                @if (sortField() === 'marketingProgram') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thMktg)"></span>
+            </th>
+            <th class="sortable" [class.sort-active]="sortField() === 'orderRecdDate'" style="width:130px;min-width:80px" (click)="onSort('orderRecdDate')" #thDate>
+              Recorded Date
+              <span class="sort-icon">
+                @if (sortField() === 'orderRecdDate') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thDate)"></span>
+            </th>
+            <th class="sortable" [class.sort-active]="sortField() === 'brand'" style="width:80px;min-width:50px" (click)="onSort('brand')" #thBrand>
+              Brand
+              <span class="sort-icon">
+                @if (sortField() === 'brand') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thBrand)"></span>
+            </th>
+            <th class="sortable" [class.sort-active]="sortField() === 'orderSource'" style="width:90px;min-width:60px" (click)="onSort('orderSource')" #thSource>
+              Order Source
+              <span class="sort-icon">
+                @if (sortField() === 'orderSource') {
+                  <i class="pi" [class.pi-sort-amount-up-alt]="sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortDirection() === 'desc'"></i>
+                } @else {
+                  <i class="pi pi-sort-alt"></i>
+                }
+              </span>
+              <span class="col-resize-handle" (mousedown)="onResizeStart($event, thSource)"></span>
+            </th>
+            <th style="width:72px;min-width:60px">XML File</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            @for (_ of skeletonRows; track $index; let i = $index) {
+              <tr class="sk-row" [class.row-alt]="i % 2 !== 0" [style.animation-delay]="(i * 80) + 'ms'">
+                @if (showEdiColumn()) {
+                  <td class="col-edit"><div class="sk-pill" style="width:20px;height:20px;border-radius:3px"></div></td>
+                }
+                <td><div class="sk-pill" [style.width]="(55 + (i * 7) % 30) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(50 + (i * 11) % 35) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(45 + (i * 13) % 30) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(50 + (i * 9) % 35) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(55 + (i * 7) % 25) + '%'"></div></td>
+                <td><div class="sk-pill" style="width:40%"></div></td>
+                <td><div class="sk-pill" style="width:45%"></div></td>
+                <td><div class="sk-pill" [style.width]="(50 + (i * 11) % 40) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(45 + (i * 13) % 30) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(60 + (i * 7) % 25) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(40 + (i * 9) % 30) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(50 + (i * 11) % 25) + '%'"></div></td>
+                <td><div class="sk-pill" [style.width]="(45 + (i * 7) % 35) + '%'"></div></td>
+              </tr>
+            }
+          } @else {
+          @for (row of orders(); track row.releaseNumber; let i = $index) {
+            <tr [class.row-alt]="i % 2 !== 0">
+              @if (showEdiColumn()) {
+                <td class="col-edit">
+                  <a class="link-edi" (click)="openEditOrder(row)">EDI</a>
+                </td>
+              }
+              <td class="cell-release">
+                @if (row.xmlMacPacOrder) {
+                  <button type="button" class="release-btn" (click)="openOrderTransmittal(row)">
+                    {{ row.releaseNumber }}
+                  </button>
+                } @else {
+                  {{ row.releaseNumber }}
+                }
+              </td>
+              <td class="cell-trunc">{{ row.releaseName }}</td>
+              <td>{{ row.accountNumber }}</td>
+              <td class="cell-trunc">{{ row.name }}</td>
+              <td>{{ row.repPO }}</td>
+              <td class="col-r">{{ row.lineItems }}</td>
+              <td class="col-r">{{ row.totalNet }}</td>
+              <td class="cell-trunc">{{ row.emailId }}</td>
+              <td>{{ row.marketingProgram }}</td>
+              <td>{{ row.orderRecdDate | date:'MM/dd/yy hh:mm a' }}</td>
+              <td>{{ row.brand }}</td>
+              <td>{{ row.orderSource }}</td>
+              <td>
+                @if (row.xmlMacPacOrder) {
+                  <button type="button" class="xml-btn" (click)="openXml(row)">
+                    View XML
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="showEdiColumn() ? 14 : 13" class="cell-empty">
+                @if (searched()) {
+                  <i class="pi pi-inbox"></i> No records found matching your criteria.
+                } @else {
+                  <i class="pi pi-search"></i> Enter search criteria above and click Search.
+                }
+              </td>
+            </tr>
+          }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (loading()) {
+      <div class="app-loading-overlay">
+        <div class="app-loader">
+          <div class="app-dots"><span class="app-dot"></span><span class="app-dot"></span><span class="app-dot"></span></div>
+          <span class="app-loader__title">Please wait while we set things up for you...</span>
+          <span class="app-loader__sub">This might take a few seconds</span>
+        </div>
+      </div>
+    }
+
+    <!-- Pagination -->
+    @if (searched() && totalCount() > 0) {
+      <div class="eo-pager">
+        <span class="pg-info">
+          Page {{ currentPage() }} of {{ totalPages() }}
+          &nbsp;·&nbsp;
+          {{ totalCount() | number }} total records
+        </span>
+        <button class="pg-btn" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">
+          &#8249; Prev
+        </button>
+        <button class="pg-btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)">
+          Next &#8250;
+        </button>
+      </div>
+    }
+
+  </div>
+
+</div>

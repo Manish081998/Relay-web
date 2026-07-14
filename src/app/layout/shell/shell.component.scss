@@ -1,0 +1,23 @@
+@use '../../../styles/theme' as t;
+
+.shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: t.$color-bg-page;
+  gap: 0;
+}
+
+.shell-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.shell-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: t.$space-2 t.$space-6 t.$space-4;
+}

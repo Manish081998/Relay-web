@@ -1,0 +1,747 @@
+// ── App chrome ───────────────────────────────────────────────────────────────
+
+.ot-wrapper {
+  width: 100%;
+  min-height: 90vh;
+  background: #e5e5e5;
+  padding: 0 10px;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.ot-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: #1c3a66;
+  border-radius: 6px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.ot-toolbar-title {
+  flex: 1;
+  color: #c4b5fd;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ot-btn {
+  padding: 6px 14px;
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+
+  &:hover {
+    background: #6d28d9;
+  }
+}
+
+// ── Toolbar search ────────────────────────────────────────────────────────────
+
+.ot-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  max-width: 340px;
+}
+
+.ot-search-ico {
+  position: absolute;
+  left: 8px;
+  width: 12px;
+  height: 28px;
+  color: #8b9dc3;
+  pointer-events: none;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+// The input+icon are wrapped in a relative container inside .ot-search-wrap
+.ot-search-input-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.ot-search-input {
+  height: 28px;
+  padding: 0 8px 0 28px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 5px;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+
+  &::placeholder {
+    color: #6b82a8;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25);
+  }
+}
+
+.ot-match-count {
+  font-size: 10.5px;
+  color: #8b9dc3;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ot-match-num {
+  font-weight: 700;
+  color: #e3b341;
+}
+
+.ot-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  color: #8b9dc3;
+  cursor: pointer;
+  transition:
+    background 120ms,
+    color 120ms;
+  padding: 0;
+  flex-shrink: 0;
+
+  svg {
+    width: 9px;
+    height: 6px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #e2e8f0;
+  }
+}
+
+.ot-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: none;
+  border: none;
+  color: #6b82a8;
+  cursor: pointer;
+  transition: color 120ms;
+  padding: 0;
+  flex-shrink: 0;
+
+  svg {
+    width: 9px;
+    height: 9px;
+  }
+  &:hover {
+    color: #e2e8f0;
+  }
+}
+
+// ── Search highlights ─────────────────────────────────────────────────────────
+
+mark.ot-hl {
+  background: rgba(255, 211, 61, 0.35);
+  color: #7c4a00;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-style: normal;
+}
+
+mark.ot-hl.ot-hl-active {
+  background: rgba(255, 170, 0, 0.65);
+  color: #3d2000;
+  outline: 1px solid rgba(255, 200, 50, 0.8);
+}
+
+.ot-error {
+  color: #f87171;
+  padding: 16px;
+  background: #2d1b1b;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+// ── Document container ────────────────────────────────────────────────────────
+
+.ot-document {
+  background: #fff;
+  color: #111;
+  width: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  zoom: 1.5;
+}
+
+.ot-page-break {
+  border-top: 2px dashed #aaa;
+}
+
+// ── Typography primitives ─────────────────────────────────────────────────────
+
+.ot-label {
+  color: #6b7280;
+  font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ot-value {
+  color: #111;
+  font-size: 14px;
+}
+
+.ot-value-lg {
+  color: #111;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.ot-bold {
+  font-weight: 700;
+}
+
+.ot-field-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+
+  &--offset {
+    padding-left: 60px;
+  }
+}
+
+.ot-inline-gap {
+  margin-left: 16px;
+}
+
+// ── Title row ─────────────────────────────────────────────────────────────────
+
+.ot-doc-header {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-doc-header-left,
+.ot-doc-header-right {
+  flex: 1;
+  padding: 10px 16px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.ot-doc-header-left {
+  border-right: 1px solid #ccc;
+}
+
+// ── Rep / Amount / Program band ───────────────────────────────────────────────
+
+.ot-band {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-band-col {
+  flex: 1;
+  // padding: 18px 20px;
+
+  &:not(:last-child) {
+    border-right: 1px solid #ccc;
+  }
+
+  &--center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+// ── Sold To / Ship To ─────────────────────────────────────────────────────────
+
+.ot-address-row {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-address-box {
+  flex: 1;
+  padding: 18px 20px;
+
+  &:not(:last-child) {
+    border-right: 1px solid #ccc;
+  }
+}
+
+.ot-section-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: #374151;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+// ── Order details ─────────────────────────────────────────────────────────────
+
+.ot-details-band {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-details-left,
+.ot-details-right {
+  flex: 1;
+  padding: 18px 20px;
+}
+
+.ot-details-left {
+  border-right: 1px solid #ccc;
+}
+
+// ── Shipping / Release comments ───────────────────────────────────────────────
+
+.ot-shipping-row {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-shipping-box,
+.ot-release-box {
+  flex: 1;
+  padding: 18px 20px;
+}
+
+.ot-shipping-box {
+  border-right: 1px solid #ccc;
+}
+
+.ot-release-title {
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: underline;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+// ── Metadata row ──────────────────────────────────────────────────────────────
+
+.ot-meta-row {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-meta-col {
+  flex: 1;
+  padding: 14px 20px;
+
+  &:not(:last-child) {
+    border-right: 1px solid #ccc;
+  }
+}
+
+// ── Page footer ───────────────────────────────────────────────────────────────
+
+.ot-page-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 10px;
+  color: #6b7280;
+  border-top: 1px solid #ccc;
+}
+
+.ot-page-num {
+  font-weight: 600;
+}
+
+// ── Page 2: line items ────────────────────────────────────────────────────────
+
+.ot-items-section {
+  padding: 0 16px 12px;
+}
+
+.ot-list-models-heading {
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 14px 0 8px;
+}
+
+.ot-sda-meta {
+  font-size: 11px;
+  padding: 2px 0;
+}
+
+.ot-section-label {
+  font-weight: 600;
+  font-size: 12px;
+  color: #374151;
+  background: #f0f0f0;
+  border: 1px solid #d1d5db;
+  border-bottom: none;
+  padding: 4px 8px;
+  margin-top: 16px;
+}
+
+.ot-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-bottom: 50px;
+  th {
+    border: 1px solid #000;
+    padding: 3px 4px;
+    background: #f0f0f0;
+    text-align: center;
+    font-weight: bolder;
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  td {
+    border: 1px solid #000;
+    padding: 3px 4px;
+    vertical-align: middle;
+     font-size: 11px;
+    font-weight: 600;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+    word-break: break-word;
+  }
+}
+
+.ot-tag-row td {
+  background: #fafafa;
+  font-size: 10px;
+  color: #555;
+  padding: 2px 6px 4px;
+  border: 1px solid #ddd;
+}
+
+.ot-totals-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+
+  td {
+    border: 1px solid #000;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+
+// Legacy aliases kept for any external references.
+.ot-center {
+  text-align: center;
+}
+.ot-right {
+  text-align: right;
+}
+
+// Generated by config-driven table (col.align → 'ot-td-' + col.align).
+.ot-td-left {
+  text-align: left;
+}
+.ot-td-center {
+  text-align: center;
+}
+.ot-td-right {
+  text-align: right;
+}
+
+// ── Generic block layout (renderMode: 'block') ────────────────────────────────
+
+.ot-generic-block {
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-family: Arial, Helvetica, sans-serif;
+  page-break-inside: avoid;
+}
+
+.ot-generic-model-header {
+  background: #e8e8e8;
+  border-bottom: 1px solid #bbb;
+  padding: 4px 8px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.ot-generic-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 4px 8px 6px;
+  border-bottom: 1px solid #ccc;
+}
+
+.ot-generic-kv-cell {
+  padding: 2px 4px;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ot-generic-kv-name {
+  display: inline;
+  font-style: italic;
+  color: #666;
+  font-size: 11px;
+}
+
+.ot-generic-kv-value {
+  display: inline;
+  color: #111;
+  font-weight: 500;
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+.ot-generic-pricing-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+
+  th {
+    border: 1px solid #000;
+    padding: 3px 4px;
+    background: #f0f0f0;
+    text-align: center;
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  td {
+    border: 1px solid #000;
+    padding: 3px 4px;
+    vertical-align: middle;
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+}
+
+.ot-generic-tag-row {
+  background: #fafafa;
+  font-size: 10px;
+  color: #555;
+  padding: 2px 8px 4px;
+  border-top: 1px solid #ddd;
+}
+
+// ── KRU block layout (renderMode: 'kru-block') ────────────────────────────────
+
+.ot-kru-block {
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-family: Arial, Helvetica, sans-serif;
+  page-break-inside: avoid;
+}
+
+.ot-kru-block-header {
+  background: #d8e4f0;
+  border-bottom: 1px solid #9bb8d4;
+  padding: 4px 8px;
+  font-weight: bold;
+  font-size: 12px;
+  color: #1a3a5c;
+}
+
+.ot-kru-block-fields {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 4px 8px 6px;
+  border-bottom: 1px solid #ccc;
+  gap: 0;
+}
+
+.ot-kru-kv-cell {
+  padding: 2px 4px;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ot-kru-kv-name {
+  display: inline;
+  font-style: italic;
+  color: #666;
+  font-size: 10px;
+}
+
+.ot-kru-kv-value {
+  display: inline;
+  color: #111;
+  font-weight: 500;
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+.ot-kru-block-tag-row {
+  background: #fafafa;
+  font-size: 10px;
+  color: #555;
+  padding: 2px 8px 4px;
+  border-top: 1px solid #ddd;
+}
+
+// ── Print overrides ───────────────────────────────────────────────────────────
+
+@media print {
+  mark.ot-hl,
+  mark.ot-hl.ot-hl-active {
+    background: none !important;
+    color: inherit !important;
+    outline: none !important;
+  }
+
+  @page {
+    size: landscape;
+    margin: 8mm;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  // Eliminate all scroll containers so nothing clips
+  * {
+    overflow: visible !important;
+    min-width: 0 !important;
+  }
+
+  .ot-wrapper {
+    background: #fff;
+    padding: 0;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .ot-document {
+    width: 100%;
+    border: none;
+    zoom: 1;
+  }
+
+  .ot-items-section {
+    padding: 0;
+  }
+
+  .ot-page-break {
+    page-break-before: always;
+    border-top: none;
+  }
+
+  // Tighten up table cells further for print
+  .ot-items-table th {
+    font-size: 8px;
+    padding: 2px 2px;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .ot-items-table td {
+    font-size: 8px;
+    padding: 2px 2px;
+  }
+
+  .ot-tag-row td {
+    font-size: 8px;
+    padding: 1px 3px;
+  }
+
+  .ot-totals-table td {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .ot-generic-block {
+    margin-bottom: 6px;
+  }
+
+  .ot-generic-model-header {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .ot-generic-options-grid {
+    padding: 2px 6px 4px;
+  }
+
+  .ot-generic-kv-cell,
+  .ot-generic-kv-name,
+  .ot-generic-kv-value {
+    font-size: 8px;
+  }
+
+  .ot-generic-pricing-table th,
+  .ot-generic-pricing-table td {
+    font-size: 8px;
+    padding: 2px 2px;
+  }
+
+  .ot-generic-tag-row {
+    font-size: 8px;
+    padding: 1px 6px 3px;
+  }
+
+  .ot-kru-block {
+    margin-bottom: 6px;
+  }
+
+  .ot-kru-block-header {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .ot-kru-block-fields {
+    padding: 2px 6px 4px;
+  }
+
+  .ot-kru-kv-cell,
+  .ot-kru-kv-name,
+  .ot-kru-kv-value {
+    font-size: 7px;
+  }
+
+  .ot-kru-block-tag-row {
+    font-size: 7px;
+    padding: 1px 6px 3px;
+  }
+}

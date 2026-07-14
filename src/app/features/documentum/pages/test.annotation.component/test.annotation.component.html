@@ -1,0 +1,72 @@
+<div class="doc-page">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="header-left">
+      <div class="header-icon"><i class="pi pi-folder-open"></i></div>
+      <div>
+        <h1 class="doc-title">Document Vault</h1>
+        <p class="doc-subtitle">Select a document to view or annotate and upload</p>
+      </div>
+    </div>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-upload"
+      label="Upload New Document"
+      class="btn-new-upload"
+      (click)="openNewUpload()"
+    ></button>
+  </div>
+
+  <!-- DOCUMENT TABLE -->
+  <div class="table-card">
+    <div class="table-card-header">
+      <span class="table-title">Documents</span>
+      <span class="table-count">{{ documents.length }} files</span>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>Document Name</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let doc of documents" class="doc-row">
+            <td>
+              <div class="doc-name-cell">
+                <div class="doc-icon"><i class="pi pi-file-pdf"></i></div>
+                <span class="doc-name">{{ doc.name }}</span>
+              </div>
+            </td>
+            <td class="col-actions">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-eye"
+                label="View"
+                class="btn-view"
+                (click)="openForView(doc)"
+              ></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ANNOTATION DIALOG — view mode shows read-only; upload mode shows annotation toolbar -->
+<app-annotation-dialog
+  [(visible)]="dialogVisible"
+  [title]="dialogTitle()"
+  [fileUrl]="modalFileUrl()"
+  [mode]="modalMode()"
+  author="Demo User"
+  (annotationsChange)="onAnnotationsChange($event)"
+  (saveComplete)="onSaveComplete()"
+></app-annotation-dialog>

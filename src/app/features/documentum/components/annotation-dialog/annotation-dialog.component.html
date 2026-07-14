@@ -1,0 +1,51 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  [header]="title()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="true"
+  [style]="{ width: '92vw', 'max-width': '1600px' }"
+  [contentStyle]="{ padding: '0', overflow: 'hidden', height: 'calc(88vh - 130px)' }"
+  [styleClass]="'annot-modal' + (readOnly() ? ' annot-modal--readonly' : '')"
+  maskStyleClass="annot-modal-mask"
+  (onHide)="close()"
+>
+  @if (visible()) {
+    <annot-viewer
+      #viewer
+      [file]="file()"
+      [fileUrl]="fileUrl()"
+      [author]="author()"
+      [emitSaveOnly]="true"
+      (annotationsChange)="onAnnotationsChange($event)"
+      (saveComplete)="onSaveComplete()"
+      (saveRequested)="onSaveRequested($event)"
+      style="width: 100%; height: 100%"
+    ></annot-viewer>
+  }
+
+  <ng-template pTemplate="footer">
+    <div class="modal-footer">
+      <button
+        pButton
+        icon="pi pi-times"
+        label="Close"
+        class="p-button-text"
+        (click)="close()"
+      ></button>
+
+      @if (mode() === 'upload' && !readOnly()) {
+        <button
+          pButton
+          icon="pi pi-cloud-upload"
+          label="Final Upload"
+          class="premium-btn"
+          (click)="triggerUpload()"
+        ></button>
+      }
+
+    </div>
+  </ng-template>
+</p-dialog>

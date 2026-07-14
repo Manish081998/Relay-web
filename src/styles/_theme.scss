@@ -1,0 +1,128 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// PROJECT RELAY — Design Tokens
+// Single source of truth for all colors, typography, spacing, and shadows.
+// Usage in any component scss:
+//   @use 'path/to/styles/theme' as t;
+//   color: t.$color-primary;
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Brand / Primary ───────────────────────────────────────────────────────────
+$color-primary: #2a5298;
+$color-primary-dark: #1e3a5f;
+$color-primary-light: rgba(42, 82, 152, 0.1);
+$color-primary-glow: rgba(42, 82, 152, 0.25);
+
+// ── Accent (gold) ────────────────────────────────────────────────────────────
+$color-accent: #f0a500;
+$color-accent-light: rgba(240, 165, 0, 0.15);
+
+// ── Text ──────────────────────────────────────────────────────────────────────
+$color-text-base: #1a1a1a; // dark charcoal — headings, labels
+$color-text-muted: #6b7280; // secondary text
+$color-text-subtle: #9ca3af; // placeholder, hints
+$color-text-disabled: #d1d5db;
+
+// ── Surface / Background ──────────────────────────────────────────────────────
+$color-bg-page: #f5f7fa; // outer page background
+$color-bg-surface: #ffffff; // cards, panels
+$color-bg-input: #f9fafb; // input fields
+$color-bg-subtle: #f4f4f5; // hover rows, tags
+
+// ── Border ────────────────────────────────────────────────────────────────────
+$color-border: #e5e7eb;
+$color-border-strong: #c9d0da;
+$color-border-focus: $color-primary;
+
+// ── Semantic — Success ────────────────────────────────────────────────────────
+$color-success: #10b981;
+$color-success-bg: rgba(16, 185, 129, 0.12);
+$color-success-border: rgba(16, 185, 129, 0.35);
+$color-success-text: #d1fae5;
+
+// ── Semantic — Error ──────────────────────────────────────────────────────────
+$color-error: #ef4444;
+$color-error-bg: rgba(239, 68, 68, 0.12);
+$color-error-border: rgba(239, 68, 68, 0.35);
+$color-error-text: #fee2e2;
+
+// ── Semantic — Warning ────────────────────────────────────────────────────────
+$color-warning: #f59e0b;
+$color-warning-bg: rgba(245, 158, 11, 0.12);
+$color-warning-border: rgba(245, 158, 11, 0.35);
+$color-warning-text: #fef3c7;
+
+// ── Semantic — Info ───────────────────────────────────────────────────────────
+$color-info: #8b5cf6;
+$color-info-bg: rgba(139, 92, 246, 0.12);
+$color-info-border: rgba(139, 92, 246, 0.35);
+$color-info-text: #ede9fe;
+
+// ── Typography ────────────────────────────────────────────────────────────────
+$font-serif: 'Inter', system-ui, -apple-system, sans-serif;
+$font-sans:
+  'Inter',
+  system-ui,
+  -apple-system,
+  sans-serif;
+
+$font-size-xs: 0.6875rem; // 11px — labels, tags
+$font-size-sm: 0.8125rem; // 13px — secondary text
+$font-size-base: 0.9375rem; // 15px — body
+$font-size-md: 1rem; // 16px — default
+$font-size-lg: 1.125rem; // 18px
+$font-size-xl: 1.4375rem; // 23px — headings
+$font-size-2xl: 1.5rem; // 24px
+$font-size-3xl: 2rem; // 32px — page titles
+$font-size-4xl: clamp(44px, 4.5vw, 64px); // hero / brand headings
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+$line-height-tight: 1.1;
+$line-height-snug: 1.3;
+$line-height-normal: 1.5;
+$line-height-loose: 1.7;
+
+// ── Spacing scale ─────────────────────────────────────────────────────────────
+$space-1: 0.25rem; //  4px
+$space-2: 0.5rem; //  8px
+$space-3: 0.75rem; // 12px
+$space-4: 1rem; // 16px
+$space-5: 1.25rem; // 20px
+$space-6: 1.5rem; // 24px
+$space-8: 2rem; // 32px
+$space-10: 2.5rem; // 40px
+$space-12: 3rem; // 48px
+
+// ── Border Radius ─────────────────────────────────────────────────────────────
+$radius-sm: 6px;
+$radius-md: 6px;
+$radius-lg: 8px;
+$radius-xl: 8px;
+$radius-2xl: 16px;
+$radius-3xl: 22px;
+$radius-full: 9999px;
+
+// ── Shadows ───────────────────────────────────────────────────────────────────
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$shadow-focus: 0 0 0 3px rgba(42, 82, 152, 0.15);
+$shadow-glow: 0 0 20px rgba(42, 82, 152, 0.25);
+$shadow-btn: 0 4px 18px rgba(42, 82, 152, 0.3);
+$shadow-btn-hover: 0 8px 28px rgba(42, 82, 152, 0.4);
+
+// ── Transitions ───────────────────────────────────────────────────────────────
+$transition-fast: 0.15s ease;
+$transition-base: 0.2s ease;
+$transition-slow: 0.3s ease;
+
+// ── Z-index ───────────────────────────────────────────────────────────────────
+$z-dropdown: 100;
+$z-sticky: 200;
+$z-modal: 300;
+$z-toast: 400;
+$z-tooltip: 500;

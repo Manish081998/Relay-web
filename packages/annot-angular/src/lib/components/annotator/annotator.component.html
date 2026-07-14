@@ -1,0 +1,49 @@
+<!-- annotator.component.html -->
+<div class="annot-host"
+     [class.annot-host--panel-open]="showPanel && panelOpen()"
+     [class.annot-host--transparent]="transparent">
+
+  <!-- ── Main canvas area ────────────────────────────────────────────── -->
+  <div class="annot-main">
+
+    <!-- Toolbar -->
+    <company-toolbar
+      *ngIf="showToolbar"
+      [activeToolId]="engine.activeToolId()"
+      [activeStyle]="engine.activeStyle()"
+      [canUndo]="engine.canUndo()"
+      [canRedo]="engine.canRedo()"
+      [hasSelection]="engine.selectedIds().size > 0"
+      (toolSelect)="onToolSelect($event)"
+      (styleChange)="onStyleChange($event)"
+      (undo)="onUndo()"
+      (redo)="onRedo()"
+      (save)="onSave()"
+      (download)="onDownload()"
+      (import)="onImport()"
+      (deleteSelected)="onDeleteSelected()"
+      (togglePanel)="togglePanel()">
+    </company-toolbar>
+
+    <!-- Overlay container – canvases are appended here by the renderer -->
+    <div
+      #overlayContainer
+      class="annot-overlay-container"
+      role="application"
+      aria-label="Document annotation area"
+      tabindex="0">
+    </div>
+
+  </div>
+
+  <!-- ── Annotations panel ───────────────────────────────────────────── -->
+  <company-annotation-panel
+    *ngIf="showPanel && panelOpen()"
+    class="annot-panel"
+    [annotations]="engine.annotations()"
+    [selectedIds]="engine.selectedIds()"
+    (annotationClick)="onAnnotationClick($event)"
+    (annotationDelete)="engine.deleteSelected()">
+  </company-annotation-panel>
+
+</div>

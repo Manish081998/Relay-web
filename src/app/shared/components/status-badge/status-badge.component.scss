@@ -1,0 +1,35 @@
+@use '../../../../styles/theme' as t;
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: t.$radius-full;
+  font-size: 0.75rem;
+  font-weight: t.$font-weight-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &--green  {
+    background: t.$color-success-bg;
+    color: t.$color-success;
+    border: 1px solid t.$color-success-border;
+  }
+
+  &--yellow {
+    background: t.$color-warning-bg;
+    color: t.$color-warning;
+    border: 1px solid t.$color-warning-border;
+  }
+
+  &--gray {
+    background: rgba(156, 163, 175, 0.12);
+    color: t.$color-text-muted;
+    border: 1px solid rgba(156, 163, 175, 0.3);
+  }
+
+  &--teal {
+    background: t.$color-primary-light;
+    color: t.$color-primary;
+    border: 1px solid rgba(10, 74, 122, 0.3);
+  }
+}
