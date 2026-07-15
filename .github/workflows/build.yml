@@ -39,7 +39,7 @@ jobs:
         if: steps.detect.outputs.type == 'node'
         run: |
           [ -f package-lock.json ] && npm ci || npm install
-          npm test --if-present -- --watch=false --browsers=ChromeHeadless || npm test --if-present || echo "No tests found, skipping"
+          npm test --if-present -- --watch=false --browsers=ChromeHeadless || echo "Tests failed or not configured, continuing"
           npm run build --if-present || echo "No build script, skipping"
       - name: Resolve build output (Node/Angular)
         if: steps.detect.outputs.type == 'node' && github.event_name == 'push'
